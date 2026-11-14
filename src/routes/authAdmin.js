@@ -332,4 +332,6 @@ router.post('/pagamentos/webhook/:tenantId', (req, res) => {
   res.json({ ok: true, pedido });
 });
 
+router.use(require('./clientesProdutos'));
+
 module.exports = router;

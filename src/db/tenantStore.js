@@ -22,7 +22,12 @@ function lerDbLoja(tenantId) {
   const id = limparId(tenantId);
   const arq = path.join(LOJAS_DIR, `${id}.json`);
   if (!fs.existsSync(arq)) {
-    const inicial = { tenantId: id, cashbackTaxa: 5, tempoPreparoMin: 35, pedidosOnline: [], logsAgentes: [], clientesFidelidade: {} };
+    let seedClientes = {};
+    if (id === 'cli_bellapizza') {
+      const seedPath = path.join(__dirname, '..', 'config', 'clientesBellaSeed.json');
+      if (fs.existsSync(seedPath)) seedClientes = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
+    }
+    const inicial = { tenantId: id, cashbackTaxa: 5, tempoPreparoMin: 35, pedidosOnline: [], logsAgentes: [], clientesFidelidade: seedClientes };
     fs.writeFileSync(arq, JSON.stringify(inicial, null, 2), 'utf8');
     return inicial;
   }

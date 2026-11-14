@@ -153,8 +153,25 @@ function renderErpCliente(box, t, produtos) {
       <input id="erpNovoEst" required type="number" placeholder="Estoque" value="50" class="bg-white dark:bg-zinc-900 border border-stone-300 dark:border-zinc-700 rounded-xl px-3 py-2 text-stone-900 dark:text-white">
       <button type="submit" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-sm transition">+ Cadastrar</button>
     </form>
-    <div class="overflow-x-auto max-h-96 overflow-y-auto rounded-xl border border-stone-200 dark:border-zinc-800"><table class="w-full text-left text-xs"><thead class="bg-stone-50 dark:bg-zinc-950 text-stone-600 dark:text-zinc-400 border-b border-stone-200 dark:border-zinc-800"><tr><th class="py-2.5 px-3">Produto</th><th class="py-2.5 px-3">Preço</th><th class="py-2.5 px-3">Estoque</th></tr></thead>
-    <tbody class="divide-y divide-stone-100 dark:divide-zinc-800">${produtos.map(p => `<tr class="hover:bg-stone-50 dark:hover:bg-zinc-800/50"><td class="py-2.5 px-3 text-stone-900 dark:text-white font-bold">${p.nome}</td><td class="py-2.5 px-3 text-emerald-700 dark:text-emerald-400 font-mono font-bold">R$ ${Number(p.preco).toFixed(2)}</td><td class="py-2.5 px-3 text-stone-600 dark:text-zinc-300 font-mono">${p.estoque} un</td></tr>`).join('')}</tbody></table></div>`;
+    <div class="overflow-x-auto max-h-96 overflow-y-auto rounded-xl border border-stone-200 dark:border-zinc-800"><table class="w-full text-left text-xs"><thead class="bg-stone-50 dark:bg-zinc-950 text-stone-600 dark:text-zinc-400 border-b border-stone-200 dark:border-zinc-800"><tr><th class="py-2.5 px-3">Produto</th><th class="py-2.5 px-3">Preço (R$)</th><th class="py-2.5 px-3">Estoque</th><th class="py-2.5 px-3 text-right">Ação</th></tr></thead>
+    <tbody class="divide-y divide-stone-100 dark:divide-zinc-800">${produtos.map(p => `<tr class="hover:bg-stone-50 dark:hover:bg-zinc-800/50">
+      <td class="py-2 px-3"><input id="erpEditNome_${p.id}" value="${String(p.nome).replace(/"/g, '&quot;')}" class="w-full min-w-[160px] bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-700 rounded-lg px-2 py-1 text-stone-900 dark:text-white font-bold"></td>
+      <td class="py-2 px-3"><input id="erpEditPreco_${p.id}" type="number" step="0.01" value="${Number(p.preco).toFixed(2)}" class="w-24 bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-700 rounded-lg px-2 py-1 text-emerald-700 dark:text-emerald-400 font-mono font-bold"></td>
+      <td class="py-2 px-3"><input id="erpEditEst_${p.id}" type="number" value="${Number(p.estoque || 0)}" class="w-20 bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-700 rounded-lg px-2 py-1 text-stone-700 dark:text-zinc-200 font-mono"></td>
+      <td class="py-2 px-3 text-right"><button type="button" onclick="erpSalvarProduto(${p.id}, this)" class="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold transition">Salvar</button></td>
+    </tr>`).join('')}</tbody></table></div>`;
+}
+
+async function erpSalvarProduto(id, btn) {
+  const nome = document.getElementById(`erpEditNome_${id}`)?.value;
+  const preco = Number(document.getElementById(`erpEditPreco_${id}`)?.value);
+  const estoque = Number(document.getElementById(`erpEditEst_${id}`)?.value);
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+  await api(`/api/cliente/produtos/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ nome, preco, estoque })
+  });
+  if (btn) { btn.textContent = '✓ Salvo'; setTimeout(() => { btn.disabled = false; btn.textContent = 'Salvar'; }, 1200); }
 }
 
 async function erpCadastrarProduto(e) {
