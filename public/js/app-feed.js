@@ -110,3 +110,16 @@ async function enviarChatCamila(e) {
 }
 
 setInterval(() => { atualizarFeedConversas(); verificarPedidosOnline(); }, 5000);
+
+window.addEventListener('DOMContentLoaded', () => {
+  const lojaUrl = new URLSearchParams(window.location.search).get('loja');
+  if (!lojaUrl) return;
+  const emailMapa = { cli_bellapizza: 'bellapizza@loja.com', cli_studiovip: 'studiovip@loja.com', cli_fornonobre: 'fornonobre@loja.com' };
+  setTimeout(() => {
+    if (typeof sessaoAtual !== 'undefined' && sessaoAtual?.tenant?.id && sessaoAtual.tenant.id !== lojaUrl) {
+      if (typeof sair === 'function') sair();
+    }
+    const inp = document.getElementById('loginEmail');
+    if (inp && emailMapa[lojaUrl] && !inp.value) inp.value = emailMapa[lojaUrl];
+  }, 400);
+});
