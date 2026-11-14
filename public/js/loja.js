@@ -287,6 +287,7 @@ function renderCheckout() {
       <div class="p-4 rounded-2xl ${(pago || confirmado) ? 'bg-emerald-50 border border-emerald-200' : 'bg-amber-50 border border-amber-200'} text-center">
         <div class="font-bold ${(pago || confirmado) ? 'text-emerald-800' : 'text-amber-800'}">${pago ? 'Pagamento PIX Confirmado!' : confirmado ? 'Pedido Confirmado!' : 'Aguardando Pagamento PIX'}</div>
         <div class="text-xs text-zinc-600 mt-1">Pedido ${pedidoAtual.id} • ${labelsPag[pedidoAtual.formaPagamento] || 'PIX'} • Total R$ ${brl(pedidoAtual.total)}</div>
+        ${pedidoAtual.cashbackGanho > 0 ? `<div class="text-xs text-emerald-700 font-bold mt-1">🎁 Você ganhou R$ ${brl(pedidoAtual.cashbackGanho)} de cashback! Saldo atual: R$ ${brl(pedidoAtual.cashbackSaldoAtual || pedidoAtual.cashbackGanho)}</div>` : ''}
         ${pedidoAtual.trocoPara ? `<div class="text-xs text-zinc-700 font-semibold mt-1">Troco para: ${pedidoAtual.trocoPara}</div>` : ''}
       </div>
       ${(!pago && !confirmado && qrUrl) ? `
@@ -322,8 +323,9 @@ function renderCheckout() {
       <button type="button" onclick="definirModalidade('retirada')" class="p-3 rounded-xl border font-semibold ${modalidade === 'retirada' ? 'border-zinc-900 bg-zinc-900 text-white' : 'border-zinc-200 text-zinc-700'}">Retirar na loja (Grátis)</button>
     </div>
     <form onsubmit="gerarPedidoPix(event)" class="space-y-2.5 text-xs">
+      <input id="chkZap" required oninput="aoDigitarZap(this.value)" placeholder="Seu WhatsApp (com DDD — já busca seu cadastro!)" class="w-full border border-zinc-300 rounded-xl px-3 py-2.5">
+      <div id="boxClienteFidelidade"></div>
       <input id="chkNome" required placeholder="Seu nome completo" class="w-full border border-zinc-300 rounded-xl px-3 py-2.5">
-      <input id="chkZap" required placeholder="Seu WhatsApp (com DDD)" class="w-full border border-zinc-300 rounded-xl px-3 py-2.5">
       ${modalidade === 'entrega' ? '<input id="chkEnd" required placeholder="Endereço completo (Rua, nº, bairro)" class="w-full border border-zinc-300 rounded-xl px-3 py-2.5">' : ''}
       <div class="grid grid-cols-2 gap-2">
         <button type="button" onclick="definirPagamento('pix')" class="p-2.5 rounded-xl border font-semibold ${formaPagamento === 'pix' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-zinc-200 text-zinc-700'}">PIX</button>
@@ -332,9 +334,11 @@ function renderCheckout() {
         <button type="button" onclick="definirPagamento('dinheiro')" class="p-2.5 rounded-xl border font-semibold ${formaPagamento === 'dinheiro' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-zinc-200 text-zinc-700'}">Dinheiro</button>
       </div>
       ${formaPagamento === 'dinheiro' ? '<input id="chkTroco" placeholder="Troco para quanto? (ex: R$ 100 ou Não)" class="w-full border border-zinc-300 rounded-xl px-3 py-2.5">' : ''}
-      <div class="flex justify-between font-bold text-sm pt-2 border-t border-zinc-200"><span>Total do pedido</span><span>R$ ${brl(total)}</span></div>
+      <div class="flex justify-between font-bold text-sm pt-2 border-t border-zinc-200"><span>Total do pedido</span><span id="chkTotalValor">R$ ${brl(total)}</span></div>
       <button type="submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm">${formaPagamento === 'pix' ? 'Gerar PIX para Pagamento' : 'Confirmar Pedido'}</button>
     </form>`;
+  if (typeof renderBoxFidelidade === 'function') renderBoxFidelidade();
+  if (typeof atualizarResumoTotalCheckout === 'function') atualizarResumoTotalCheckout();
 }
 
 async function gerarPedidoPix(e) {
@@ -343,6 +347,7 @@ async function gerarPedidoPix(e) {
     clienteNome: document.getElementById('chkNome').value,
     clienteWhatsapp: document.getElementById('chkZap').value,
     modalidade, formaPagamento,
+    usarCashback: typeof usarCashbackPedido !== 'undefined' ? usarCashbackPedido : false,
     trocoPara: formaPagamento === 'dinheiro' ? (document.getElementById('chkTroco')?.value || 'Sem troco') : '',
     endereco: modalidade === 'entrega' ? document.getElementById('chkEnd').value : 'Retirada na loja',
     itens: sacola

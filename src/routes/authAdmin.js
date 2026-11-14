@@ -1,6 +1,6 @@
 const express = require('express');
 const { salvarDb } = require('../db/store');
-const { lerDbLoja, salvarDbLoja, buscarPedidoPorIdGlobal } = require('../db/tenantStore');
+const { lerDbLoja, salvarDbLoja, buscarPedidoPorIdGlobal, buscarClienteLoja, registrarPedidoCliente } = require('../db/tenantStore');
 const { garantirBaseSaaS, verificarSenha, criarNovoCliente } = require('../db/tenants');
 const { SETORES } = require('../config/setores');
 const { gerarToken, autenticar, exigirSuperAdmin, exigirModulo } = require('../middleware/auth');
@@ -182,12 +182,32 @@ function baixarEstoqueTenant(tenant, itens) {
   }
 }
 
-// Checkout Online (Entrega ou Retirada) + PIX + Webhook de Confirmação
+// Consulta cliente recorrente + saldo de cashback pelo WhatsApp
+router.get('/demo/cliente/:tenantId', (req, res) => {
+  const { cliente, cashbackTaxa } = buscarClienteLoja(req.params.tenantId, req.query.whatsapp || '');
+  res.json({ ok: true, encontrado: Boolean(cliente), cliente, cashbackTaxa });
+});
+
+router.get('/cliente/fidelidade', autenticar, (req, res) => {
+  const dbLoja = lerDbLoja(req.usuario.tenantId);
+  const clientes = Object.values(dbLoja.clientesFidelidade || {}).sort((a, b) => (b.qtdPedidos || 0) - (a.qtdPedidos || 0));
+  res.json({ ok: true, cashbackTaxa: dbLoja.cashbackTaxa ?? 5, clientes });
+});
+
+router.put('/cliente/fidelidade', autenticar, (req, res) => {
+  const dbLoja = lerDbLoja(req.usuario.tenantId);
+  const taxa = Number(req.body?.cashbackTaxa);
+  if (!Number.isNaN(taxa) && taxa >= 0 && taxa <= 50) dbLoja.cashbackTaxa = taxa;
+  salvarDbLoja(req.usuario.tenantId, dbLoja);
+  res.json({ ok: true, cashbackTaxa: dbLoja.cashbackTaxa });
+});
+
+// Checkout Online (Entrega ou Retirada) + PIX + Cashback + CRM por Loja
 router.post('/demo/pedido/:tenantId', (req, res) => {
   const db = garantirBaseSaaS();
   const tenant = db.tenants.find(t => t.id === req.params.tenantId && t.ativo);
   if (!tenant) return res.status(404).json({ erro: 'Loja não encontrada.' });
-  const { clienteNome = 'Cliente', clienteWhatsapp = '', itens = [], modalidade = 'entrega', endereco = '', formaPagamento = 'pix', trocoPara = '' } = req.body || {};
+  const { clienteNome = 'Cliente', clienteWhatsapp = '', itens = [], modalidade = 'entrega', endereco = '', formaPagamento = 'pix', trocoPara = '', usarCashback = false } = req.body || {};
   if (!Array.isArray(itens) || !itens.length) return res.status(400).json({ erro: 'Carrinho vazio.' });
 
   const exigePresencial = itens.some(i => /aplica[çc][ãa]o|troca de joia/i.test(String(i.nome || '')));
@@ -197,14 +217,10 @@ router.post('/demo/pedido/:tenantId', (req, res) => {
 
   const subtotal = itens.reduce((acc, i) => acc + Number(i.preco || 0) * Number(i.qtd || 1), 0);
   const frete = modalidade === 'entrega' ? 15 : 0;
-  const total = subtotal + frete;
+  const totalBruto = subtotal + frete;
   const pedidoId = `PED-${Date.now().toString(36).toUpperCase()}`;
   const isPix = formaPagamento === 'pix';
-  const pixCopiaCola = isPix
-    ? `00020126580014br.gov.bcb.pix0136${tenant.id}@omnicommerce.pix520400005303986540${total.toFixed(2)}5802BR5913${tenant.nome.slice(0, 13)}6009SAO PAULO62070503${pedidoId.slice(-4)}6304ABCD`
-    : '';
 
-  const dbLoja = lerDbLoja(tenant.id);
   const pedido = {
     id: pedidoId,
     tenantId: tenant.id,
@@ -217,12 +233,17 @@ router.post('/demo/pedido/:tenantId', (req, res) => {
     trocoPara: formaPagamento === 'dinheiro' ? String(trocoPara || 'Sem troco') : '',
     subtotal,
     frete,
-    total,
+    total: totalBruto,
     status: isPix ? 'AGUARDANDO_PAGAMENTO' : 'PEDIDO_CONFIRMADO',
     estoqueBaixado: !isPix,
-    pixCopiaCola,
+    pixCopiaCola: '',
     criadoEm: new Date().toISOString()
   };
+
+  const { dbLoja } = registrarPedidoCliente(tenant.id, pedido, Boolean(usarCashback));
+  if (isPix) {
+    pedido.pixCopiaCola = `00020126580014br.gov.bcb.pix0136${tenant.id}@omnicommerce.pix520400005303986540${pedido.total.toFixed(2)}5802BR5913${tenant.nome.slice(0, 13)}6009SAO PAULO62070503${pedidoId.slice(-4)}6304ABCD`;
+  }
   if (!isPix) {
     baixarEstoqueTenant(tenant, itens);
     salvarDb(db);
