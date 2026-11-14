@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cupom do Pedido • 2 Vias (Separação & Motoboy)</title>
+  <style>
+    body { font-family: 'Courier New', monospace; background: #e7e5e4; margin: 0; padding: 16px; color: #111; }
+    .acoes { max-width: 320px; margin: 0 auto 12px; display: flex; gap: 8px; }
+    .btn { flex: 1; padding: 10px; border: 0; border-radius: 8px; font-family: sans-serif; font-weight: 700; font-size: 13px; cursor: pointer; background: #059669; color: #fff; }
+    .cupom { width: 80mm; max-width: 100%; margin: 0 auto; background: #fff; padding: 14px; box-shadow: 0 4px 18px rgba(0,0,0,0.12); font-size: 12px; line-height: 1.45; }
+    .corte { border-top: 2px dashed #444; margin: 16px 0; text-align: center; font-size: 10px; padding-top: 4px; color: #555; }
+    .titulo { font-size: 14px; font-weight: bold; text-align: center; border-bottom: 1px dashed #999; padding-bottom: 6px; margin-bottom: 8px; }
+    .destaque { background: #f5f5f4; border: 1px solid #333; padding: 6px; margin: 8px 0; font-weight: bold; }
+    .item { margin: 6px 0; border-bottom: 1px dotted #ccc; padding-bottom: 4px; font-weight: bold; }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .acoes { display: none; }
+      .cupom { box-shadow: none; width: 100%; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="acoes">
+    <button class="btn" onclick="window.print()">🖨️ Imprimir Cupom (2 Vias)</button>
+  </div>
+  <div id="cupomBox" class="cupom">Carregando cupom...</div>
+
+  <script>
+    const pid = new URLSearchParams(window.location.search).get('pedido');
+    async function carregarCupom() {
+      if (!pid) { document.getElementById('cupomBox').innerText = 'Pedido não informado.'; return; }
+      const r = await fetch(`/api/demo/pedido/${encodeURIComponent(pid)}`);
+      const d = await r.json();
+      if (!d.ok || !d.pedido) { document.getElementById('cupomBox').innerText = 'Pedido não encontrado.'; return; }
+      const p = d.pedido;
+      const dataFmt = new Date(p.criadoEm).toLocaleString('pt-BR');
+      const pago = p.status === 'PAGO';
+      const itensHtml = (p.itens || []).map(i => `<div class="item">${i.qtd}x ${i.nome}<br><span style="font-weight:normal">Subtotal: R$ ${(i.preco * i.qtd).toFixed(2).replace('.', ',')}</span></div>`).join('');
+
+      document.getElementById('cupomBox').innerHTML = `
+        <div class="titulo">VIA 1 - SEPARACAO (BALCAO)<br>${p.id}</div>
+        <div><strong>CLIENTE:</strong> ${p.clienteNome}</div>
+        <div><strong>WHATSAPP:</strong> ${p.clienteWhatsapp}</div>
+        <div><strong>DATA:</strong> ${dataFmt}</div>
+        <div class="destaque">TIPO: ${p.modalidade === 'entrega' ? 'ENTREGA MOTOBOY' : 'ATENDIMENTO / RETIRADA NA LOJA'}</div>
+        <div><strong>ITENS PARA SEPARAR:</strong></div>
+        ${itensHtml}
+        <div><strong>STATUS:</strong> ${p.status}</div>
+
+        <div class="corte">✂ - - - - CORTAR AQUI - - - - ✂</div>
+
+        <div class="titulo">${p.modalidade === 'entrega' ? 'VIA 2 - MOTOBOY / ENTREGA' : 'VIA 2 - CONTROLE CLIENTE'}<br>${p.id}</div>
+        <div><strong>DESTINATARIO:</strong> ${p.clienteNome}</div>
+        <div><strong>CONTATO:</strong> ${p.clienteWhatsapp}</div>
+        <div class="destaque">ENDERECO: ${p.endereco}</div>
+        <div><strong>PAGAMENTO:</strong> ${String(p.formaPagamento).toUpperCase()}</div>
+        ${p.trocoPara ? `<div><strong>TROCO PARA:</strong> ${p.trocoPara}</div>` : ''}
+        <div><strong>TOTAL:</strong> R$ ${Number(p.total).toFixed(2).replace('.', ',')}</div>
+        <div class="destaque">${pago ? 'JA PAGO VIA PIX - NAO COBRAR' : 'COBRAR NA ENTREGA / BALCAO'}</div>
+      `;
+    }
+    carregarCupom();
+  </script>
+</body>
+</html>

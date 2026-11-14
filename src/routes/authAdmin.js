@@ -134,6 +134,13 @@ router.get('/cliente/conversas', autenticar, (req, res) => {
   res.json({ conversas: lista });
 });
 
+router.get('/cliente/pedidos-online', autenticar, (req, res) => {
+  const db = garantirBaseSaaS();
+  const tid = req.usuario.tenantId;
+  const lista = (db.pedidosOnline || []).filter(p => !tid || p.tenantId === tid).slice(0, 20);
+  res.json({ pedidos: lista });
+});
+
 // Endpoint público de demonstração para o cliente testar WhatsApp/Instagram pelo link
 router.get('/demo/loja/:tenantId', (req, res) => {
   const db = garantirBaseSaaS();

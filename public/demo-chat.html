@@ -178,7 +178,7 @@
         if (!d.ok || !d.pedido) return;
         const p = d.pedido;
         const itensHtml = (p.itens || []).map(i => `• ${i.qtd}x ${i.nome} (R$ ${(i.preco * i.qtd).toFixed(2).replace('.', ',')})`).join('<br>');
-        const cardOs = `📋 <strong>ORDEM DE PEDIDO ${p.id}</strong>\nCliente: ${p.clienteNome} (${p.clienteWhatsapp})\nTipo: ${p.modalidade === 'entrega' ? '🚚 Entrega' : '🏪 Retirada na loja'}\nEndereço: ${p.endereco}\nPagamento: ${String(p.formaPagamento).toUpperCase()}${p.trocoPara ? ` • Troco: ${p.trocoPara}` : ''}\nTotal: R$ ${Number(p.total).toFixed(2).replace('.', ',')} • Status: ${p.status}\n\nItens:\n${itensHtml.replace(/<br>/g, '\n')}`;
+        const cardOs = `📋 <strong>ORDEM DE PEDIDO ${p.id}</strong>\nCliente: ${p.clienteNome} (${p.clienteWhatsapp})\nTipo: ${p.modalidade === 'entrega' ? '🚚 Entrega' : '🏪 Retirada na loja'}\nEndereço: ${p.endereco}\nPagamento: ${String(p.formaPagamento).toUpperCase()}${p.trocoPara ? ` • Troco: ${p.trocoPara}` : ''}\nTotal: R$ ${Number(p.total).toFixed(2).replace('.', ',')} • Status: ${p.status}\n\nItens:\n${itensHtml.replace(/<br>/g, '\n')}\n\n🖨️ Cupom (2 vias): ${window.location.origin}/cupom.html?pedido=${p.id}`;
         renderizarMsg('cliente', cardOs, canalAtual);
         const resChat = await fetch(`/api/demo/chat/${lojaId}`, {
           method: 'POST',

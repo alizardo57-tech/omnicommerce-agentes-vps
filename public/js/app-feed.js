@@ -1,3 +1,72 @@
+let ultimoPedidoVisto = null;
+let alertaAtivo = false;
+
+function tocarAlertaNovoPedido() {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    [880, 1046, 1318].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.18, ctx.currentTime + i * 0.14);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.14 + 0.13);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + i * 0.14);
+      osc.stop(ctx.currentTime + i * 0.14 + 0.14);
+    });
+  } catch {}
+}
+
+function dispensarAlertaPedido() {
+  alertaAtivo = false;
+  const el = document.getElementById('alertaNovoPedidoBanner');
+  if (el) el.classList.remove('animate-pulse', 'border-rose-500', 'bg-rose-950/80');
+}
+
+async function verificarPedidosOnline() {
+  const telaCli = document.getElementById('telaCliente');
+  if (!telaCli || telaCli.classList.contains('hidden')) return;
+
+  let container = document.getElementById('painelPedidosAoVivo');
+  if (!container) {
+    const modBox = document.getElementById('cliConteudoModulo');
+    if (!modBox) return;
+    container = document.createElement('div');
+    container.id = 'painelPedidosAoVivo';
+    container.className = 'mb-4 space-y-2';
+    modBox.parentNode.insertBefore(container, modBox);
+  }
+
+  try {
+    const res = await api('/api/cliente/pedidos-online');
+    const lista = res.pedidos || [];
+    if (!lista.length) { container.innerHTML = ''; return; }
+    const topo = lista[0];
+    if (ultimoPedidoVisto && ultimoPedidoVisto !== topo.id) {
+      alertaAtivo = true;
+      tocarAlertaNovoPedido();
+    }
+    ultimoPedidoVisto = topo.id;
+    const itensTxt = (topo.itens || []).map(i => `${i.qtd}x ${i.nome}`).join(', ');
+    container.innerHTML = `
+      <div id="alertaNovoPedidoBanner" class="p-4 rounded-2xl border ${alertaAtivo ? 'animate-pulse border-rose-500 bg-rose-950/80' : 'border-emerald-500/40 bg-emerald-950/40'} flex flex-wrap items-center justify-between gap-3">
+        <div class="text-xs">
+          <div class="font-black text-white text-sm">${alertaAtivo ? '🔔 NOVO PEDIDO CHEGANDO!' : '📦 Último Pedido Recebido'} • ${topo.clienteNome} (${topo.id})</div>
+          <div class="text-emerald-300 font-bold mt-0.5">${itensTxt}</div>
+          <div class="text-slate-300 mt-0.5">${topo.modalidade === 'entrega' ? '🚚 Entrega: ' + topo.endereco : '🏪 Retirada / Estúdio'} • ${String(topo.formaPagamento).toUpperCase()}${topo.trocoPara ? ' (Troco: ' + topo.trocoPara + ')' : ''} • R$ ${Number(topo.total).toFixed(2)}</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="/cupom.html?pedido=${topo.id}" target="_blank" onclick="dispensarAlertaPedido()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black">🖨️ Imprimir Cupom (2 Vias)</a>
+          ${alertaAtivo ? '<button onclick="dispensarAlertaPedido()" class="px-3 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold">✔️ Ciente</button>' : ''}
+        </div>
+      </div>`;
+  } catch {}
+}
+
 async function atualizarFeedConversas() {
   const feed = document.getElementById('feedConversasCamila');
   if (!feed) return;
@@ -40,4 +109,4 @@ async function enviarChatCamila(e) {
   box.scrollTop = box.scrollHeight;
 }
 
-setInterval(atualizarFeedConversas, 5000);
+setInterval(() => { atualizarFeedConversas(); verificarPedidosOnline(); }, 5000);
