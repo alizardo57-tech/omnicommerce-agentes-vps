@@ -1,9 +1,7 @@
 async function tentarGeminiModelo(model, apiKey, systemPrompt, userMessage) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
   const usaSystem = !model.startsWith('gemma-');
-  const genCfg = usaSystem
-    ? { temperature: 0.2, maxOutputTokens: 260, thinkingConfig: { thinkingBudget: 0 } }
-    : { temperature: 0.2, maxOutputTokens: 260 };
+  const genCfg = { temperature: 0.2, maxOutputTokens: 450 };
   const body = usaSystem
     ? {
         systemInstruction: { parts: [{ text: systemPrompt }] },
