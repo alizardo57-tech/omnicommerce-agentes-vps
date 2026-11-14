@@ -1,6 +1,7 @@
 const express = require('express');
 const { salvarDb } = require('../db/store');
 const { lerDbLoja, salvarDbLoja, buscarPedidoPorIdGlobal, buscarClienteLoja, registrarPedidoCliente } = require('../db/tenantStore');
+const { processarReativacaoLoja } = require('../services/reativacao');
 const { garantirBaseSaaS, verificarSenha, criarNovoCliente } = require('../db/tenants');
 const { SETORES } = require('../config/setores');
 const { gerarToken, autenticar, exigirSuperAdmin, exigirModulo } = require('../middleware/auth');
@@ -200,6 +201,15 @@ router.put('/cliente/fidelidade', autenticar, (req, res) => {
   if (!Number.isNaN(taxa) && taxa >= 0 && taxa <= 50) dbLoja.cashbackTaxa = taxa;
   salvarDbLoja(req.usuario.tenantId, dbLoja);
   res.json({ ok: true, cashbackTaxa: dbLoja.cashbackTaxa });
+});
+
+router.post('/cliente/reativar-inativos', autenticar, async (req, res) => {
+  const db = garantirBaseSaaS();
+  const tenant = db.tenants.find(t => t.id === req.usuario.tenantId);
+  if (!tenant) return res.status(404).json({ erro: 'Loja não encontrada.' });
+  const dias = Number(req.body?.diasMinimos ?? 15);
+  const resultado = await processarReativacaoLoja(tenant, Number.isNaN(dias) ? 15 : dias);
+  res.json({ ok: true, diasMinimos: Number.isNaN(dias) ? 15 : dias, ...resultado });
 });
 
 // Checkout Online (Entrega ou Retirada) + PIX + Cashback + CRM por Loja

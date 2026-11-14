@@ -8,6 +8,7 @@ const authAdminRoutes = require('./routes/authAdmin');
 const { garantirBaseSaaS } = require('./db/tenants');
 const { rodarRotinaDiariaAgentes } = require('./agents/orquestrador');
 const { iniciarMonitorHibrido } = require('./services/hibrido');
+const { rodarReativacaoInativos15Dias } = require('./services/reativacao');
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
@@ -26,6 +27,13 @@ iniciarMonitorHibrido();
 cron.schedule('0 22 * * *', () => {
   rodarRotinaDiariaAgentes().catch(err => {
     console.error('Erro na rotina diária:', err.message);
+  });
+});
+
+// Reativação automática às 11h00 para clientes inativos há 15 dias ou mais
+cron.schedule('0 11 * * *', () => {
+  rodarReativacaoInativos15Dias(15).catch(err => {
+    console.error('Erro na reativação 15 dias:', err.message);
   });
 });
 
