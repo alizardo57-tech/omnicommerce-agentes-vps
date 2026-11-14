@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const { lerDb, salvarDb } = require('../db/store');
 const { SETORES } = require('../config/setores');
+const { BELLA_PIZZA_INSTRUCOES, BELLA_PIZZA_PRODUTOS } = require('../config/bellaPizza');
 
 function hashSenha(senha) {
   const salt = crypto.randomBytes(8).toString('hex');
@@ -40,6 +41,17 @@ function garantirBaseSaaS() {
         instrucoesCamila: 'Atendimento tranquilo e acolhedor. Só fale de autoclave, titânio G23 ou Termo ANVISA se o cliente perguntar. Quando o cliente perguntar de horário ou quiser agendar: diga de forma natural (ex: "Só um minutinho que vou olhar aqui na agenda..."), sugira horários vagos e explique com calma que para reservar o horário tem uma taxa de R$ 30,00 via PIX, que é abatida do valor final no dia do atendimento.',
         modulos: { pdv: true, erp: true, agenda: true, whatsapp_ia: true, agentes11: true },
         criadoEm: new Date().toISOString()
+      },
+      {
+        id: 'cli_bellapizza',
+        nome: 'Bella Pizza',
+        setor: 'pizzaria',
+        cidade: 'Limeira - SP',
+        ativo: true,
+        produtos: BELLA_PIZZA_PRODUTOS,
+        instrucoesCamila: BELLA_PIZZA_INSTRUCOES,
+        modulos: { pdv: true, erp: true, agenda: false, whatsapp_ia: true, agentes11: true },
+        criadoEm: new Date().toISOString()
       }
     ];
     mudou = true;
@@ -70,6 +82,14 @@ function garantirBaseSaaS() {
         senhaHash: hashSenha('123456'),
         role: 'CLIENT_ADMIN',
         tenantId: 'cli_studiovip'
+      },
+      {
+        id: 'usr_bellapizza',
+        nome: 'Gerente Bella Pizza',
+        email: 'bellapizza@loja.com',
+        senhaHash: hashSenha('123456'),
+        role: 'CLIENT_ADMIN',
+        tenantId: 'cli_bellapizza'
       }
     ];
     mudou = true;

@@ -2,7 +2,7 @@ const { SETORES } = require('../config/setores');
 
 function montarCatalogoTexto(produtos) {
   return produtos
-    .map(p => `- #${p.id} ${p.nome}: R$ ${Number(p.preco).toFixed(2)} (Estoque: ${p.estoque})`)
+    .map(p => `- #${p.id} ${p.nome}: R$ ${Number(p.preco).toFixed(2)}${p.descricao ? ` (${p.descricao})` : ''}`)
     .join('\n');
 }
 

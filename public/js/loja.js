@@ -1,6 +1,7 @@
 const params = new URLSearchParams(window.location.search);
 const lojaId = params.get('loja') || 'cli_studiovip';
 let produtosVitrine = [];
+let categoriaAtiva = 'Todas';
 let sacola = [];
 let modalidade = 'entrega';
 let formaPagamento = 'pix';
@@ -18,12 +19,32 @@ async function carregarVitrine() {
   document.getElementById('vitrineNome').innerText = d.nome || 'Loja Online';
   document.getElementById('vitrineSub').innerText = 'Escolha seus itens e finalize com PIX ou entrega';
   produtosVitrine = d.produtos || [];
+  renderCategorias();
   renderVitrine(produtosVitrine);
+}
+
+function renderCategorias() {
+  const el = document.getElementById('filtrosCategoria');
+  if (!el) return;
+  const cats = ['Todas', ...new Set(produtosVitrine.map(p => p.categoria).filter(Boolean))];
+  if (cats.length <= 1) { el.innerHTML = ''; return; }
+  el.innerHTML = cats.map(c => `
+    <button onclick="selecionarCategoria('${c}')" class="px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap border transition ${
+      categoriaAtiva === c ? 'bg-stone-900 text-white border-stone-900' : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-100'
+    }">${c}</button>
+  `).join('');
+}
+
+function selecionarCategoria(cat) {
+  categoriaAtiva = cat;
+  renderCategorias();
+  filtrarVitrine();
 }
 
 function filtrarVitrine() {
   const q = document.getElementById('buscaVitrine').value.trim().toLowerCase();
-  renderVitrine(!q ? produtosVitrine : produtosVitrine.filter(p => p.nome.toLowerCase().includes(q)));
+  const base = categoriaAtiva === 'Todas' ? produtosVitrine : produtosVitrine.filter(p => p.categoria === categoriaAtiva);
+  renderVitrine(!q ? base : base.filter(p => p.nome.toLowerCase().includes(q) || (p.descricao || '').toLowerCase().includes(q)));
 }
 
 function exigePresencial(nome) {
@@ -50,6 +71,7 @@ function renderVitrine(lista) {
       <div class="p-4 flex-1 flex flex-col justify-between">
         <div>
           <h2 class="text-sm font-bold text-stone-900 leading-snug">${p.nome}</h2>
+          ${p.descricao ? `<p class="text-xs text-stone-500 mt-1 line-clamp-2">${p.descricao}</p>` : ''}
           <p class="text-lg font-extrabold text-stone-900 mt-2">R$ ${Number(p.preco).toFixed(2).replace('.', ',')}</p>
         </div>
         <div class="mt-4 flex gap-2">
