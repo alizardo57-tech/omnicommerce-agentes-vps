@@ -62,7 +62,8 @@ function renderVitrine(lista) {
         </div>
       </div>
     </article>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function adicionarSacola(id) {
