@@ -162,14 +162,17 @@ router.post('/demo/pedido/:tenantId', (req, res) => {
   const db = garantirBaseSaaS();
   const tenant = db.tenants.find(t => t.id === req.params.tenantId && t.ativo);
   if (!tenant) return res.status(404).json({ erro: 'Loja não encontrada.' });
-  const { clienteNome = 'Cliente', clienteWhatsapp = '', itens = [], modalidade = 'entrega', endereco = '' } = req.body || {};
+  const { clienteNome = 'Cliente', clienteWhatsapp = '', itens = [], modalidade = 'entrega', endereco = '', formaPagamento = 'pix', trocoPara = '' } = req.body || {};
   if (!Array.isArray(itens) || !itens.length) return res.status(400).json({ erro: 'Carrinho vazio.' });
 
   const subtotal = itens.reduce((acc, i) => acc + Number(i.preco || 0) * Number(i.qtd || 1), 0);
   const frete = modalidade === 'entrega' ? 15 : 0;
   const total = subtotal + frete;
   const pedidoId = `PED-${Date.now().toString(36).toUpperCase()}`;
-  const pixCopiaCola = `00020126580014br.gov.bcb.pix0136${tenant.id}@omnicommerce.pix520400005303986540${total.toFixed(2)}5802BR5913${tenant.nome.slice(0, 13)}6009SAO PAULO62070503${pedidoId.slice(-4)}6304ABCD`;
+  const isPix = formaPagamento === 'pix';
+  const pixCopiaCola = isPix
+    ? `00020126580014br.gov.bcb.pix0136${tenant.id}@omnicommerce.pix520400005303986540${total.toFixed(2)}5802BR5913${tenant.nome.slice(0, 13)}6009SAO PAULO62070503${pedidoId.slice(-4)}6304ABCD`
+    : '';
 
   if (!Array.isArray(db.pedidosOnline)) db.pedidosOnline = [];
   const pedido = {
@@ -180,10 +183,12 @@ router.post('/demo/pedido/:tenantId', (req, res) => {
     itens,
     modalidade,
     endereco: modalidade === 'entrega' ? endereco : 'Retirada / Atendimento na Loja',
+    formaPagamento,
+    trocoPara: formaPagamento === 'dinheiro' ? String(trocoPara || 'Sem troco') : '',
     subtotal,
     frete,
     total,
-    status: 'AGUARDANDO_PAGAMENTO',
+    status: isPix ? 'AGUARDANDO_PAGAMENTO' : 'PEDIDO_CONFIRMADO',
     pixCopiaCola,
     criadoEm: new Date().toISOString()
   };

@@ -3,6 +3,7 @@ const lojaId = params.get('loja') || 'cli_studiovip';
 let produtosVitrine = [];
 let sacola = [];
 let modalidade = 'entrega';
+let formaPagamento = 'pix';
 let pedidoAtual = null;
 
 const FALLBACK_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
@@ -89,28 +90,39 @@ function definirModalidade(m) {
   renderCheckout();
 }
 
+function definirPagamento(p) {
+  formaPagamento = p;
+  renderCheckout();
+}
+
 function renderCheckout() {
   const box = document.getElementById('conteudoCheckout');
   if (pedidoAtual) {
     const pago = pedidoAtual.status === 'PAGO';
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(pedidoAtual.pixCopiaCola)}`;
+    const confirmado = pedidoAtual.status === 'PEDIDO_CONFIRMADO';
+    const labelsPag = { pix: 'PIX', credito: 'Cartão de Crédito', debito: 'Cartão de Débito', dinheiro: 'Dinheiro' };
+    const qrUrl = pedidoAtual.pixCopiaCola ? `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(pedidoAtual.pixCopiaCola)}` : '';
     box.innerHTML = `
-      <div class="p-4 rounded-2xl ${pago ? 'bg-emerald-50 border border-emerald-200' : 'bg-amber-50 border border-amber-200'} text-center">
-        <div class="text-2xl mb-1">${pago ? '✅' : '⏳'}</div>
-        <div class="font-bold ${pago ? 'text-emerald-800' : 'text-amber-800'}">${pago ? 'Pagamento Confirmado pelo Banco!' : 'Aguardando Pagamento PIX'}</div>
-        <div class="text-xs text-stone-600 mt-1">Pedido ${pedidoAtual.id} • Total R$ ${Number(pedidoAtual.total).toFixed(2).replace('.', ',')}</div>
+      <div class="p-4 rounded-2xl ${(pago || confirmado) ? 'bg-emerald-50 border border-emerald-200' : 'bg-amber-50 border border-amber-200'} text-center">
+        <div class="text-2xl mb-1">${(pago || confirmado) ? '✅' : '⏳'}</div>
+        <div class="font-bold ${(pago || confirmado) ? 'text-emerald-800' : 'text-amber-800'}">
+          ${pago ? 'Pagamento PIX Confirmado pelo Banco!' : confirmado ? 'Pedido Confirmado!' : 'Aguardando Pagamento PIX'}
+        </div>
+        <div class="text-xs text-stone-600 mt-1">Pedido ${pedidoAtual.id} • ${labelsPag[pedidoAtual.formaPagamento] || 'PIX'} • Total R$ ${Number(pedidoAtual.total).toFixed(2).replace('.', ',')}</div>
+        ${pedidoAtual.trocoPara ? `<div class="text-xs text-stone-700 font-semibold mt-1">Troco para: ${pedidoAtual.trocoPara}</div>` : ''}
       </div>
-      ${!pago ? `
+      ${(!pago && !confirmado && qrUrl) ? `
         <div class="flex flex-col items-center gap-3">
           <img src="${qrUrl}" alt="QR Code PIX" class="w-40 h-40 rounded-xl border border-stone-200 p-1 bg-white">
           <button onclick="copiarPix()" class="w-full py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold">Copiar código PIX Copia e Cola</button>
           <button onclick="simularWebhookBanco()" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold">Simular Confirmação do Banco (Webhook)</button>
         </div>` : `
         <div class="text-xs text-stone-600 bg-stone-50 p-3 rounded-xl border border-stone-200">
-          <strong>${pedidoAtual.modalidade === 'entrega' ? 'Entrega confirmada para:' : 'Retirada / Agendamento na loja'}</strong><br>
-          ${pedidoAtual.endereco}
+          <strong>${pedidoAtual.modalidade === 'entrega' ? 'Entrega para:' : 'Retirada / Atendimento na loja'}</strong><br>
+          ${pedidoAtual.endereco}<br>
+          <span class="text-stone-500">Pagamento: ${labelsPag[pedidoAtual.formaPagamento] || pedidoAtual.formaPagamento} ${pedidoAtual.formaPagamento !== 'pix' ? '(na entrega / balcão)' : ''}</span>
         </div>
-        <a href="/demo-chat.html?loja=${lojaId}&item=${encodeURIComponent('Acabei de pagar o pedido ' + pedidoAtual.id)}" class="block text-center w-full py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold">Voltar para o WhatsApp da Camila</a>`}`;
+        <a href="/demo-chat.html?loja=${lojaId}&item=${encodeURIComponent('Fiz o pedido ' + pedidoAtual.id + ' (' + (labelsPag[pedidoAtual.formaPagamento] || 'PIX') + ')')}" class="block text-center w-full py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold">Enviar comprovante / falar com a Camila</a>`}`;
     return;
   }
 
@@ -142,11 +154,23 @@ function renderCheckout() {
       <input id="chkNome" required placeholder="Seu nome completo" class="w-full border border-stone-300 rounded-xl px-3 py-2.5">
       <input id="chkZap" required placeholder="Seu WhatsApp (com DDD)" class="w-full border border-stone-300 rounded-xl px-3 py-2.5">
       ${modalidade === 'entrega' ? '<input id="chkEnd" required placeholder="Endereço completo (Rua, nº, bairro, CEP)" class="w-full border border-stone-300 rounded-xl px-3 py-2.5">' : ''}
+      <div class="pt-1">
+        <div class="font-semibold text-stone-700 mb-1.5">Forma de pagamento:</div>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" onclick="definirPagamento('pix')" class="p-2.5 rounded-xl border font-semibold ${formaPagamento === 'pix' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-stone-200 text-stone-700'}">💠 PIX</button>
+          <button type="button" onclick="definirPagamento('credito')" class="p-2.5 rounded-xl border font-semibold ${formaPagamento === 'credito' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-stone-200 text-stone-700'}">💳 Cartão Crédito</button>
+          <button type="button" onclick="definirPagamento('debito')" class="p-2.5 rounded-xl border font-semibold ${formaPagamento === 'debito' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-stone-200 text-stone-700'}">💳 Cartão Débito</button>
+          <button type="button" onclick="definirPagamento('dinheiro')" class="p-2.5 rounded-xl border font-semibold ${formaPagamento === 'dinheiro' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-stone-200 text-stone-700'}">💵 Dinheiro</button>
+        </div>
+      </div>
+      ${formaPagamento === 'dinheiro' ? '<input id="chkTroco" placeholder="Precisa de troco para quanto? (ex: R$ 200,00 ou Não)" class="w-full border border-stone-300 rounded-xl px-3 py-2.5">' : ''}
       <div class="flex justify-between font-bold text-sm pt-2 border-t border-stone-200">
-        <span>Total a pagar no PIX</span>
+        <span>Total do pedido</span>
         <span>R$ ${total.toFixed(2).replace('.', ',')}</span>
       </div>
-      <button type="submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm">Gerar PIX para Pagamento</button>
+      <button type="submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm">
+        ${formaPagamento === 'pix' ? 'Gerar PIX para Pagamento' : 'Confirmar Pedido'}
+      </button>
     </form>`;
 }
 
@@ -156,12 +180,18 @@ async function gerarPedidoPix(e) {
     clienteNome: document.getElementById('chkNome').value,
     clienteWhatsapp: document.getElementById('chkZap').value,
     modalidade,
+    formaPagamento,
+    trocoPara: formaPagamento === 'dinheiro' ? (document.getElementById('chkTroco')?.value || 'Sem troco') : '',
     endereco: modalidade === 'entrega' ? document.getElementById('chkEnd').value : 'Retirada na loja',
     itens: sacola
   };
   const resp = await fetch(`/api/demo/pedido/${lojaId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const d = await resp.json();
-  if (d.ok) { pedidoAtual = d.pedido; renderCheckout(); }
+  if (d.ok) {
+    pedidoAtual = d.pedido;
+    if (formaPagamento !== 'pix') { sacola = []; atualizarBadge(); }
+    renderCheckout();
+  }
 }
 
 function copiarPix() {
