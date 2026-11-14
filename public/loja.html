@@ -10,7 +10,7 @@
 </head>
 <body class="bg-zinc-50 text-zinc-900 min-h-screen antialiased pb-24">
   <header class="sticky top-0 z-40 bg-white/95 border-b border-zinc-200 backdrop-blur-md">
-    <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between gap-3">
+    <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
       <div class="flex items-center gap-2 min-w-0">
         <i class="fa-brands fa-instagram text-xl text-rose-600"></i>
         <span id="topoHandle" class="font-extrabold text-base tracking-tight truncate">bellapizza</span>
@@ -32,7 +32,7 @@
     </div>
   </header>
 
-  <main class="max-w-md mx-auto">
+  <main class="max-w-2xl mx-auto">
     <!-- PERFIL REALISTA ESTILO INSTAGRAM -->
     <section class="bg-white border-b border-zinc-200 px-4 pt-5 pb-4">
       <div class="flex items-center gap-5">
@@ -55,8 +55,8 @@
 
       <div id="acoesPerfil" class="mt-3.5 flex gap-2 text-xs"></div>
 
-      <!-- FIXADOS / DESTAQUES (CATEGORIAS COM FOTOS REAIS) -->
-      <div id="filtrosCategoria" class="mt-4 flex gap-3.5 overflow-x-auto pb-1 no-scrollbar"></div>
+      <!-- FIXADOS / DESTAQUES (INTEIROS NA TELA) -->
+      <div id="filtrosCategoria" class="mt-4 grid grid-cols-4 sm:grid-cols-8 gap-2.5 pt-1"></div>
     </section>
 
     <!-- 1. MONTE SUA PIZZA (1/2 A 1/2) + 2. PROMOÇÕES + 3. REFRIGERANTES PRO LADO -->

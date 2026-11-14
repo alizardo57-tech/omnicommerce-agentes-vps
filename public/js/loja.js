@@ -72,11 +72,11 @@ function renderCategorias() {
       : (produtosVitrine.find(p => (c === 'Promoções' ? ehPromocao(p) : p.categoria === c) && p.imagem)?.imagem || lojaLogo);
     const acao = c === 'Monte sua Pizza' ? 'abrirMeioAMeio()' : `selecionarCategoria('${c}')`;
     return `
-      <button onclick="${acao}" class="flex flex-col items-center gap-1 flex-shrink-0">
+      <button onclick="${acao}" class="flex flex-col items-center gap-1 text-center">
         <div class="w-14 h-14 rounded-full p-[2px] ${ativa ? 'bg-gradient-to-tr from-amber-500 via-rose-600 to-fuchsia-600' : 'bg-zinc-300'}">
           <img src="${itemFoto}" onerror="this.src='${lojaLogo}'" alt="${c}" class="w-full h-full rounded-full object-cover border-2 border-white bg-zinc-100">
         </div>
-        <span class="text-[11px] max-w-[72px] truncate ${ativa ? 'font-extrabold text-zinc-900' : 'font-medium text-zinc-500'}">${c}</span>
+        <span class="text-[11px] leading-tight ${ativa ? 'font-extrabold text-zinc-900' : 'font-medium text-zinc-600'}">${c}</span>
       </button>`;
   }).join('');
 }
@@ -222,7 +222,7 @@ function renderVitrine(lista) {
     const liked = curtidos.has(p.id), precoFmt = brl(p.preco);
     const receita = p.descricao || (lojaSetor === 'pizzaria' ? 'Massa artesanal, molho de tomate da casa e ingredientes frescos selecionados.' : 'Item oficial disponível na loja.');
     return `
-    <article class="pb-5">
+    <article class="pb-5 max-w-md mx-auto">
       <div class="px-3.5 py-2.5 flex items-center justify-between">
         <div class="flex items-center gap-2.5 min-w-0">
           <img src="${lojaLogo}" alt="${lojaNome}" class="w-8 h-8 rounded-full object-cover border border-zinc-200">
