@@ -1,15 +1,18 @@
 async function tentarGeminiModelo(model, apiKey, systemPrompt, userMessage) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
   const usaSystem = !model.startsWith('gemma-');
+  const genCfg = usaSystem
+    ? { temperature: 0.2, maxOutputTokens: 260, thinkingConfig: { thinkingBudget: 0 } }
+    : { temperature: 0.2, maxOutputTokens: 260 };
   const body = usaSystem
     ? {
         systemInstruction: { parts: [{ text: systemPrompt }] },
         contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-        generationConfig: { temperature: 0.2, maxOutputTokens: 220 }
+        generationConfig: genCfg
       }
     : {
         contents: [{ role: 'user', parts: [{ text: `${systemPrompt}\n\nCliente: ${userMessage}` }] }],
-        generationConfig: { temperature: 0.2, maxOutputTokens: 220 }
+        generationConfig: genCfg
       };
 
   const controller = new AbortController();
@@ -27,7 +30,8 @@ async function tentarGeminiModelo(model, apiKey, systemPrompt, userMessage) {
       throw new Error(`Gemini (${model}) HTTP ${resp.status}: ${errText}`);
     }
     const data = await resp.json();
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const parts = data?.candidates?.[0]?.content?.parts || [];
+    return parts.filter(p => !p.thought).map(p => p.text || '').join('').trim();
   } finally {
     clearTimeout(timer);
   }
