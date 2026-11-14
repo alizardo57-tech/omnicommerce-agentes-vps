@@ -94,3 +94,38 @@ function renderBoxFidelidade() {
         </label>` : ''}
     </div>`;
 }
+
+let statusTimer = null;
+function iniciarMonitorStatusPedido(p) {
+  clearInterval(statusTimer);
+  const atualizar = async () => {
+    const el = document.getElementById('boxStatusPreparoCliente');
+    if (!el || !p?.id) { clearInterval(statusTimer); return; }
+    try {
+      const r = await fetch(`/api/demo/pedido/${encodeURIComponent(p.id)}`);
+      const d = await r.json();
+      if (d.ok && d.pedido) p = d.pedido;
+    } catch {}
+    if (p.statusPreparo === 'PRONTO') {
+      el.className = 'p-3.5 rounded-xl bg-emerald-600 text-white text-center font-black text-xs shadow-sm';
+      el.innerText = p.modalidade === 'entrega' ? '✅ SEU PEDIDO ESTÁ PRONTO E SAINDO PARA ENTREGA!' : '✅ SEU PEDIDO ESTÁ PRONTO PARA RETIRADA!';
+      clearInterval(statusTimer);
+      return;
+    }
+    const limSeg = (p.tempoPreparoMin || 35) * 60;
+    const passSeg = (Date.now() - new Date(p.criadoEm).getTime()) / 1000;
+    const diff = limSeg - passSeg;
+    const mm = String(Math.floor(Math.abs(diff) / 60)).padStart(2, '0');
+    const ss = String(Math.floor(Math.abs(diff) % 60)).padStart(2, '0');
+    if (diff >= 0) {
+      el.className = 'p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-center font-bold text-xs';
+      el.innerHTML = `🍕 Sendo preparada na cozinha • Previsão: <strong>${mm}:${ss}</strong>`;
+    } else {
+      el.className = 'p-3 rounded-xl bg-rose-50 border border-rose-300 text-rose-800 text-center font-bold text-xs';
+      el.innerHTML = `⏳ Em atraso (+${mm}:${ss}) • Estamos finalizando seu pedido!`;
+    }
+  };
+  atualizar();
+  statusTimer = setInterval(atualizar, 5000);
+}
+

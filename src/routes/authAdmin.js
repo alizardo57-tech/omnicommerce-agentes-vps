@@ -3,6 +3,7 @@ const { salvarDb } = require('../db/store');
 const { lerDbLoja, salvarDbLoja, buscarPedidoPorIdGlobal, buscarClienteLoja, registrarPedidoCliente } = require('../db/tenantStore');
 const { processarReativacaoLoja } = require('../services/reativacao');
 const { imprimirComandaAutomatica } = require('../services/impressao');
+const { enviarMensagemWhatsApp } = require('../services/whatsapp');
 const { garantirBaseSaaS, verificarSenha, criarNovoCliente } = require('../db/tenants');
 const { SETORES } = require('../config/setores');
 const { gerarToken, autenticar, exigirSuperAdmin, exigirModulo } = require('../middleware/auth');
@@ -142,9 +143,35 @@ router.get('/cliente/conversas', autenticar, (req, res) => {
 
 router.get('/cliente/pedidos-online', autenticar, (req, res) => {
   const tid = req.usuario.tenantId;
-  if (!tid) return res.json({ pedidos: [] });
+  if (!tid) return res.json({ pedidos: [], tempoPreparoMin: 35 });
   const dbLoja = lerDbLoja(tid);
-  res.json({ pedidos: (dbLoja.pedidosOnline || []).slice(0, 20) });
+  res.json({ pedidos: (dbLoja.pedidosOnline || []).slice(0, 30), tempoPreparoMin: dbLoja.tempoPreparoMin ?? 35 });
+});
+
+router.put('/cliente/preparo-tempo', autenticar, (req, res) => {
+  const dbLoja = lerDbLoja(req.usuario.tenantId);
+  const min = Math.max(5, Math.min(180, Number(req.body?.tempoPreparoMin) || 35));
+  dbLoja.tempoPreparoMin = min;
+  salvarDbLoja(req.usuario.tenantId, dbLoja);
+  res.json({ ok: true, tempoPreparoMin: min });
+});
+
+router.post('/cliente/pedidos/:pedidoId/pronto', autenticar, async (req, res) => {
+  const dbLoja = lerDbLoja(req.usuario.tenantId);
+  const p = (dbLoja.pedidosOnline || []).find(x => x.id === req.params.pedidoId);
+  if (!p) return res.status(404).json({ erro: 'Pedido não encontrado.' });
+  p.statusPreparo = 'PRONTO';
+  p.prontoEm = new Date().toISOString();
+  const db = garantirBaseSaaS();
+  const loja = db.tenants.find(t => t.id === p.tenantId);
+  const msg = p.modalidade === 'entrega'
+    ? `Oi ${p.clienteNome}! Seu pedido ${p.id} da ${loja?.nome || 'loja'} já está PRONTO e saindo para entrega!`
+    : `Oi ${p.clienteNome}! Seu pedido ${p.id} da ${loja?.nome || 'loja'} já está PRONTO para retirada no balcão!`;
+  await enviarMensagemWhatsApp(p.clienteWhatsapp, msg).catch(() => {});
+  dbLoja.logsAgentes.unshift({ data: p.prontoEm, agente: '🍕 Cozinha (Pronto)', canal: 'WhatsApp', tenantId: p.tenantId, setor: loja?.setor || 'pizzaria', entrada: `Pedido ${p.id} marcado como PRONTO`, resposta: msg });
+  dbLoja.logsAgentes = dbLoja.logsAgentes.slice(0, 100);
+  salvarDbLoja(req.usuario.tenantId, dbLoja);
+  res.json({ ok: true, pedido: p });
 });
 
 // Endpoint público de demonstração para o cliente testar WhatsApp/Instagram pelo link
@@ -252,6 +279,8 @@ router.post('/demo/pedido/:tenantId', (req, res) => {
   };
 
   const { dbLoja } = registrarPedidoCliente(tenant.id, pedido, Boolean(usarCashback));
+  pedido.tempoPreparoMin = dbLoja.tempoPreparoMin ?? 35;
+  pedido.statusPreparo = 'PREPARANDO';
   if (isPix) {
     pedido.pixCopiaCola = `00020126580014br.gov.bcb.pix0136${tenant.id}@omnicommerce.pix520400005303986540${pedido.total.toFixed(2)}5802BR5913${tenant.nome.slice(0, 13)}6009SAO PAULO62070503${pedidoId.slice(-4)}6304ABCD`;
   }

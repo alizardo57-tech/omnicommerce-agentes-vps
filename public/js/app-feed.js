@@ -1,5 +1,4 @@
 let ultimoPedidoVisto = null;
-let alertaAtivo = false;
 
 function tocarAlertaNovoPedido() {
   try {
@@ -7,8 +6,7 @@ function tocarAlertaNovoPedido() {
     if (!Ctx) return;
     const ctx = new Ctx();
     [880, 1046, 1318].forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
       osc.type = 'sine';
       osc.frequency.value = freq;
       gain.gain.setValueAtTime(0.18, ctx.currentTime + i * 0.14);
@@ -21,52 +19,29 @@ function tocarAlertaNovoPedido() {
   } catch {}
 }
 
-function dispensarAlertaPedido() {
-  alertaAtivo = false;
-  const el = document.getElementById('alertaNovoPedidoBanner');
-  if (el) {
-    el.classList.remove('animate-pulse', 'border-rose-500', 'bg-rose-50', 'dark:bg-rose-950/70');
-    el.classList.add('border-emerald-300', 'bg-emerald-50', 'dark:border-emerald-500/40', 'dark:bg-emerald-950/40');
-  }
-}
-
 async function verificarPedidosOnline() {
   const telaCli = document.getElementById('telaCliente');
   if (!telaCli || telaCli.classList.contains('hidden')) return;
 
-  let container = document.getElementById('painelPedidosAoVivo');
-  if (!container) {
-    const modBox = document.getElementById('cliConteudoModulo');
-    if (!modBox) return;
-    container = document.createElement('div');
-    container.id = 'painelPedidosAoVivo';
-    container.className = 'mb-4 space-y-2';
-    modBox.parentNode.insertBefore(container, modBox);
-  }
-
   try {
     const res = await api('/api/cliente/pedidos-online');
     const lista = res.pedidos || [];
-    if (!lista.length) { container.innerHTML = ''; return; }
-    const topo = lista[0];
-    if (ultimoPedidoVisto && ultimoPedidoVisto !== topo.id) {
-      alertaAtivo = true;
-      tocarAlertaNovoPedido();
+    const pendentes = lista.filter(p => p.statusPreparo !== 'PRONTO').length;
+
+    const btnAba = document.querySelector('#cliAbasModulos button[data-mod="pedidos"]');
+    if (btnAba) {
+      btnAba.innerHTML = `<i class="fa-solid fa-fire-burner mr-1.5"></i> Pedidos & Cozinha${pendentes > 0 ? ` <span class="ml-1 px-1.5 py-0.5 rounded-full bg-rose-600 text-white text-[10px]">${pendentes}</span>` : ''}`;
     }
-    ultimoPedidoVisto = topo.id;
-    const itensTxt = (topo.itens || []).map(i => `${i.qtd}x ${i.nome}`).join(', ');
-    container.innerHTML = `
-      <div id="alertaNovoPedidoBanner" class="p-4 rounded-2xl border-2 shadow-sm ${alertaAtivo ? 'animate-pulse border-rose-500 bg-rose-50 dark:bg-rose-950/70' : 'border-emerald-300 bg-emerald-50 dark:border-emerald-500/40 dark:bg-emerald-950/40'} flex flex-wrap items-center justify-between gap-3">
-        <div class="text-xs">
-          <div class="font-black text-stone-900 dark:text-white text-sm">${alertaAtivo ? '🔔 NOVO PEDIDO CHEGANDO!' : '📦 Último Pedido Recebido'} • ${topo.clienteNome} (${topo.id})</div>
-          <div class="text-emerald-800 dark:text-emerald-300 font-bold mt-0.5">${itensTxt}</div>
-          <div class="text-stone-600 dark:text-zinc-300 mt-0.5">${topo.modalidade === 'entrega' ? '🚚 Entrega: ' + topo.endereco : '🏪 Retirada / Estúdio'} • ${String(topo.formaPagamento).toUpperCase()}${topo.trocoPara ? ' (Troco: ' + topo.trocoPara + ')' : ''} • <strong class="text-stone-900 dark:text-white">R$ ${Number(topo.total).toFixed(2)}</strong></div>
-        </div>
-        <div class="flex items-center gap-2">
-          <a href="/cupom.html?pedido=${topo.id}" target="_blank" onclick="dispensarAlertaPedido()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white dark:text-zinc-950 text-xs font-black shadow-sm">🖨️ Imprimir Cupom (2 Vias)</a>
-          ${alertaAtivo ? '<button onclick="dispensarAlertaPedido()" class="px-3 py-2 rounded-xl bg-white dark:bg-zinc-800 border border-stone-300 dark:border-zinc-700 text-stone-800 dark:text-white text-xs font-bold">✔️ Ciente</button>' : ''}
-        </div>
-      </div>`;
+
+    if (lista.length) {
+      const topo = lista[0];
+      if (ultimoPedidoVisto && ultimoPedidoVisto !== topo.id) tocarAlertaNovoPedido();
+      ultimoPedidoVisto = topo.id;
+    }
+
+    if (document.getElementById('listaPedidosCozinha') && typeof carregarPedidosCozinha === 'function') {
+      carregarPedidosCozinha();
+    }
   } catch {}
 }
 
@@ -76,7 +51,7 @@ async function atualizarFeedConversas() {
   try {
     const res = await api('/api/cliente/conversas');
     const lista = res.conversas || [];
-    if (lista.length === 0) {
+    if (!lista.length) {
       feed.innerHTML = '<p class="text-xs text-stone-500 dark:text-zinc-400">Nenhuma conversa recebida ainda. Teste pelo link do WhatsApp/Instagram!</p>';
       return;
     }

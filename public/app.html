@@ -108,6 +108,7 @@
     let sessaoAtual = null;
     const NOMES_MODULOS = {
       pdv: { label: 'PDV Caixa', icon: 'fa-cash-register' },
+      pedidos: { label: 'Pedidos & Cozinha', icon: 'fa-fire-burner' },
       erp: { label: 'ERP Estoque & Financeiro', icon: 'fa-boxes-stacked' },
       agenda: { label: 'Agenda / Forno / Termos', icon: 'fa-calendar-check' },
       whatsapp_ia: { label: 'WhatsApp IA (Camila)', icon: 'fa-brands fa-whatsapp' },
@@ -266,7 +267,7 @@
       document.getElementById('cliSetorBadge').innerText = t.setor;
       document.getElementById('cliUsuarioInfo').innerText = `Logado como: ${dados.usuario.nome} (${dados.usuario.email}) • Apenas módulos contratados visíveis`;
 
-      const habilitados = Object.keys(NOMES_MODULOS).filter(m => t.modulos[m]);
+      const habilitados = Object.keys(NOMES_MODULOS).filter(m => m === 'pedidos' ? t.modulos.pdv : t.modulos[m]);
       const nav = document.getElementById('cliAbasModulos');
       nav.innerHTML = habilitados.map((m, idx) => `
         <button data-mod="${m}" onclick="abrirModuloCliente('${m}')" class="px-4 py-2 rounded-xl text-xs font-bold transition ${
@@ -290,6 +291,8 @@
       const box = document.getElementById('cliConteudoModulo');
       if (modKey === 'pdv' && typeof renderPdvCliente === 'function') {
         renderPdvCliente(box, t, produtos);
+      } else if (modKey === 'pedidos' && typeof renderPedidosCliente === 'function') {
+        renderPedidosCliente(box, t);
       } else if (modKey === 'erp' && typeof renderErpCliente === 'function') {
         renderErpCliente(box, t, produtos);
       } else if (modKey === 'whatsapp_ia') {
@@ -349,6 +352,7 @@
     });
   </script>
   <script src="/js/app-feed.js"></script>
+  <script src="/js/app-pedidos.js"></script>
   <script src="/js/app-pdv.js"></script>
 </body>
 </html>

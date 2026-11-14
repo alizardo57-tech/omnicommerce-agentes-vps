@@ -22,13 +22,14 @@ function lerDbLoja(tenantId) {
   const id = limparId(tenantId);
   const arq = path.join(LOJAS_DIR, `${id}.json`);
   if (!fs.existsSync(arq)) {
-    const inicial = { tenantId: id, cashbackTaxa: 5, pedidosOnline: [], logsAgentes: [], clientesFidelidade: {} };
+    const inicial = { tenantId: id, cashbackTaxa: 5, tempoPreparoMin: 35, pedidosOnline: [], logsAgentes: [], clientesFidelidade: {} };
     fs.writeFileSync(arq, JSON.stringify(inicial, null, 2), 'utf8');
     return inicial;
   }
   const dados = JSON.parse(fs.readFileSync(arq, 'utf8'));
   if (!dados.clientesFidelidade) dados.clientesFidelidade = {};
   if (typeof dados.cashbackTaxa !== 'number') dados.cashbackTaxa = 5;
+  if (typeof dados.tempoPreparoMin !== 'number') dados.tempoPreparoMin = 35;
   return dados;
 }
 

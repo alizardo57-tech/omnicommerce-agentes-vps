@@ -291,6 +291,7 @@ function renderCheckout() {
         ${pedidoAtual.cashbackGanho > 0 ? `<div class="text-xs text-emerald-700 font-bold mt-1">🎁 Você ganhou R$ ${brl(pedidoAtual.cashbackGanho)} de cashback! Saldo atual: R$ ${brl(pedidoAtual.cashbackSaldoAtual || pedidoAtual.cashbackGanho)}</div>` : ''}
         ${pedidoAtual.trocoPara ? `<div class="text-xs text-zinc-700 font-semibold mt-1">Troco para: ${pedidoAtual.trocoPara}</div>` : ''}
       </div>
+      <div id="boxStatusPreparoCliente"></div>
       ${(!pago && !confirmado && qrUrl) ? `
         <div class="flex flex-col items-center gap-3">
           <img src="${qrUrl}" alt="QR Code PIX" class="w-40 h-40 rounded-xl border border-zinc-200 p-1 bg-white">
@@ -302,6 +303,7 @@ function renderCheckout() {
           <span class="text-zinc-500">Pagamento: ${labelsPag[pedidoAtual.formaPagamento] || pedidoAtual.formaPagamento}</span>
         </div>
         <a href="/demo-chat.html?loja=${lojaId}&pedido=${encodeURIComponent(pedidoAtual.id)}" class="block text-center w-full py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold">Enviar Ordem do Pedido para a Camila</a>`}`;
+    if (typeof iniciarMonitorStatusPedido === 'function') iniciarMonitorStatusPedido(pedidoAtual);
     return;
   }
   if (!sacola.length) { box.innerHTML = '<p class="text-center text-zinc-500 py-8 text-xs">Sua sacola está vazia. Escolha um item no cardápio!</p>'; return; }
