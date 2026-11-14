@@ -37,7 +37,7 @@ function garantirBaseSaaS() {
         setor: 'piercing',
         cidade: 'Jardins',
         ativo: true,
-        instrucoesCamila: 'Seja acolhedora e passe segurança sobre esterilização em autoclave e titânio G23. Sempre lembre da assinatura do Termo ANVISA e peça sinal PIX de R$ 30 para reservar o horário.',
+        instrucoesCamila: 'Atendimento tranquilo e acolhedor. Só fale de autoclave, titânio G23 ou Termo ANVISA se o cliente perguntar. Quando o cliente perguntar de horário ou quiser agendar: diga de forma natural (ex: "Só um minutinho que vou olhar aqui na agenda..."), sugira horários vagos e explique com calma que para reservar o horário tem uma taxa de R$ 30,00 via PIX, que é abatida do valor final no dia do atendimento.',
         modulos: { pdv: true, erp: true, agenda: true, whatsapp_ia: true, agentes11: true },
         criadoEm: new Date().toISOString()
       }

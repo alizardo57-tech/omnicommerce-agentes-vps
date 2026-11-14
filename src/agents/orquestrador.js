@@ -4,7 +4,7 @@ const { enviarMensagemWhatsApp } = require('../services/whatsapp');
 const { enfileirarExecucao } = require('../services/filaCamila');
 const { obterDefinicaoAgentes } = require('./definicoes11');
 
-async function executarAgente({ agenteId, mensagem, clienteTelefone = null, enviarWhatsApp = false, tenant = null, canal = 'Painel', jaEnviouLink = false }) {
+async function executarAgente({ agenteId, mensagem, clienteTelefone = null, enviarWhatsApp = false, tenant = null, canal = 'Painel', jaEnviouLink = false, historico = [] }) {
   const db = lerDb();
   const agentes = obterDefinicaoAgentes(db, tenant, { jaEnviouLink });
   const agente = agentes[agenteId];
@@ -12,8 +12,13 @@ async function executarAgente({ agenteId, mensagem, clienteTelefone = null, envi
     throw new Error(`Agente desconhecido: ${agenteId}`);
   }
 
+  const ultimas = Array.isArray(historico) ? historico.slice(-6) : [];
+  const contextoHist = ultimas.length
+    ? `Histórico recente da conversa:\n${ultimas.map(h => `${h.quem === 'camila' ? 'Camila' : 'Cliente'}: ${h.texto}`).join('\n')}\n\nMensagem atual do cliente: ${mensagem}`
+    : mensagem;
+
   const resposta = await enfileirarExecucao(() =>
-    gerarRespostaIA(agente.prompt, mensagem, agente.fallback)
+    gerarRespostaIA(agente.prompt, contextoHist, agente.fallback)
   );
 
   db.logsAgentes.unshift({

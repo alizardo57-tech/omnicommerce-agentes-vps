@@ -147,9 +147,9 @@ router.post('/demo/chat/:tenantId', async (req, res) => {
     const db = garantirBaseSaaS();
     const tenant = db.tenants.find(t => t.id === req.params.tenantId && t.ativo);
     if (!tenant) return res.status(404).json({ erro: 'Loja não encontrada.' });
-    const { mensagem, canal = 'WhatsApp', jaEnviouLink = false } = req.body || {};
+    const { mensagem, canal = 'WhatsApp', jaEnviouLink = false, historico = [] } = req.body || {};
     if (!mensagem) return res.status(400).json({ erro: 'Mensagem vazia.' });
-    const resultado = await executarAgente({ agenteId: 'camila', mensagem, tenant, canal, jaEnviouLink: Boolean(jaEnviouLink) });
+    const resultado = await executarAgente({ agenteId: 'camila', mensagem, tenant, canal, jaEnviouLink: Boolean(jaEnviouLink), historico });
     res.json({ ok: true, ...resultado });
   } catch (err) {
     res.status(500).json({ erro: err.message });
