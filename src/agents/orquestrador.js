@@ -6,7 +6,8 @@ const { obterDefinicaoAgentes } = require('./definicoes11');
 
 async function executarAgente({ agenteId, mensagem, clienteTelefone = null, enviarWhatsApp = false, tenant = null, canal = 'Painel', jaEnviouLink = false, historico = [] }) {
   const db = lerDb();
-  const agentes = obterDefinicaoAgentes(db, tenant, { jaEnviouLink });
+  const emConversa = Array.isArray(historico) && historico.length > 0;
+  const agentes = obterDefinicaoAgentes(db, tenant, { jaEnviouLink, emConversa });
   const agente = agentes[agenteId];
   if (!agente) {
     throw new Error(`Agente desconhecido: ${agenteId}`);
