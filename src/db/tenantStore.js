@@ -33,6 +33,15 @@ function lerDbLoja(tenantId) {
   }
   const dados = JSON.parse(fs.readFileSync(arq, 'utf8'));
   if (!dados.clientesFidelidade) dados.clientesFidelidade = {};
+  if (id === 'cli_bellapizza' && !dados.seedBellaImportado) {
+    const seedPath = path.join(__dirname, '..', 'config', 'clientesBellaSeed.json');
+    if (fs.existsSync(seedPath)) {
+      const seedClientes = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
+      dados.clientesFidelidade = { ...seedClientes, ...dados.clientesFidelidade };
+      dados.seedBellaImportado = true;
+      fs.writeFileSync(arq, JSON.stringify(dados, null, 2), 'utf8');
+    }
+  }
   if (typeof dados.cashbackTaxa !== 'number') dados.cashbackTaxa = 5;
   if (typeof dados.tempoPreparoMin !== 'number') dados.tempoPreparoMin = 35;
   return dados;
