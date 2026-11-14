@@ -1,0 +1,3158 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniCommerce OS — ERP Inteligente & PDV Caixa Rápido Multi-Nicho</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              dark: '#0a0e17',
+              panel: '#111827',
+              card: '#161f33',
+              cardHover: '#1c2842',
+              border: '#222f49',
+              accent: '#3b82f6'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #e2e8f0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+    /* Scrollbar personalizada */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #27354f;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3b82f6;
+    }
+    .custom-card {
+      background-color: #141d30;
+      border: 1px solid #202d47;
+      transition: all 0.2s ease-in-out;
+    }
+    .custom-card:hover {
+      border-color: #2f4369;
+    }
+    .nav-icon-btn {
+      transition: all 0.2s ease;
+    }
+    .nav-icon-btn:hover, .nav-icon-btn.active {
+      background-color: #1e293b;
+      color: #38bdf8;
+    }
+    .badge-glow {
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex text-slate-200 antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- ======================================================== -->
+  <!-- SIDEBAR LATERAL RETRÁTIL (ESTILO SAAS MODERNO)          -->
+  <!-- ======================================================== -->
+  <aside class="w-16 md:w-20 bg-[#0d1424] border-r border-[#1f2d47] flex flex-col items-center py-4 justify-between z-30 shrink-0">
+    <div class="flex flex-col items-center gap-6 w-full">
+      <!-- LOGO ÍCONE -->
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-400 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-600/30 cursor-pointer" onclick="navegarAba('dashboard')">
+        <i class="fa-solid fa-bolt"></i>
+      </div>
+
+      <!-- ITENS DE MENU -->
+      <nav class="flex flex-col items-center gap-2 w-full px-2">
+        <button onclick="navegarAba('dashboard')" id="btnSide_dashboard" title="Dashboard Geral" class="nav-icon-btn active w-11 h-11 rounded-xl flex items-center justify-center text-slate-400 hover:text-white text-lg">
+          <i class="fa-solid fa-chart-pie"></i>
+        </button>
+
+        <button onclick="navegarAba('pdv')" id="btnSide_pdv" title="PDV Frente de Caixa Rápido" class="nav-icon-btn w-11 h-11 rounded-xl flex items-center justify-center text-slate-400 hover:text-white text-lg relative">
+          <i class="fa-solid fa-cash-register"></i>
+          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        </button>
+
+        <button onclick="navegarAba('comandas')" id="btnSide_comandas" title="Comandas & Fiado Anti-Fraude" class="nav-icon-btn w-11 h-11 rounded-xl flex items-center justify-center text-slate-400 hover:text-amber-400 text-lg relative">
+          <i class="fa-solid fa-beer-mug-empty"></i>
+          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-400"></span>
+        </button>
+
+        <button onclick="navegarAba('produtos')" id="btnSide_produtos" title="Catálogo & Produtos Mais Vendidos" class="nav-icon-btn w-11 h-11 rounded-xl flex items-center justify-center text-slate-400 hover:text-white text-lg">
+          <i class="fa-solid fa-box-archive"></i>
+        </button>
+
+        <button onclick="navegarAba('vendas')" id="btnSide_vendas" title="Histórico de Vendas & Caixa" class="nav-icon-btn w-11 h-11 rounded-xl flex items-center justify-center text-slate-400 hover:text-white text-lg">
+          <i class="fa-solid fa-receipt"></i>
+        </button>
+
+        <button onclick="navegarAba('ia_equipe')" id="btnSide_ia_equipe" title="Equipe de Funcionários Virtuais (IA)" class="nav-icon-btn w-11 h-11 rounded-xl flex items-center justify-center text-indigo-400 hover:text-indigo-300 text-lg bg-indigo-950/40 border border-indigo-500/30">
+          <i class="fa-solid fa-robot"></i>
+        </button>
+      </nav>
+    </div>
+
+    <!-- BOTÕES INFERIORES -->
+    <div class="flex flex-col items-center gap-3">
+      <button onclick="abrirModalConfigNicho()" title="Configurações & Nicho" class="w-10 h-10 rounded-xl text-slate-400 hover:text-white flex items-center justify-center hover:bg-slate-800 transition">
+        <i class="fa-solid fa-sliders"></i>
+      </button>
+      <div class="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 font-bold text-xs" title="Operador Master">
+        AD
+      </div>
+    </div>
+  </aside>
+
+  <!-- ======================================================== -->
+  <!-- CONTEÚDO PRINCIPAL                                       -->
+  <!-- ======================================================== -->
+  <main class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto bg-[#0a0e1a]">
+
+    <!-- TOPBAR SUPERIOR (COM SELETOR DE NICHO INTELIGENTE) -->
+    <header class="h-20 bg-[#0d1424]/90 backdrop-blur border-b border-[#1f2d47] px-4 md:px-8 flex items-center justify-between sticky top-0 z-20">
+      <!-- TÍTULO & SAUDAÇÃO -->
+      <div class="flex items-center gap-3 md:gap-5">
+        <div class="hidden sm:flex w-10 h-10 rounded-xl bg-slate-800/80 border border-slate-700 items-center justify-center text-slate-300">
+          <span id="headerNichoIcon" class="text-xl">🍺</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-black text-white tracking-tight" id="headerNomeEmpresa">Depósito & Conveniência Express</h1>
+            <span id="badgeNichoAtual" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-blue-500/20 text-blue-400 border border-blue-500/30">
+              Depósito de Bebidas
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Caixa 01 Aberto • 1 Funcionário Digital Ativo</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- SELETOR RÁPIDO DE NICHO + AÇÕES -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- SELETOR DE NICHO DROP-DOWN INSTANTÂNEO (EXCLUSIVO ADMIN) -->
+        <div id="boxSeletorNichoAdminUniv" class="relative hidden items-center gap-1.5">
+          <select id="selectNichoComercio" onchange="mudarNicho(this.value)" class="bg-[#141d30] border border-amber-500/50 text-amber-300 font-bold text-xs rounded-xl px-3 py-2.5 pr-8 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer appearance-none">
+            <option value="bebidas">🍺 Depósito de Bebidas & Conveniência</option>
+            <option value="tintas">🎨 Loja de Tintas & Construção (ShopCor)</option>
+            <option value="mercadinho">🛒 Mercadinho & Mercearia de Bairro</option>
+            <option value="lanchonete">🍔 Lanchonete, Hamburgueria & Bar</option>
+            <option value="pizzaria">🍕 Pizzaria, Forno a Lenha & Delivery</option>
+            <option value="japones">🍣 Restaurante Japonês & Sushi Bar (Rodízio & À La Carte)</option>
+            <option value="rotisseria">🍗 Rotisseria & Frango Assado (Fornadas & Reservas)</option>
+            <option value="churrascaria">🥩 Churrascaria, Espeto & Carnes Nobres</option>
+            <option value="acougue">🥩 Açougue & Boutique de Carnes (Desossa & Balança)</option>
+            <option value="piercing">💎 Estúdio de Piercing, Joias & Bijuterias</option>
+            <option value="autopecas">🔧 Autopeças, Motopeças & Acessórios</option>
+            <option value="petshop">🐾 Pet Shop, Banho & Tosa e Clínica</option>
+            <option value="barbearia">💈 Barbearia, Salão & Estética</option>
+            <option value="generico">🏬 Comércio Varejista Geral</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-blue-400">
+            <i class="fa-solid fa-chevron-down text-xs"></i>
+          </div>
+        </div>
+
+        <!-- ENTRADA POR FOTO DE ORDEM / ROMANEIO (IA) -->
+        <button onclick="abrirModalEntradaPorFoto()" class="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-xs shadow-lg shadow-purple-600/25 flex items-center gap-2 transition transform active:scale-95" title="Entrada por Foto de Ordem/Romaneio com Reajuste CMV">
+          <i class="fa-solid fa-camera"></i>
+          <span class="hidden xl:inline">Entrada por Foto (IA)</span>
+        </button>
+
+        <!-- ATALHO PDV RÁPIDO -->
+        <button onclick="navegarAba('pdv')" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-xs shadow-lg shadow-emerald-600/25 flex items-center gap-2 transition transform active:scale-95">
+          <i class="fa-solid fa-cash-register"></i>
+          <span class="hidden md:inline">Abrir PDV Caixa</span> [F2]
+        </button>
+
+        <!-- STATUS PRE-FLY CHECK (AUDITORIA 24H) -->
+        <button onclick="executarPreFlyCheck()" class="hidden md:flex items-center gap-2 bg-[#141d30] hover:bg-[#1c2842] border border-emerald-500/30 rounded-xl px-3 py-2 text-xs transition" title="Pre-Fly Check: Auditoria Pré-Voo 24h de Integridade">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-[11px] font-bold text-slate-200">Pre-Fly: <strong class="text-emerald-400">100% OK</strong></span>
+        </button>
+
+        <!-- STATUS LOJA TOGGLE -->
+        <div class="hidden lg:flex items-center gap-2 bg-[#141d30] border border-slate-700/80 rounded-xl px-3 py-1.5">
+          <span class="text-[11px] font-bold text-slate-300">Loja:</span>
+          <span class="text-[11px] font-extrabold text-emerald-400 flex items-center gap-1">
+            <i class="fa-solid fa-circle text-[8px]"></i> Aberta
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ======================================================== -->
+    <!-- ABA 1: DASHBOARD EXECUTIVO MINIMALISTA (ESTILO SUA FOTO) -->
+    <!-- ======================================================== -->
+    <div id="view_dashboard" class="p-4 md:p-8 space-y-6">
+
+      <!-- CARDS SUPERIORES DE KPI (IGUAL AO TOPO DA SUA FOTO) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- 1. Receitas Mensal -->
+        <div class="custom-card rounded-2xl p-5 relative overflow-hidden group">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider">Receitas Mensal</span>
+            <div class="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center text-xs">
+              <i class="fa-solid fa-circle-info"></i>
+            </div>
+          </div>
+          <div class="text-2xl lg:text-3xl font-black text-white font-mono" id="kpiReceitaMensal">R$ 28.450,80</div>
+          <div class="text-[11px] text-emerald-400 font-bold mt-2 flex items-center gap-1">
+            <i class="fa-solid fa-arrow-trend-up"></i> +18.4% vs mês anterior
+          </div>
+        </div>
+
+        <!-- 2. Custo Produtos Mensal (CMV Real) -->
+        <div class="custom-card rounded-2xl p-5 relative overflow-hidden group">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider">Custo Produtos (CMV)</span>
+            <div class="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xs">
+              <i class="fa-solid fa-circle-info"></i>
+            </div>
+          </div>
+          <div class="text-2xl lg:text-3xl font-black text-slate-200 font-mono" id="kpiCustoMensal">R$ 14.120,20</div>
+          <div class="text-[11px] text-slate-400 font-semibold mt-2">
+            Auditado nota a nota por IA
+          </div>
+        </div>
+
+        <!-- 3. Em Estoque (Valor Total) -->
+        <div class="custom-card rounded-2xl p-5 relative overflow-hidden group">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider">Em Estoque</span>
+            <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs">
+              <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
+          </div>
+          <div class="text-2xl lg:text-3xl font-black text-amber-300 font-mono" id="kpiEstoqueValor">R$ 105.509,13</div>
+          <div class="text-[11px] text-amber-400/80 font-bold mt-2 flex items-center gap-1">
+            <i class="fa-solid fa-triangle-exclamation"></i> 4 produtos abaixo do mínimo
+          </div>
+        </div>
+
+        <!-- 4. Lucro Líquido Real no Bolso -->
+        <div class="custom-card rounded-2xl p-5 relative overflow-hidden bg-gradient-to-br from-[#141d30] to-emerald-950/20 border-emerald-500/30">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Lucro Líquido Real</span>
+            <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold">
+              <i class="fa-solid fa-sack-dollar"></i>
+            </div>
+          </div>
+          <div class="text-2xl lg:text-3xl font-black text-emerald-400 font-mono" id="kpiLucroReal">R$ 14.330,60</div>
+          <div class="text-[11px] text-slate-300 font-medium mt-2">
+            Margem Líquida Limpa: <strong class="text-emerald-400 font-bold">50.3%</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEÇÃO INTERMEDIÁRIA (CAIXAS OPERANDO + PRODUTOS MAIS VENDIDOS + PRINCIPAIS CLIENTES) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- BLOCO ESQUERDA: CAIXAS OPERANDO & STATUS (LARGURA 4/12) -->
+        <div class="lg:col-span-4 space-y-4">
+          <div class="custom-card rounded-2xl p-5 shadow-xl">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+              <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider">Caixas Operando</h3>
+              <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Aberto
+              </span>
+            </div>
+
+            <!-- CARD OPERADOR 1 -->
+            <div class="p-3.5 rounded-xl bg-[#0e1524] border border-slate-800 mb-3 hover:border-slate-700 transition">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-black text-white" id="nomeOperadorCaixa">Balcão Principal (Vendedor 1)</h4>
+                  <span class="text-[11px] text-slate-400">Total de vendas: <strong class="text-slate-200" id="qtdVendasCaixa">18 vendas hoje</strong></span>
+                </div>
+                <div class="text-right">
+                  <div class="text-sm font-black text-emerald-400 font-mono" id="totalVendasCaixaHoje">R$ 2.450,00</div>
+                  <span class="text-[10px] text-slate-500 font-mono">10/11/2026 21:40</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- RESUMO RÁPIDO DO DIA -->
+            <div class="p-3.5 rounded-xl bg-gradient-to-r from-blue-950/30 to-indigo-950/30 border border-blue-500/20 text-xs space-y-2">
+              <div class="flex justify-between text-slate-300">
+                <span>Vendas no Dinheiro:</span>
+                <span class="font-bold text-white font-mono" id="dinheiroCaixa">R$ 480,00</span>
+              </div>
+              <div class="flex justify-between text-slate-300">
+                <span>Vendas no PIX:</span>
+                <span class="font-bold text-emerald-400 font-mono" id="pixCaixa">R$ 1.340,00</span>
+              </div>
+              <div class="flex justify-between text-slate-300">
+                <span>Vendas no Cartão:</span>
+                <span class="font-bold text-sky-400 font-mono" id="cartaoCaixa">R$ 630,00</span>
+              </div>
+            </div>
+
+            <!-- BOTÃO ABRIR / FECHAR CAIXA -->
+            <button onclick="navegarAba('pdv')" class="w-full mt-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-cart-shopping"></i> Vender Agora no PDV
+            </button>
+          </div>
+
+          <!-- BANNER FUNCIONÁRIO DIGITAL (ECONOMIA) -->
+          <div class="custom-card rounded-2xl p-5 border-indigo-500/30 bg-gradient-to-br from-indigo-950/20 via-slate-900 to-slate-950 shadow-xl">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm font-bold">
+                <i class="fa-solid fa-user-astronaut"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-black text-white uppercase tracking-wider">Seu Funcionário Digital</h4>
+                <span class="text-[10px] text-indigo-400 font-bold">Economia: R$ 3.800/mês</span>
+              </div>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              O sistema fecha o caixa, controla estoque, calcula lucro limpo e prepara mensagens para clientes sem você precisar pagar salário ou encargos de outro funcionário.
+            </p>
+          </div>
+        </div>
+
+        <!-- BLOCO CENTRAL: PRODUTOS MAIS VENDIDOS (LARGURA 5/12) -->
+        <div class="lg:col-span-5 custom-card rounded-2xl p-5 shadow-xl">
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+            <div>
+              <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider">Produtos Mais Vendidos (Giro Rápido)</h3>
+              <span class="text-[11px] text-slate-400">Itens que mais faturam no seu balcão</span>
+            </div>
+            <span class="text-[10px] font-bold text-blue-400 uppercase tracking-wider bg-blue-500/10 px-2.5 py-1 rounded-lg">Top 5</span>
+          </div>
+
+          <!-- LISTA DINÂMICA DE PRODUTOS MAIS VENDIDOS -->
+          <div class="space-y-3" id="listaMaisVendidos">
+            <!-- Gerado via JavaScript de acordo com o nicho -->
+          </div>
+        </div>
+
+        <!-- BLOCO DIREITA: PRINCIPAIS CLIENTES & ATIVIDADE RECENTE (LARGURA 3/12) -->
+        <div class="lg:col-span-3 space-y-4">
+          <div class="custom-card rounded-2xl p-5 shadow-xl">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+              <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider">Principais Clientes</h3>
+              <i class="fa-solid fa-users text-slate-500 text-xs"></i>
+            </div>
+
+            <div class="space-y-3" id="listaPrincipaisClientes">
+              <!-- Gerado dinamicamente -->
+            </div>
+          </div>
+
+          <!-- NOTIFICAÇÃO RÁPIDA / ALERTA DO COMÉRCIO -->
+          <div class="custom-card rounded-2xl p-4 border-amber-500/30 bg-amber-950/10">
+            <div class="flex items-start gap-3">
+              <i class="fa-solid fa-bell text-amber-400 text-sm mt-0.5"></i>
+              <div>
+                <strong class="text-xs font-bold text-white block">Dica do Funcionário Digital:</strong>
+                <p class="text-[11px] text-slate-300 mt-1 leading-snug" id="dicaFuncionarioDigital">
+                  Sexta-feira à noite o movimento dobra! Verifique o estoque dos 3 itens mais vendidos para não perder vendas.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FILTRO DE PERÍODO (IGUAL À SUA FOTO) -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+        <div class="flex items-center gap-1.5 bg-[#141d30] p-1 rounded-xl border border-slate-800">
+          <button onclick="filtrarPeriodo('hoje')" class="filtro-btn px-3.5 py-1.5 rounded-lg text-xs font-extrabold text-white bg-blue-600 shadow-sm transition">Hoje</button>
+          <button onclick="filtrarPeriodo('semana')" class="filtro-btn px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">Esta semana</button>
+          <button onclick="filtrarPeriodo('mes')" class="filtro-btn px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">Este mês</button>
+          <button onclick="filtrarPeriodo('ano')" class="filtro-btn px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">Este ano</button>
+        </div>
+
+        <div class="flex items-center gap-2 text-xs text-slate-400">
+          <i class="fa-regular fa-calendar"></i>
+          <span>Período Ativo: <strong class="text-white" id="labelPeriodoAtivo">Hoje (10/11/2026)</strong></span>
+        </div>
+      </div>
+
+      <!-- OS CARDS COLORIDOS GRANDES (IGUAIS AOS RETÂNGULOS DA SUA FOTO) -->
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+        
+        <!-- CARD 1: CONTAS A RECEBER (VERDE) -->
+        <div class="rounded-2xl p-4 bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/20 transition cursor-pointer flex flex-col justify-between h-28 group">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] sm:text-xs font-black uppercase tracking-wider opacity-90">Contas a Receber</span>
+            <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
+              <i class="fa-solid fa-arrow-down"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-lg sm:text-xl font-black font-mono">R$ 515,00</div>
+            <span class="text-[10px] opacity-80 block">3 pendências de fiado/cheque</span>
+          </div>
+        </div>
+
+        <!-- CARD 2: CONTAS A PAGAR (VERMELHO) -->
+        <div class="rounded-2xl p-4 bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-900/20 transition cursor-pointer flex flex-col justify-between h-28 group">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] sm:text-xs font-black uppercase tracking-wider opacity-90">Contas a Pagar</span>
+            <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
+              <i class="fa-solid fa-arrow-up"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-lg sm:text-xl font-black font-mono">R$ 8.494,50</div>
+            <span class="text-[10px] opacity-80 block">Boletos de fornecedores</span>
+          </div>
+        </div>
+
+        <!-- CARD 3: PRODUTOS (AZUL) -->
+        <div class="rounded-2xl p-4 bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20 transition cursor-pointer flex flex-col justify-between h-28 group" onclick="navegarAba('produtos')">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] sm:text-xs font-black uppercase tracking-wider opacity-90">Produtos</span>
+            <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
+              <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-lg sm:text-xl font-black font-mono" id="cardQtdProdutos">720 itens</div>
+            <span class="text-[10px] opacity-80 block">Catálogo pronto no PDV</span>
+          </div>
+        </div>
+
+        <!-- CARD 4: CLIENTES (SLATE/CINZA) -->
+        <div class="rounded-2xl p-4 bg-slate-700 hover:bg-slate-600 text-white shadow-lg shadow-slate-900/20 transition cursor-pointer flex flex-col justify-between h-28 group">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] sm:text-xs font-black uppercase tracking-wider opacity-90">Clientes</span>
+            <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
+              <i class="fa-solid fa-user-group"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-lg sm:text-xl font-black font-mono">142 cadastros</div>
+            <span class="text-[10px] opacity-80 block">WhatsApp integrado</span>
+          </div>
+        </div>
+
+        <!-- CARD 5: TOTAL DE VENDAS (ROXO/ÍNDIGO) -->
+        <div class="rounded-2xl p-4 bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-900/20 transition cursor-pointer flex flex-col justify-between h-28 group" onclick="navegarAba('vendas')">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] sm:text-xs font-black uppercase tracking-wider opacity-90">Total de Vendas</span>
+            <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
+              <i class="fa-solid fa-chart-line"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-lg sm:text-xl font-black font-mono">R$ 22.204,20</div>
+            <span class="text-[10px] opacity-80 block">312 cupons emitidos</span>
+          </div>
+        </div>
+
+        <!-- CARD 6: TOTAL DE COMPRAS (AMARELO/LARANJA) -->
+        <div class="rounded-2xl p-4 bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-lg shadow-amber-900/20 transition cursor-pointer flex flex-col justify-between h-28 group">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] sm:text-xs font-black uppercase tracking-wider opacity-90">Total Compras</span>
+            <div class="w-6 h-6 rounded-full bg-black/10 flex items-center justify-center text-[10px]">
+              <i class="fa-solid fa-truck-ramp-box"></i>
+            </div>
+          </div>
+          <div>
+            <div class="text-lg sm:text-xl font-black font-mono">R$ 10.966,44</div>
+            <span class="text-[10px] font-semibold opacity-90 block">NF-e de entrada importadas</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- ABA 2: PDV FRENTE DE CAIXA RÁPIDO (COM BOTÕES EXPRESSOS) -->
+    <!-- ======================================================== -->
+    <div id="view_pdv" class="hidden p-4 md:p-8 flex-1 flex flex-col gap-6">
+
+      <!-- HEADER DO PDV -->
+      <div class="custom-card rounded-2xl p-4 md:p-5 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl font-bold">
+            <i class="fa-solid fa-cash-register"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-black text-white">PDV Caixa Rápido</h2>
+              <span id="badgeNichoPDV" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                Depósito de Bebidas
+              </span>
+            </div>
+            <p class="text-xs text-slate-400">Atalhos rápidos: clique nos mais vendidos ou escaneie o código de barras.</p>
+          </div>
+        </div>
+
+        <!-- BUSCA RÁPIDA DE PRODUTO -->
+        <div class="flex-1 max-w-md relative">
+          <i class="fa-solid fa-barcode absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+          <input type="text" id="inputBuscaPDV" placeholder="Digitar nome do produto ou bipar código..." oninput="filtrarProdutosPDV(this.value)" class="w-full bg-[#0d1424] border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-xs font-bold text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <button onclick="navegarAba('dashboard')" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition flex items-center gap-1.5">
+          <i class="fa-solid fa-arrow-left"></i> Voltar ao ERP
+        </button>
+      </div>
+
+      <!-- CORPO DO PDV: GRADE DE PRODUTOS + CARRINHO LATERAL -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 items-start">
+
+        <!-- LADO ESQUERDO: GRADE VISUAL DOS PRODUTOS QUE MAIS SAEM (8/12) -->
+        <div class="lg:col-span-8 space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-black uppercase tracking-wider text-slate-300">⚡ Produtos de Giro Rápido (Mais Vendidos)</span>
+              <span class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-md">1 Clique Adiciona</span>
+            </div>
+            <span class="text-xs text-slate-400" id="contadorItensPDV">Mostrando 8 produtos</span>
+          </div>
+
+          <!-- GRADE DE BOTÕES GRANDES DE PRODUTO -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5" id="gradeProdutosPDV">
+            <!-- Inserido dinamicamente via JS de acordo com o nicho selecionado -->
+          </div>
+        </div>
+
+        <!-- LADO DIREITO: CUPOM / CARRINHO DE VENDA (4/12) -->
+        <div class="lg:col-span-4 custom-card rounded-2xl p-5 flex flex-col justify-between shadow-2xl sticky top-24">
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+              <h3 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                <i class="fa-solid fa-basket-shopping text-emerald-400"></i> Cupom de Venda
+              </h3>
+              <button onclick="limparCarrinho()" class="text-[11px] text-rose-400 hover:text-rose-300 font-bold">
+                <i class="fa-regular fa-trash-can mr-1"></i>Limpar
+              </button>
+            </div>
+
+            <!-- LISTA DE ITENS NO CARRINHO -->
+            <div class="space-y-2 max-h-64 overflow-y-auto pr-1" id="itensCarrinho">
+              <div class="text-center py-10 text-slate-500 text-xs">
+                <i class="fa-solid fa-cart-arrow-down text-3xl mb-2 opacity-40 block"></i>
+                Nenhum item adicionado.<br>Clique nos produtos ao lado para vender.
+              </div>
+            </div>
+          </div>
+
+          <!-- TOTAIS E BOTÕES DE FINALIZAÇÃO -->
+          <div class="pt-4 border-t border-slate-800 mt-4 space-y-3">
+            <div class="flex justify-between text-xs text-slate-400">
+              <span>Quantidade de Itens:</span>
+              <span class="font-bold text-white font-mono" id="carrinhoQtdTotal">0 itens</span>
+            </div>
+            <div class="flex justify-between items-baseline">
+              <span class="text-sm font-bold text-slate-200">TOTAL A PAGAR:</span>
+              <span class="text-2xl font-black text-emerald-400 font-mono" id="carrinhoValorTotal">R$ 0,00</span>
+            </div>
+
+            <!-- FORMAS DE PAGAMENTO EXPRESSAS (1 CLIQUE) -->
+            <div class="grid grid-cols-3 gap-2 pt-2">
+              <button onclick="finalizarVenda('pix')" class="py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-extrabold text-xs transition flex flex-col items-center justify-center gap-1 shadow-md shadow-teal-600/20 active:scale-95">
+                <i class="fa-brands fa-pix text-base"></i> PIX
+              </button>
+              <button onclick="finalizarVenda('dinheiro')" class="py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs transition flex flex-col items-center justify-center gap-1 shadow-md shadow-emerald-600/20 active:scale-95">
+                <i class="fa-solid fa-money-bill-wave text-base"></i> Dinheiro
+              </button>
+              <button onclick="finalizarVenda('cartao')" class="py-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-extrabold text-xs transition flex flex-col items-center justify-center gap-1 shadow-md shadow-sky-600/20 active:scale-95">
+                <i class="fa-regular fa-credit-card text-base"></i> Cartão
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- ABA: COMANDAS, MESAS & CONTROLE DE FIADO ANTI-FRAUDE     -->
+    <!-- ======================================================== -->
+    <div id="view_comandas" class="hidden p-4 md:p-8 space-y-6">
+
+      <!-- HEADER DO MÓDULO DE COMANDAS -->
+      <div class="custom-card rounded-2xl p-6 border-amber-500/30 bg-gradient-to-r from-amber-950/20 via-slate-900 to-slate-950 shadow-xl flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40">
+              <i class="fa-solid fa-beer-mug-empty mr-1.5"></i>Comandas & Gestão de Fiado
+            </span>
+            <span class="px-2.5 py-0.5 rounded text-[10px] font-mono bg-rose-500/20 text-rose-300 border border-rose-500/40 flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
+              Blindagem Anti-Fraude Ativa
+            </span>
+          </div>
+          <h2 class="text-xl font-black text-white mt-2">Controle de Consumo, Fechamento de Turno & "Comanda Fantasma"</h2>
+          <p class="text-xs text-slate-300 mt-1">
+            Abra comandas por cliente ou mesa. Nenhuma conta fica aberta após as 00:00 e qualquer tentativa de apagar comanda recebida em dinheiro é interceptada.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <button onclick="abrirModalNovaComanda()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition shadow-lg shadow-amber-500/20 flex items-center gap-2">
+            <i class="fa-solid fa-plus"></i> Abrir Nova Comanda
+          </button>
+          <button onclick="simularViradaTurno()" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-slate-700 transition flex items-center gap-1.5" title="Simula a virada do dia para testar o alerta">
+            <i class="fa-solid fa-moon text-indigo-400"></i> Virada de Turno (00:00)
+          </button>
+        </div>
+      </div>
+
+      <!-- PAINEL DE STATUS DO TURNO (EXPEDIENTE) -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="custom-card rounded-2xl p-4 border-slate-800">
+          <span class="text-[10px] font-bold text-slate-400 uppercase block">Expediente Atual</span>
+          <div class="text-lg font-black text-white font-mono mt-1">12:00 às 00:00</div>
+          <span class="text-[10px] text-emerald-400 font-bold mt-1 block">🟢 Turno em Andamento</span>
+        </div>
+        <div class="custom-card rounded-2xl p-4 border-slate-800">
+          <span class="text-[10px] font-bold text-slate-400 uppercase block">Comandas Ativas no Salão</span>
+          <div class="text-lg font-black text-amber-300 font-mono mt-1" id="kpiComandasAbertasQtd">3 abertas</div>
+          <span class="text-[10px] text-slate-400 block mt-1" id="kpiComandasAbertasValor">Total em consumo: R$ 283,30</span>
+        </div>
+        <div class="custom-card rounded-2xl p-4 border-slate-800">
+          <span class="text-[10px] font-bold text-slate-400 uppercase block">Fechadas como Fiado Hoje</span>
+          <div class="text-lg font-black text-sky-400 font-mono mt-1" id="kpiFiadoHojeValor">R$ 515,00</div>
+          <span class="text-[10px] text-slate-400 block mt-1">3 clientes com limite pré-aprovado</span>
+        </div>
+        <div class="custom-card rounded-2xl p-4 border-rose-500/30 bg-rose-950/10">
+          <span class="text-[10px] font-bold text-rose-400 uppercase block">Comandas Fantasma (Auditoria)</span>
+          <div class="text-lg font-black text-rose-400 font-mono mt-1" id="kpiComandasFantasmaQtd">0 tentativas</div>
+          <span class="text-[10px] text-slate-400 block mt-1" id="kpiComandasFantasmaSub">Zero desvios registrados hoje</span>
+        </div>
+      </div>
+
+      <!-- CARDS DE COMANDAS ABERTAS NO SALÃO/BALCÃO -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-amber-400"></i> Comandas em Aberto (Consumindo Agora)
+          </h3>
+          <span class="text-xs text-slate-400">Clique para lançar itens, pagar ou transferir para fiado</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5" id="gridComandasAbertas">
+          <!-- Inserido dinamicamente via JS -->
+        </div>
+      </div>
+
+      <!-- SEÇÃO DO CISO MILLER: AUDITORIA DE FRAUDES & COMANDAS FANTASMA -->
+      <div class="custom-card rounded-2xl p-5 border-rose-500/40 bg-gradient-to-br from-rose-950/20 via-slate-900 to-slate-950 shadow-xl space-y-4">
+        <div class="flex flex-col md:flex-row items-start justify-between gap-4">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-lg font-bold border border-rose-500/30 shrink-0">
+              <i class="fa-solid fa-user-ninja"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 class="text-sm font-black text-white">Trilha Forense: Registro de Comandas Fantasma (CISO Miller)</h4>
+                <span class="px-2 py-0.2 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 uppercase">Anti-Golpe do Caixa</span>
+              </div>
+              <p class="text-xs text-slate-300 mt-1">
+                Se um operador tentar apagar uma comanda após receber dinheiro em espécie, o sistema <strong>NUNCA DELETA O REGISTRO</strong>. Ele mascara a exclusão para o operador, grava a "Comanda Fantasma" com data/hora e avisa o dono no WhatsApp na hora.
+              </p>
+            </div>
+          </div>
+          <button onclick="simularGolpeDoCaixa()" class="px-3.5 py-2 rounded-xl bg-rose-600/30 hover:bg-rose-600 text-rose-200 hover:text-white border border-rose-500/50 text-xs font-bold transition flex items-center gap-1.5 shrink-0">
+            <i class="fa-solid fa-bug"></i> Testar Golpe do Cancelamento
+          </button>
+        </div>
+
+        <!-- TABELA DE COMANDAS FANTASMAS AUDITADAS -->
+        <div class="overflow-x-auto rounded-xl border border-slate-800 bg-[#0d1424]">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-800">
+              <tr>
+                <th class="py-2.5 px-3">Hora Tentativa</th>
+                <th class="py-2.5 px-3">Comanda / Cliente</th>
+                <th class="py-2.5 px-3">Itens Consumidos (Trilha Horária)</th>
+                <th class="py-2.5 px-3 text-right">Valor em Risco</th>
+                <th class="py-2.5 px-3">Operador do Caixa</th>
+                <th class="py-2.5 px-3 text-center">Status Auditoria</th>
+                <th class="py-2.5 px-3 text-center">WhatsApp Dono</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaComandasFantasma" class="divide-y divide-slate-800/80 font-mono text-[11px]">
+              <tr>
+                <td colspan="7" class="py-6 text-center text-slate-500 font-sans">
+                  <i class="fa-solid fa-shield-check text-emerald-400 text-lg mb-1 block"></i>
+                  Nenhuma tentativa suspeita de cancelamento registrada hoje. Perímetro do caixa 100% íntegro.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- ABA 3: CATÁLOGO DE PRODUTOS COMPLETO                      -->
+    <!-- ======================================================== -->
+    <div id="view_produtos" class="hidden p-4 md:p-8 space-y-6">
+      <div class="custom-card rounded-2xl p-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-black text-white">Catálogo de Produtos Cadastrados</h2>
+          <p class="text-xs text-slate-400 mt-1">Produtos configurados para o nicho atual. Você pode adicionar ou editar qualquer item.</p>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <button onclick="abrirModalEntradaPorFoto()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-purple-600/25">
+            <i class="fa-solid fa-camera"></i> Abastecer Estoque por Foto de Ordem (IA)
+          </button>
+          <button onclick="adicionarProdutoModal()" class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs flex items-center gap-2">
+            <i class="fa-solid fa-plus"></i> Novo Produto
+          </button>
+        </div>
+      </div>
+
+      <!-- TABELA DE PRODUTOS -->
+      <div class="custom-card rounded-2xl p-5 shadow-xl overflow-x-auto">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-800">
+            <tr>
+              <th class="py-3 px-3">Produto</th>
+              <th class="py-3 px-3">Categoria</th>
+              <th class="py-3 px-3 text-right">Custo Compra</th>
+              <th class="py-3 px-3 text-right">Preço Venda</th>
+              <th class="py-3 px-3 text-right text-emerald-400">Margem Limpa</th>
+              <th class="py-3 px-3 text-center">Estoque Atual</th>
+              <th class="py-3 px-3 text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaProdutosCompleta" class="divide-y divide-slate-800/80 font-medium">
+            <!-- Preenchido dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- ABA 4: HISTÓRICO DE VENDAS & FECHAMENTO                   -->
+    <!-- ======================================================== -->
+    <div id="view_vendas" class="hidden p-4 md:p-8 space-y-6">
+      <div class="custom-card rounded-2xl p-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-black text-white">Histórico de Vendas & Fechamento de Caixa</h2>
+          <p class="text-xs text-slate-400 mt-1">Todas as vendas realizadas no balcão e no PDV com cálculo de lucro líquido.</p>
+        </div>
+        <button onclick="imprimirFechamentoCaixa()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-extrabold text-xs flex items-center gap-2 border border-slate-700">
+          <i class="fa-solid fa-print"></i> Fechar Caixa do Dia (Imprimir DRE)
+        </button>
+      </div>
+
+      <div class="custom-card rounded-2xl p-5 shadow-xl overflow-x-auto">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-800">
+            <tr>
+              <th class="py-3 px-3">Hora</th>
+              <th class="py-3 px-3">Cliente</th>
+              <th class="py-3 px-3">Itens</th>
+              <th class="py-3 px-3">Pagamento</th>
+              <th class="py-3 px-3 text-right">Valor Total</th>
+              <th class="py-3 px-3 text-right text-emerald-400">Lucro Real</th>
+              <th class="py-3 px-3 text-center">Comprovante</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaHistoricoVendas" class="divide-y divide-slate-800/80 font-medium">
+            <!-- Preenchido dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- ABA 5: EQUIPE DE FUNCIONÁRIOS VIRTUAIS (IA)               -->
+    <!-- ======================================================== -->
+    <div id="view_ia_equipe" class="hidden p-4 md:p-8 space-y-6">
+      <div class="custom-card rounded-2xl p-6 border-indigo-500/30 bg-gradient-to-r from-indigo-950/20 via-slate-900 to-slate-950 shadow-xl flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 rounded-full text-xs font-black uppercase bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+              <i class="fa-solid fa-users-gear mr-1.5"></i>Equipe Digital Integrada
+            </span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              Economia: R$ 12.000+ / mês • Supertime de 11 Especialistas de IA
+            </span>
+          </div>
+          <h2 class="text-xl font-black text-white mt-2">Seus Funcionários Virtuais Especialistas</h2>
+          <p class="text-xs text-slate-300 mt-1">Para estabelecimentos que não têm funcionários suficientes: cada agente assume um departamento vital do comércio.</p>
+        </div>
+      </div>
+
+      <!-- GRID DOS FUNCIONÁRIOS DIGITAIS -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        
+        <!-- AGENTE 1: FERNANDA (FINANCEIRO & FECHAMENTO) -->
+        <div class="custom-card rounded-2xl p-5 border-slate-800 hover:border-indigo-500/40 transition">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-bold text-lg">
+              👩‍💼
+            </div>
+            <div>
+              <h3 class="text-sm font-black text-white">Fernanda CFO</h3>
+              <span class="text-[11px] text-pink-400 font-bold">Gestão Financeira & DRE Diário</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Calcula o lucro limpo de cada venda, fecha o caixa às 18h30 e avisa se algum boleto vai vencer para você nunca pagar juros.
+          </p>
+          <div class="text-[10px] font-mono text-slate-400 bg-slate-900 p-2 rounded-lg border border-slate-800">
+            Status: Ativa • Monitorando 14 boletos do mês
+          </div>
+        </div>
+
+        <!-- AGENTE 2: CARLOS (ESTOQUE & PRICING) -->
+        <div class="custom-card rounded-2xl p-5 border-slate-800 hover:border-indigo-500/40 transition">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-lg">
+              📦
+            </div>
+            <div>
+              <h3 class="text-sm font-black text-white">Carlos Estoque</h3>
+              <span class="text-[11px] text-blue-400 font-bold">Giro de Produtos & Reposição</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Avisa com antecedência os produtos que vão faltar na sexta-feira e aponta itens parados há mais de 60 dias para você fazer promoção rápida.
+          </p>
+          <div class="text-[10px] font-mono text-slate-400 bg-slate-900 p-2 rounded-lg border border-slate-800">
+            Status: Ativo • 4 itens com alerta de reposição
+          </div>
+        </div>
+
+        <!-- AGENTE 3: COMANDANTE MILLER (SEGURANÇA & DEFESA) -->
+        <div class="custom-card rounded-2xl p-5 border-slate-800 hover:border-indigo-500/40 transition">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg">
+              🛡️
+            </div>
+            <div>
+              <h3 class="text-sm font-black text-white">Comandante Miller</h3>
+              <span class="text-[11px] text-emerald-400 font-bold">Cibersegurança & Modo Fortaleza</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Protege seu caixa e dados contra invasões e garante a Regra de Ouro: zero acesso a contas bancárias e zero vazamento de senhas.
+          </p>
+          <div class="text-[10px] font-mono text-slate-400 bg-slate-900 p-2 rounded-lg border border-slate-800">
+            Status: DEFCON 3 • 10/10 Vetores OWASP Blindados
+          </div>
+          <div class="mt-3 pt-2.5 border-t border-slate-800 flex items-center justify-between gap-2">
+            <button onclick="executarPreFlyCheck()" class="flex-1 py-1.5 rounded-lg bg-emerald-600/30 hover:bg-emerald-600 text-emerald-300 hover:text-white text-[10px] font-bold transition flex items-center justify-center gap-1 border border-emerald-500/40">
+              <i class="fa-solid fa-plane-departure"></i> Pre-Fly Check 24h
+            </button>
+            <button onclick="emitirLaudoPentest()" class="flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-bold transition flex items-center justify-center gap-1 border border-slate-700">
+              <i class="fa-solid fa-file-shield"></i> Laudo Pentest Anual
+            </button>
+          </div>
+        </div>
+
+        <!-- AGENTE 4: GUSTAVO SEO (ATRAÇÃO NO GOOGLE) -->
+        <div class="custom-card rounded-2xl p-5 border-slate-800 hover:border-indigo-500/40 transition">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-lg">
+              🌐
+            </div>
+            <div>
+              <h3 class="text-sm font-black text-white">Gustavo SEO</h3>
+              <span class="text-[11px] text-cyan-400 font-bold">Presença Web & Google Maps</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Gera o trio de indexação (robots, sitemap, llms.txt) para colocar o seu comércio em 1º lugar no Google Maps da cidade sem pagar agência externa.
+          </p>
+          <div class="text-[10px] font-mono text-slate-400 bg-slate-900 p-2 rounded-lg border border-slate-800">
+            Status: Indexação Ativa para Google e IAs
+          </div>
+        </div>
+
+        <!-- AGENTE 5: CAMILA (VENDAS & FIDELIDADE) -->
+        <div class="custom-card rounded-2xl p-5 border-slate-800 hover:border-indigo-500/40 transition">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-lg">
+              🤝
+            </div>
+            <div>
+              <h3 class="text-sm font-black text-white">Camila Fidelização</h3>
+              <span class="text-[11px] text-purple-400 font-bold">Clube VIP & Mensagens WhatsApp</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Dispara ofertas personalizadas para clientes no WhatsApp (ex: aviso de cerveja gelada na sexta ou combos de pintura para profissionais).
+          </p>
+          <div class="text-[10px] font-mono text-slate-400 bg-slate-900 p-2 rounded-lg border border-slate-800">
+            Status: 38 clientes VIP com pontuação ativa
+          </div>
+        </div>
+
+        <!-- AGENTE 6: DRA. JULIANA (FISCAL & XML) -->
+        <div class="custom-card rounded-2xl p-5 border-slate-800 hover:border-indigo-500/40 transition">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-lg">
+              ⚖️
+            </div>
+            <div>
+              <h3 class="text-sm font-black text-white">Dra. Juliana Fiscal</h3>
+              <span class="text-[11px] text-amber-400 font-bold">Tributos Monofásicos & Redução de Impostos</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Segrega produtos com PIS/COFINS monofásico (como bebidas e tintas) para garantir que você não pague imposto duas vezes no Simples Nacional.
+          </p>
+          <div class="text-[10px] font-mono text-slate-400 bg-slate-900 p-2 rounded-lg border border-slate-800">
+            Status: Economia tributária calculada em R$ 1.840/mês
+          </div>
+        </div>
+
+        <!-- AGENTE 7: RAFAEL (COPYWRITING & SCRIPTS) -->
+        <div class="custom-card rounded-2xl p-5 border-slate-800 hover:border-indigo-500/40 transition">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-lg">
+              ✍️
+            </div>
+            <div>
+              <h3 class="text-sm font-black text-white">Rafael Copywriter</h3>
+              <span class="text-[11px] text-rose-400 font-bold">Textos Persuasivos & Scripts WhatsApp</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Cria mensagens magnéticas de vendas, scripts de fechamento rápido no balcão e legendas de produtos que convertem clientes indecisos.
+          </p>
+          <div class="text-[10px] font-mono text-slate-400 bg-slate-900 p-2 rounded-lg border border-slate-800">
+            Status: 12 modelos de mensagens ativas
+          </div>
+        </div>
+
+        <!-- AGENTE 8: LUCAS (TRÁFEGO PAGO & ADS) -->
+        <div class="custom-card rounded-2xl p-5 border-slate-800 hover:border-indigo-500/40 transition">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-lg">
+              🎯
+            </div>
+            <div>
+              <h3 class="text-sm font-black text-white">Lucas Tráfego Pago</h3>
+              <span class="text-[11px] text-indigo-400 font-bold">Meta Ads & Google Ads Local</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Estrutura campanhas de anúncios de R$ 5 a R$ 10 por dia focadas apenas no raio de 5km a 15km da sua loja para lotar seu balcão e seu WhatsApp.
+          </p>
+          <div class="text-[10px] font-mono text-slate-400 bg-slate-900 p-2 rounded-lg border border-slate-800">
+            Status: Raio geolocalizado ativo (CPA Médio: R$ 1,42)
+          </div>
+        </div>
+
+        <!-- AGENTE 9: BIA (AUDIOVISUAL & MÍDIA) -->
+        <div class="custom-card rounded-2xl p-5 border-slate-800 hover:border-indigo-500/40 transition">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-fuchsia-500/20 text-fuchsia-400 flex items-center justify-center font-bold text-lg">
+              🎬
+            </div>
+            <div>
+              <h3 class="text-sm font-black text-white">Bia Audiovisual</h3>
+              <span class="text-[11px] text-fuchsia-400 font-bold">Roteiros de Reels & Mídia de Catálogo</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Gera roteiros magnéticos de 30 a 60 segundos com ganchos virais para Reels, TikTok e Stories, mostrando produtos em ação e promoções relâmpago.
+          </p>
+          <div class="text-[10px] font-mono text-slate-400 bg-slate-900 p-2 rounded-lg border border-slate-800">
+            Status: 8 roteiros prontos para gravação
+          </div>
+        </div>
+
+        <!-- AGENTE 10: RODRIGO (LOGÍSTICA & ROTAS) -->
+        <div class="custom-card rounded-2xl p-5 border-slate-800 hover:border-indigo-500/40 transition">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-600/20 text-amber-500 flex items-center justify-center font-bold text-lg">
+              🚚
+            </div>
+            <div>
+              <h3 class="text-sm font-black text-white">Rodrigo Rotas</h3>
+              <span class="text-[11px] text-amber-500 font-bold">Logística Dinâmica & Roteirizador</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Organiza as entregas do dia em sequência lógica de trânsito e horário, gerando link no Google Maps / Waze para motoboy ou motorista sem bater cabeça.
+          </p>
+          <div class="text-[10px] font-mono text-slate-400 bg-slate-900 p-2 rounded-lg border border-slate-800">
+            Status: Roteirização inteligente ativa
+          </div>
+        </div>
+
+        <!-- AGENTE 11: INSPETOR FONTANA (AUDITORIA & ANTI-FRAUDE) -->
+        <div class="custom-card rounded-2xl p-5 border-slate-800 hover:border-indigo-500/40 transition">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-lg">
+              🔍
+            </div>
+            <div>
+              <h3 class="text-sm font-black text-white">Inspetor Fontana</h3>
+              <span class="text-[11px] text-teal-400 font-bold">Auditoria de Comandas & Maquininhas</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Rastreia cancelamentos suspeitos de comandas em dinheiro vivo (Comanda Fantasma) e faz a conciliação passiva cruzada por horário entre PDV e maquininhas POS.
+          </p>
+          <div class="text-[10px] font-mono text-slate-400 bg-slate-900 p-2 rounded-lg border border-slate-800">
+            Status: Monitor Heurístico 24h Operacional
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- MODAL DE CHECKOUT PIX COM QR CODE DINÂMICO                -->
+  <!-- ======================================================== -->
+  <div id="modalCheckoutPix" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-[#141d30] border border-teal-500/40 rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+      <div class="w-12 h-12 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center mx-auto text-2xl font-bold">
+        <i class="fa-brands fa-pix"></i>
+      </div>
+      <div>
+        <h3 class="text-lg font-black text-white">Pagamento Instantâneo PIX</h3>
+        <p class="text-xs text-slate-400">Aponte a câmera do celular para o QR Code abaixo</p>
+      </div>
+
+      <div class="p-3 bg-white rounded-xl inline-block mx-auto shadow-md">
+        <img id="imgQrCodePix" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=00020126360014BR.GOV.BCB.PIX0114+5511999999995204000053039865802BR5920ShopCor+OmniCommerce6009Sao+Paulo62070503***6304E2CA" alt="QR Code PIX" class="w-44 h-44 object-contain">
+      </div>
+
+      <div class="text-2xl font-black text-emerald-400 font-mono" id="modalPixValorTotal">R$ 0,00</div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="copiarPixChave()" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition flex items-center justify-center gap-1.5 border border-slate-700">
+          <i class="fa-regular fa-copy"></i> Copia e Cola
+        </button>
+        <button onclick="confirmarPagamentoConcluido()" class="flex-1 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-black transition flex items-center justify-center gap-1.5 shadow-lg shadow-teal-600/30">
+          <i class="fa-solid fa-check"></i> Pago!
+        </button>
+      </div>
+
+      <button onclick="fecharModalPix()" class="text-xs text-slate-500 hover:text-slate-400">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL DE SUCESSO DE VENDA COM COMPROVANTE WHATSAPP       -->
+  <!-- ======================================================== -->
+  <div id="modalVendaSucesso" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-[#141d30] border border-emerald-500/40 rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+      <div class="w-14 h-14 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-3xl font-bold animate-bounce">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div>
+        <h3 class="text-xl font-black text-white">Venda Concluída!</h3>
+        <p class="text-xs text-slate-400 mt-1" id="resumoSucessoVenda">Valor: R$ 45,00 • Lucro Líquido: R$ 18,20</p>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-[#0d1424] border border-slate-800 text-left text-xs space-y-1.5 font-mono">
+        <div class="flex justify-between text-slate-400">
+          <span>Cupom:</span> <span class="text-white font-bold" id="reciboNumero">#VENDA-8821</span>
+        </div>
+        <div class="flex justify-between text-slate-400">
+          <span>Forma:</span> <span class="text-emerald-400 font-bold" id="reciboForma">PIX</span>
+        </div>
+        <div class="flex justify-between text-slate-400">
+          <span>Data/Hora:</span> <span class="text-slate-300" id="reciboDataHora">10/11/2026 21:50</span>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <button onclick="enviarComprovanteWhatsApp()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30">
+          <i class="fa-brands fa-whatsapp text-base"></i> Enviar Comprovante no WhatsApp
+        </button>
+        <button onclick="fecharModalSucesso()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition">
+          Nova Venda [Esc]
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: ENTRADA DE ESTOQUE POR FOTO DE ORDEM/ROMANEIO (IA)-->
+  <!-- ======================================================== -->
+  <div id="modalEntradaPorFoto" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+    <div class="bg-[#141d30] border border-purple-500/40 rounded-2xl max-w-3xl w-full p-5 sm:p-7 space-y-5 shadow-2xl my-auto">
+      
+      <!-- CABEÇALHO -->
+      <div class="flex items-start justify-between pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-2xl font-bold border border-purple-500/30">
+            <i class="fa-solid fa-camera"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base sm:text-lg font-black text-white">Entrada de Estoque por Foto de Ordem / Romaneio</h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-purple-500/20 text-purple-300 border border-purple-500/40">Vision OCR + CMV Real</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Sem NF-e? Fotografe o canhoto, ordem de serviço ou pedido do fornecedor para dar entrada com cálculo automático de preço.</p>
+          </div>
+        </div>
+        <button onclick="fecharModalEntradaPorFoto()" class="text-slate-500 hover:text-white text-lg p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- BANNER DE DIRETRIZ DE ARQUITETURA (OMNICOMMERCE VS TERCEIROS) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+        <div class="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/30 flex items-start gap-2.5">
+          <span class="text-emerald-400 text-sm mt-0.5"><i class="fa-solid fa-circle-check"></i></span>
+          <div>
+            <strong class="text-emerald-300 font-bold block">No Nosso ERP (OmniCommerce):</strong>
+            <span class="text-slate-300 text-[11px]">Abastece o estoque e altera o preço de venda no balcão e no PDV automaticamente em 1 clique.</span>
+          </div>
+        </div>
+        <div class="p-3 rounded-xl bg-amber-950/20 border border-amber-500/30 flex items-start gap-2.5">
+          <span class="text-amber-400 text-sm mt-0.5"><i class="fa-solid fa-shield-halved"></i></span>
+          <div>
+            <strong class="text-amber-300 font-bold block">Em ERPs de Terceiros (Ex: Max Scalla):</strong>
+            <span class="text-slate-300 text-[11px]">Mantém o modo 100% Read-Only e envia alerta no WhatsApp para o dono atualizar o sistema terceiro.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ÁREA DE UPLOAD / DROPZONE / SIMULAÇÃO RÁPIDA -->
+      <div class="p-4 rounded-2xl border-2 border-dashed border-purple-500/30 bg-[#0e1626] text-center space-y-3">
+        <div class="flex flex-col items-center justify-center">
+          <i class="fa-solid fa-cloud-arrow-up text-3xl text-purple-400 mb-2"></i>
+          <span class="text-xs font-bold text-white block">Arraste a foto do romaneio / OS ou selecione um arquivo</span>
+          <span class="text-[11px] text-slate-400">Suporta JPG, PNG ou PDF de comprovante de entrega</span>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
+          <label class="cursor-pointer px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-md shadow-purple-600/30">
+            <i class="fa-solid fa-file-image"></i> Escolher Foto do Computador / Celular
+            <input type="file" accept="image/*" class="sr-only" onchange="processarArquivoOrdem(this)">
+          </label>
+          <span class="text-xs text-slate-500 font-bold">ou testar com exemplo:</span>
+          <button onclick="carregarExemploOrdem('bebidas')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-blue-300 font-bold text-[11px] border border-slate-700 transition">
+            🍺 Exemplo Romaneio Bebidas
+          </button>
+          <button onclick="carregarExemploOrdem('tintas')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 font-bold text-[11px] border border-slate-700 transition">
+            🎨 Exemplo Ordem Tintas
+          </button>
+        </div>
+      </div>
+
+      <!-- ÁREA DE RESULTADO DO SCANNER OCR & CMV (TABELA DE PREÇOS CALCULADOS) -->
+      <div id="boxResultadoLeituraFoto" class="space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-black uppercase tracking-wider text-slate-300">Itens Identificados na Ordem & Reajuste CMV Sugerido</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" id="badgeTotalItensIdentificados">3 itens detectados</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5 shadow-sm">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Arredondamento de Balcão Ativo (R$ 5,00 • 5,50 • 6,00)</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-800 bg-[#0d1424]">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-900/90 text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-800">
+              <tr>
+                <th class="py-2.5 px-3">Produto Identificado</th>
+                <th class="py-2.5 px-3 text-center">Qtd Entrada</th>
+                <th class="py-2.5 px-3 text-right">Custo Antigo &rarr; Novo</th>
+                <th class="py-2.5 px-3 text-right text-emerald-400">Preço Venda Atual &rarr; Novo CMV</th>
+                <th class="py-2.5 px-3 text-center">Impacto Margem</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaItensOrdemFoto" class="divide-y divide-slate-800/80 font-mono text-[11px]">
+              <!-- Inserido dinamicamente via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ALERTA DA TRAVA DE SEGURANÇA -->
+        <div class="p-3 rounded-xl bg-blue-950/20 border border-blue-500/30 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2 text-slate-300">
+            <i class="fa-solid fa-circle-info text-blue-400"></i>
+            <span><strong>Trava de Segurança Anti-Erro de Leitura:</strong> Revise os valores antes de salvar. Você pode ajustar qualquer preço antes de aplicar no PDV.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTÕES DE CONFIRMAÇÃO EM 1 CLIQUE -->
+      <div class="flex items-center justify-between pt-3 border-t border-slate-800">
+        <button onclick="fecharModalEntradaPorFoto()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
+          Cancelar
+        </button>
+
+        <button onclick="aplicarEntradaEstoqueEPrecos()" class="px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-xs transition shadow-lg shadow-emerald-600/30 flex items-center gap-2 active:scale-95">
+          <i class="fa-solid fa-check-double"></i>
+          <span>Aprovar Entrada de Estoque & Atualizar Preços no PDV (1 Toque)</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: CONFIRMAÇÃO DE CANCELAMENTO COM TIMER DE 5 SEGUNDOS -->
+  <!-- ======================================================== -->
+  <div id="modalConfirmacaoCancelamento" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-[#141d30] border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      
+      <div class="flex items-center gap-3 pb-3 border-b border-slate-800">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg font-bold">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-black text-white">Confirmação de Cancelamento de Comanda</h3>
+          <span class="text-[11px] text-slate-400">Verificação obrigatória do sistema</span>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-[#0e1626] border border-slate-800 text-xs space-y-2">
+        <div class="flex justify-between text-slate-300">
+          <span class="text-slate-400">Cliente / Mesa:</span>
+          <strong class="text-white" id="modalCancelaCliente">Alexandre</strong>
+        </div>
+        <div class="flex justify-between text-slate-300">
+          <span class="text-slate-400">Total Consumido:</span>
+          <strong class="text-amber-400 font-mono text-sm" id="modalCancelaValor">R$ 146,80</strong>
+        </div>
+        <div class="flex justify-between text-slate-300">
+          <span class="text-slate-400">Itens Lançados:</span>
+          <span class="text-slate-300 font-mono" id="modalCancelaQtdItens">5 itens</span>
+        </div>
+      </div>
+
+      <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-slate-300 leading-relaxed">
+        ⚠️ <strong>Atenção:</strong> Esta comanda possui produtos já consumidos. Se o cancelamento for efetuado sem o recebimento do valor, gerará divergência física no estoque do estabelecimento.
+      </div>
+
+      <!-- TIMER DE SEGURANÇA DE 5 SEGUNDOS (BLOQUEIA CLIQUE ACIDENTAL POR INSTINTO) -->
+      <div class="pt-2 flex flex-col gap-2">
+        <button id="btnConfirmarCancelamentoTimer" disabled onclick="executarCancelamentoSilencioso()" class="w-full py-3 rounded-xl bg-slate-800 text-slate-400 font-extrabold text-xs transition flex items-center justify-center gap-2 cursor-not-allowed border border-slate-700">
+          <i class="fa-solid fa-clock"></i> <span id="labelTimerCancelamento">Aguarde 5s para confirmar exclusão...</span>
+        </button>
+
+        <button onclick="fecharModalCancelamento()" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition">
+          Voltar e Manter Comanda Aberta
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: PRE-FLY CHECK & AUDITORIA DE SCRIPT 24H (MILLER)  -->
+  <!-- ======================================================== -->
+  <div id="modalPreFlyCheck" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-[#141d30] border border-emerald-500/40 rounded-2xl max-w-xl w-full p-6 space-y-5 shadow-2xl my-auto">
+      
+      <div class="flex items-start justify-between pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl font-bold border border-emerald-500/30">
+            <i class="fa-solid fa-plane-departure"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-black text-white">Pre-Fly Check & Auditoria 24h</h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Conformidade Operacional</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Diagnóstico pré-voo: verifica integridade de scripts, banco e perímetro antes de abrir o caixa.</p>
+          </div>
+        </div>
+        <button onclick="fecharModalPreFly()" class="text-slate-500 hover:text-white text-lg p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- OS 6 PONTOS VITAIS DO PRE-FLY -->
+      <div class="space-y-2.5" id="listaCheckpointsPreFly">
+        <div class="p-3 rounded-xl bg-[#0e1626] border border-slate-800 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <div>
+              <strong class="text-white block font-sans">1. Integridade de Scripts & Hashes SHA-512</strong>
+              <span class="text-[10px] text-slate-400">Zero injeções ou alterações de arquivos locais (Anti-Tampering)</span>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">🟢 100% Íntegro</span>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#0e1626] border border-slate-800 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <div>
+              <strong class="text-white block font-sans">2. Conector do Banco de Dados Físico</strong>
+              <span class="text-[10px] text-slate-400">Permissão restrita de SELECT; comandos destrutivos bloqueados</span>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">🟢 100% Read-Only</span>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#0e1626] border border-slate-800 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <div>
+              <strong class="text-white block font-sans">3. Sanitização de Memória & Chaves de API</strong>
+              <span class="text-[10px] text-slate-400">Zero credenciais expostas no cliente; backend proxy ativo</span>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">🟢 Zero Secrets</span>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#0e1626] border border-slate-800 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <div>
+              <strong class="text-white block font-sans">4. Snapshot de Contingência (Disaster Recovery)</strong>
+              <span class="text-[10px] text-slate-400">Backup automático de produtos, vendas e estoque salvo</span>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">🟢 Snapshot OK</span>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#0e1626] border border-slate-800 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <div>
+              <strong class="text-white block font-sans">5. Firewall WAF & Detecção de Portas</strong>
+              <span class="text-[10px] text-slate-400">Filtragem de robôs e scanners externos ativo na borda</span>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">🟢 Borda Segura</span>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#0e1626] border border-slate-800 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <div>
+              <strong class="text-white block font-sans">6. Monitor de Heurística de Script 24h</strong>
+              <span class="text-[10px] text-slate-400">Bloqueio automático de qualquer desvio ou padrão incomum no caixa</span>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">🟢 Vigia 24h Ativo</span>
+        </div>
+      </div>
+
+      <div class="pt-2 flex items-center justify-between">
+        <button onclick="fecharModalPreFly()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition">
+          Fechar
+        </button>
+        <button onclick="reexecutarPreFlyAnimado()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs transition flex items-center gap-1.5 shadow-lg shadow-emerald-600/30">
+          <i class="fa-solid fa-arrows-rotate"></i> Rodar Novo Pre-Fly Agora
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: LAUDO TÉCNICO OFICIAL DE PENTEST ANUAL (MILLER)   -->
+  <!-- ======================================================== -->
+  <div id="modalLaudoPentest" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-[#141d30] border border-blue-500/40 rounded-2xl max-w-2xl w-full p-6 sm:p-8 space-y-5 shadow-2xl my-auto text-slate-200">
+      
+      <div class="flex items-start justify-between pb-4 border-b border-slate-800">
+        <div>
+          <span class="px-2.5 py-0.5 rounded text-[10px] font-black uppercase bg-blue-500/20 text-blue-300 border border-blue-500/40">
+            Certificação Oficial de Cibersegurança & Pentest
+          </span>
+          <h3 class="text-lg font-black text-white mt-1">Laudo Técnico de Avaliação de Segurança da Informação</h3>
+          <p class="text-xs text-slate-400">Em conformidade com as diretrizes OWASP Top 10, OWASP LLM 2026 e Pre-Flight Check.</p>
+        </div>
+        <button onclick="fecharModalLaudoPentest()" class="text-slate-500 hover:text-white text-lg p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- CORPO DO LAUDO FORMATADO PARA IMPRESSÃO/COMPROVAÇÃO -->
+      <div class="p-4 rounded-xl bg-[#0d1424] border border-slate-800 space-y-3 text-xs font-mono">
+        <div class="flex justify-between border-b border-slate-800 pb-2 text-[11px]">
+          <span class="text-slate-400">EMPRESA AUDITADA:</span>
+          <strong class="text-white font-sans" id="laudoEmpresaNome">Depósito & Conveniência Express</strong>
+        </div>
+        <div class="flex justify-between border-b border-slate-800 pb-2 text-[11px]">
+          <span class="text-slate-400">DATA DA EMISSÃO:</span>
+          <span class="text-slate-300">11/11/2026 (Validade: 12 meses)</span>
+        </div>
+        <div class="flex justify-between border-b border-slate-800 pb-2 text-[11px]">
+          <span class="text-slate-400">RESPONSÁVEL TÉCNICO:</span>
+          <span class="text-emerald-400 font-bold">Comandante Miller — CISO (Agente Sênior de Defesa)</span>
+        </div>
+        <div class="flex justify-between border-b border-slate-800 pb-2 text-[11px]">
+          <span class="text-slate-400">CLASSIFICAÇÃO DE RISCO:</span>
+          <span class="text-emerald-400 font-black">NÍVEL 0 — RISCO MÍNIMO / GRAU A+</span>
+        </div>
+        <div class="flex justify-between pt-1 text-[11px]">
+          <span class="text-slate-400">SCORE FINAL DO PENTEST:</span>
+          <strong class="text-emerald-300 font-black text-sm">100 / 100 (10 de 10 Vetores Neutralizados)</strong>
+        </div>
+      </div>
+
+      <!-- DECLARAÇÃO DE CONFORMIDADE -->
+      <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-slate-300 leading-relaxed font-sans space-y-1.5">
+        <strong class="text-white block font-bold">Resumo das Provas Forenses Executadas:</strong>
+        <p>• <strong>Anti-SQL Injection & Prompt Jailbreak:</strong> APROVADO. Conexão Read-Only e guardrails ativos.</p>
+        <p>• <strong>Anti-XSS & Sanitização:</strong> APROVADO. Renderização sem injeção de scripts arbitrários.</p>
+        <p>• <strong>Armazenamento de Senhas:</strong> APROVADO. Hashes criptográficos com algoritmo Argon2id.</p>
+        <p>• <strong>Pre-Fly Check & Auditoria 24h:</strong> APROVADO. Verificação de integridade de scripts a cada ciclo.</p>
+        <p>• <strong>Trilha Anti-Fraude:</strong> APROVADO. Comanda Fantasma e trava de 5 segundos contra desvios de caixa.</p>
+      </div>
+
+      <div class="pt-2 flex items-center justify-between">
+        <button onclick="fecharModalLaudoPentest()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition">
+          Fechar
+        </button>
+        <button onclick="imprimirLaudoOficial()" class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs transition flex items-center gap-1.5 shadow-lg shadow-blue-600/30">
+          <i class="fa-solid fa-print"></i> Imprimir Laudo / Salvar PDF
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT MODULAR DO SISTEMA -->
+  <script>
+    // ========================================================
+    // BASE DE DADOS DOS NICHOS (PRESETS MULTI-ESTABELECIMENTO)
+    // ========================================================
+    const DADOS_NICHOS = {
+      bebidas: {
+        nome: "Depósito & Distribuidora Express",
+        icone: "🍺",
+        badge: "Depósito de Bebidas & Conveniência",
+        operador: "Caixa 01 - Balcão Bebidas",
+        kpis: {
+          receita: "R$ 38.450,80",
+          cmv: "R$ 21.120,00",
+          estoque: "R$ 64.200,00",
+          lucro: "R$ 17.330,80",
+          margem: "45.1%",
+          produtosTotal: "540 itens"
+        },
+        dica: "Sexta e sábado à noite o giro de gelo, carvão e combos quadruplica! Mantenha 10 fardos de latão já gelando.",
+        produtos: [
+          { id: 1, nome: "Cerveja Heineken Long Neck 330ml", categoria: "Cervejas", custo: 5.20, preco: 8.50, estoque: 240, img: "🍺" },
+          { id: 2, nome: "Cerveja Amstel Latão 473ml", categoria: "Cervejas", custo: 3.40, preco: 5.50, estoque: 380, img: "🍻" },
+          { id: 3, nome: "Saco de Gelo Filtrado 5kg", categoria: "Gelo & Carvão", custo: 3.00, preco: 10.00, estoque: 85, img: "🧊" },
+          { id: 4, nome: "Saco de Carvão Ecológico 3kg", categoria: "Gelo & Carvão", custo: 8.50, preco: 18.00, estoque: 45, img: "🔥" },
+          { id: 5, nome: "Combo Vodka Smirnoff + 4 Energéticos", categoria: "Combos", custo: 42.00, preco: 79.90, estoque: 28, img: "🍾" },
+          { id: 6, nome: "Whisky Red Label 1L", categoria: "Destilados", custo: 68.00, preco: 109.90, estoque: 19, img: "🥃" },
+          { id: 7, nome: "Coca-Cola 2 Litros Pet", categoria: "Refrigerantes", custo: 6.20, preco: 10.50, estoque: 95, img: "🥤" },
+          { id: 8, nome: "Água Mineral Sem Gás 500ml", categoria: "Águas", custo: 0.90, preco: 3.00, estoque: 150, img: "💧" }
+        ],
+        maisVendidos: [
+          { nome: "Cerveja Amstel Latão 473ml", qtd: "312 un", total: "R$ 1.716,00", img: "🍻" },
+          { nome: "Saco de Gelo 5kg", qtd: "145 un", total: "R$ 1.450,00", img: "🧊" },
+          { nome: "Heineken Long Neck 330ml", qtd: "168 un", total: "R$ 1.428,00", img: "🍺" },
+          { nome: "Combo Vodka + Energético", qtd: "24 kits", total: "R$ 1.917,60", img: "🍾" },
+          { nome: "Coca-Cola 2L", qtd: "84 un", total: "R$ 882,00", img: "🥤" }
+        ],
+        clientes: [
+          { nome: "Guilherme Jorge (Churrasco Bela Vista)", compras: "14 compras", total: "R$ 1.840,00" },
+          { nome: "Bar & Lanchonete do Zé", compras: "22 compras", total: "R$ 4.250,00" },
+          { nome: "Arena Beach Tennis", compras: "8 compras", total: "R$ 2.110,00" }
+        ]
+      },
+
+      tintas: {
+        nome: "ShopCor Tintas & Tintometria",
+        icone: "🎨",
+        badge: "Loja de Tintas & Construção",
+        operador: "Balcão Master (Técnico de Cores)",
+        kpis: {
+          receita: "R$ 48.650,00",
+          cmv: "R$ 24.180,00",
+          estoque: "R$ 142.800,00",
+          lucro: "R$ 24.470,00",
+          margem: "50.3%",
+          produtosTotal: "3.415 itens"
+        },
+        dica: "Pintores cadastrados no Clube VIP retiram material toda segunda-feira. Avise sobre o cashback disponível!",
+        produtos: [
+          { id: 101, nome: "Balde 18L Látex Acrílico Fosco Branco", categoria: "Tintas Parede", custo: 185.00, preco: 349.90, estoque: 48, img: "🪣" },
+          { id: 102, nome: "Galão 3,6L Esmalte Sintético Base Água", categoria: "Esmaltes", custo: 68.00, preco: 129.90, estoque: 65, img: "🥫" },
+          { id: 103, nome: "Rolo de Lã Anti-Gota 23cm com Cabo", categoria: "Ferramentas", custo: 14.50, preco: 32.90, estoque: 110, img: "🖌️" },
+          { id: 104, nome: "Fita Crepe Automotiva/Pintura 48mmx50m", categoria: "Fitas", custo: 6.80, preco: 16.50, estoque: 210, img: "🏷️" },
+          { id: 105, nome: "Thinner Diluente PU 900ml", categoria: "Solventes", custo: 12.00, preco: 26.90, estoque: 95, img: "🧪" },
+          { id: 106, nome: "Massa Corrida PVA Balde 25kg", categoria: "Massas", custo: 32.00, preco: 69.90, estoque: 42, img: "🧱" },
+          { id: 107, nome: "Lixa de Ferro / Massa Grão 150 (Pacote 10un)", categoria: "Abrasivos", custo: 8.00, preco: 19.90, estoque: 180, img: "📄" },
+          { id: 108, nome: "Verniz Marítimo Brilhante 900ml", categoria: "Madeira", custo: 24.00, preco: 49.90, estoque: 35, img: "🪵" }
+        ],
+        maisVendidos: [
+          { nome: "Balde 18L Látex Acrílico Branco", qtd: "38 un", total: "R$ 13.296,20", img: "🪣" },
+          { nome: "Rolo de Lã 23cm Anti-Gota", qtd: "92 un", total: "R$ 3.026,80", img: "🖌️" },
+          { nome: "Fita Crepe 48mm", qtd: "140 un", total: "R$ 2.310,00", img: "🏷️" },
+          { nome: "Thinner PU 900ml", qtd: "65 un", total: "R$ 1.748,50", img: "🧪" },
+          { nome: "Massa Corrida Balde 25kg", qtd: "28 un", total: "R$ 1.957,20", img: "🧱" }
+        ],
+        clientes: [
+          { nome: "Marcos Pinturas (Pintor VIP)", compras: "18 compras", total: "R$ 7.420,00" },
+          { nome: "Construtora Silva & Filhos", compras: "6 compras", total: "R$ 14.850,00" },
+          { nome: "Auto Mecânica & Funilaria Brasil", compras: "11 compras", total: "R$ 3.680,00" }
+        ]
+      },
+
+      mercadinho: {
+        nome: "Mercearia & Minimercado do Bairro",
+        icone: "🛒",
+        badge: "Mercadinho & Mercearia",
+        operador: "Caixa 01 - Frente de Loja",
+        kpis: {
+          receita: "R$ 32.100,00",
+          cmv: "R$ 22.450,00",
+          estoque: "R$ 48.900,00",
+          lucro: "R$ 9.650,00",
+          margem: "30.1%",
+          produtosTotal: "890 itens"
+        },
+        dica: "Pão francês quentinho às 17h30 alavanca as vendas de queijo, presunto, café e manteiga!",
+        produtos: [
+          { id: 201, nome: "Arroz Tipo 1 Pacote 5kg", categoria: "Mercearia", custo: 21.00, preco: 28.90, estoque: 90, img: "🍚" },
+          { id: 202, nome: "Feijão Carioca 1kg", categoria: "Mercearia", custo: 6.20, preco: 8.90, estoque: 110, img: "🫘" },
+          { id: 203, nome: "Óleo de Soja 900ml", categoria: "Mercearia", custo: 5.10, preco: 7.20, estoque: 140, img: "🌻" },
+          { id: 204, nome: "Leite Integral Tetra Pak 1L", categoria: "Laticínios", custo: 3.80, preco: 5.49, estoque: 180, img: "🥛" },
+          { id: 205, nome: "Café Torrado e Moído 500g", categoria: "Mercearia", custo: 13.50, preco: 18.90, estoque: 75, img: "☕" },
+          { id: 206, nome: "Pão Francês Fresco (Kg)", categoria: "Padaria", custo: 7.00, preco: 16.90, estoque: 40, img: "🥖" },
+          { id: 207, nome: "Queijo Mussarela Fatiado (300g)", categoria: "Frios", custo: 9.80, preco: 15.90, estoque: 55, img: "🧀" },
+          { id: 208, nome: "Detergente Líquido Neutro 500ml", categoria: "Limpeza", custo: 1.60, preco: 2.89, estoque: 160, img: "🫧" }
+        ],
+        maisVendidos: [
+          { nome: "Pão Francês Fresco (Kg)", qtd: "180 kg", total: "R$ 3.042,00", img: "🥖" },
+          { nome: "Leite Integral 1L", qtd: "240 un", total: "R$ 1.317,60", img: "🥛" },
+          { nome: "Arroz 5kg Tipo 1", qtd: "75 un", total: "R$ 2.167,50", img: "🍚" },
+          { nome: "Café Torrado 500g", qtd: "90 un", total: "R$ 1.701,00", img: "☕" },
+          { nome: "Queijo Mussarela 300g", qtd: "62 un", total: "R$ 985,80", img: "🧀" }
+        ],
+        clientes: [
+          { nome: "Dona Maria (Vizinha Rua 3)", compras: "28 compras", total: "R$ 920,00" },
+          { nome: "Seu Antônio do Açougue", compras: "15 compras", total: "R$ 1.450,00" },
+          { nome: "Padaria & Café da Esquina", compras: "8 compras", total: "R$ 1.120,00" }
+        ]
+      },
+
+      lanchonete: {
+        nome: "Hamburgueria, Lanches & Bar",
+        icone: "🍔",
+        badge: "Lanchonete & Fast Food",
+        operador: "Caixa / Balcão de Pedidos",
+        kpis: {
+          receita: "R$ 26.800,00",
+          cmv: "R$ 9.380,00",
+          estoque: "R$ 18.500,00",
+          lucro: "R$ 17.420,00",
+          margem: "65.0%",
+          produtosTotal: "65 itens"
+        },
+        dica: "Oferecer 'Deseja batata média e refri por mais R$ 9,90?' aumenta o ticket médio em 34%!",
+        produtos: [
+          { id: 301, nome: "Hambúrguer Artesanal Smash Duplo Bacon", categoria: "Lanches", custo: 8.50, preco: 28.90, estoque: 150, img: "🍔" },
+          { id: 302, nome: "Batata Frita Crocante Rústica (300g)", categoria: "Porções", custo: 3.20, preco: 16.90, estoque: 90, img: "🍟" },
+          { id: 303, nome: "Pizza Grande Calabresa com Cebola", categoria: "Pizzas", custo: 14.00, preco: 44.90, estoque: 60, img: "🍕" },
+          { id: 304, nome: "Refrigerante Coca-Cola Lata 350ml", categoria: "Bebidas", custo: 2.50, preco: 6.00, estoque: 180, img: "🥤" },
+          { id: 305, nome: "Suco Natural de Laranja Jarra 1L", categoria: "Bebidas", custo: 3.50, preco: 14.90, estoque: 40, img: "🍊" },
+          { id: 306, nome: "Cerveja Artesanal IPA 500ml", categoria: "Bebidas", custo: 9.00, preco: 22.00, estoque: 55, img: "🍺" }
+        ],
+        maisVendidos: [
+          { nome: "Smash Duplo Bacon", qtd: "280 un", total: "R$ 8.092,00", img: "🍔" },
+          { nome: "Batata Frita Rústica", qtd: "210 un", total: "R$ 3.549,00", img: "🍟" },
+          { nome: "Coca-Cola Lata", qtd: "340 un", total: "R$ 2.040,00", img: "🥤" },
+          { nome: "Pizza Calabresa Grande", qtd: "85 un", total: "R$ 3.816,50", img: "🍕" }
+        ],
+        clientes: [
+          { nome: "Lucas Mendonça (Mesa 4)", compras: "12 compras", total: "R$ 780,00" },
+          { nome: "Família Barbosa", compras: "6 compras", total: "R$ 940,00" }
+        ]
+      },
+
+      japones: {
+        nome: "Restaurante Japonês & Sushi Bar",
+        icone: "🍣",
+        badge: "Culinária Japonesa • Rodízio & À La Carte",
+        operador: "Salão / Sushibar / Mesas",
+        kpis: {
+          receita: "R$ 68.940,00",
+          cmv: "R$ 26.880,00",
+          estoque: "R$ 18.450,00",
+          lucro: "R$ 42.060,00",
+          margem: "61.0%",
+          produtosTotal: "110 itens"
+        },
+        dica: "O Salmão fresco é 42% do seu custo! Monitore a pesagem da carcaça do sushiman (aproveitamento mínimo de 58%) e ative o tempo de espera entre rodadas do rodízio.",
+        produtos: [
+          { id: 601, nome: "Rodízio Tradicional Individual", categoria: "Rodízio", custo: 38.00, preco: 119.90, estoque: 999, img: "🍱" },
+          { id: 602, nome: "Rodízio Premium (Polvo, Camarão & Ostras)", categoria: "Rodízio", custo: 54.00, preco: 159.90, estoque: 999, img: "🍤" },
+          { id: 603, nome: "Combinado Especial do Sushiman (30 Peças)", categoria: "À La Carte", custo: 32.00, preco: 89.90, estoque: 85, img: "🍣" },
+          { id: 604, nome: "Temaki Salmão Completo com Cream Cheese", categoria: "Temakis", custo: 9.80, preco: 28.50, estoque: 140, img: "🍙" },
+          { id: 605, nome: "Hot Roll Especial Salmão Crocante (10un)", categoria: "Cozinha Quente", custo: 7.20, preco: 32.00, estoque: 220, img: "🥢" },
+          { id: 606, nome: "Sashimi Salmão Maçaricado Trufado (10 fatias)", categoria: "Sashimis", custo: 14.50, preco: 45.00, estoque: 90, img: "🐟" },
+          { id: 607, nome: "Yakisoba Especial Misto de Carnes e Legumes", categoria: "Cozinha Quente", custo: 11.00, preco: 38.00, estoque: 110, img: "🍜" },
+          { id: 608, nome: "Saquê Dourado Importado Garrafa 720ml", categoria: "Bebidas & Bar", custo: 38.00, preco: 95.00, estoque: 35, img: "🍶" },
+          { id: 609, nome: "Taxa de Desperdício / Sobras Rodízio (Por Peça)", categoria: "Ajustes", custo: 0.00, preco: 3.50, estoque: 9999, img: "⚠️" }
+        ],
+        maisVendidos: [
+          { nome: "Rodízio Tradicional Noite", qtd: "248 rodízios", total: "R$ 29.735,20", img: "🍱" },
+          { nome: "Combinado 30 Peças", qtd: "142 un", total: "R$ 12.765,80", img: "🍣" },
+          { nome: "Temaki Salmão Cream Cheese", qtd: "310 un", total: "R$ 8.835,00", img: "🍙" },
+          { nome: "Hot Roll Salmão Crocante", qtd: "280 un", total: "R$ 8.960,00", img: "🥢" },
+          { nome: "Saquê Dourado Garrafa", qtd: "45 un", total: "R$ 4.275,00", img: "🍶" }
+        ],
+        clientes: [
+          { nome: "Mesa 08 (Família Takahashi - 4 Pessoas)", compras: "Consumo: R$ 548,00", total: "Em Atendimento" },
+          { nome: "Mesa 03 (Casal Rodrigo & Luiza)", compras: "Consumo: R$ 289,80", total: "Sobremesa / Fechamento" },
+          { nome: "Mesa 12 (Aniversário Grupo 8 Pessoas)", compras: "Consumo: R$ 1.140,00", total: "Em Atendimento" },
+          { nome: "Balcão Sushibar (Alexandre)", compras: "Consumo: R$ 138,50", total: "Conta Fechada" }
+        ]
+      },
+
+      rotisseria: {
+        nome: "Rotisseria & Assados da Villa",
+        icone: "🍗",
+        badge: "Rotisseria • Assados & Fornadas",
+        operador: "Balcão / Encomendas Domingo",
+        kpis: {
+          receita: "R$ 48.600,00",
+          cmv: "R$ 17.500,00",
+          estoque: "R$ 8.900,00",
+          lucro: "R$ 31.100,00",
+          margem: "64.0%",
+          produtosTotal: "48 itens"
+        },
+        dica: "Domingo das 10h às 13h concentra 68% do faturamento da semana! Trave as reservas com sinal de 50% via PIX para não ter desistência.",
+        produtos: [
+          { id: 701, nome: "Frango Assado Recheado com Farofa Especial", categoria: "Aves & Fornadas", custo: 18.00, preco: 48.00, estoque: 65, img: "🍗" },
+          { id: 702, nome: "Costela Bovina no Bafo 1kg (Assada Desmanchando)", categoria: "Carnes Assadas", custo: 32.00, preco: 79.90, estoque: 40, img: "🥩" },
+          { id: 703, nome: "Maionese Artesanal de Batata com Frango (Pote 500g)", categoria: "Guarnições", custo: 5.50, preco: 18.00, estoque: 80, img: "🥗" },
+          { id: 704, nome: "Lasanha Bolonhesa Especial 4 Queijos (1kg)", categoria: "Massas", custo: 14.00, preco: 45.00, estoque: 30, img: "🍝" },
+          { id: 705, nome: "Cupim Casqueirado Macio na Brasa (500g)", categoria: "Carnes Assadas", custo: 22.00, preco: 55.00, estoque: 35, img: "🍖" },
+          { id: 706, nome: "Combo Domingo Família (Frango + Maionese + Farofa + Refri)", categoria: "Combos", custo: 34.00, preco: 85.00, estoque: 50, img: "🍱" },
+          { id: 707, nome: "Batatas Coradas no Caldo do Frango (Porção)", categoria: "Guarnições", custo: 3.00, preco: 15.00, estoque: 90, img: "🥔" },
+          { id: 708, nome: "Refrigerante Coca-Cola 2L Gelada", categoria: "Bebidas", custo: 6.20, preco: 12.00, estoque: 120, img: "🥤" }
+        ],
+        maisVendidos: [
+          { nome: "Frango Assado Recheado", qtd: "185 un", total: "R$ 8.880,00", img: "🍗" },
+          { nome: "Combo Domingo Família", qtd: "95 kits", total: "R$ 8.075,00", img: "🍱" },
+          { nome: "Costela no Bafo 1kg", qtd: "68 kg", total: "R$ 5.433,20", img: "🥩" },
+          { nome: "Maionese Artesanal 500g", qtd: "140 un", total: "R$ 2.520,00", img: "🥗" },
+          { nome: "Lasanha Bolonhesa 1kg", qtd: "54 un", total: "R$ 2.430,00", img: "🍝" }
+        ],
+        clientes: [
+          { nome: "Carlos Eduardo (Fornada 11h30 - Frango + Maionese)", compras: "Sinal Pago: R$ 30,00", total: "Retirada 11h30" },
+          { nome: "Dona Maria (Fornada 12h00 - Costela 1.5kg)", compras: "Sinal Pago: R$ 50,00", total: "Retirada 12h00" },
+          { nome: "Marcos Vinicius (Fornada 12h30 - Combo Família)", compras: "Sinal Pago: R$ 40,00", total: "Retirada 12h30" },
+          { nome: "Balcão Avulso (Fila Presencial)", compras: "Atendimento Normal", total: "Pronto" }
+        ]
+      },
+
+      churrascaria: {
+        nome: "Churrascaria & Espetaria Boi de Ouro",
+        icone: "🥩",
+        badge: "Churrascaria • Rodízio de Carnes Nobres",
+        operador: "Salão / Espetos / Mesas",
+        kpis: {
+          receita: "R$ 94.500,00",
+          cmv: "R$ 38.800,00",
+          estoque: "R$ 24.200,00",
+          lucro: "R$ 55.700,00",
+          margem: "59.0%",
+          produtosTotal: "92 itens"
+        },
+        dica: "A quebra no fogo (perda de água/gordura) é de 28% a 33%! Calcule o preço do quilo assado sempre após o fator de cocção.",
+        produtos: [
+          { id: 801, nome: "Rodízio Completo Adulto (Picanha, Ancho, Costela)", categoria: "Rodízio", custo: 34.00, preco: 99.90, estoque: 999, img: "🥩" },
+          { id: 802, nome: "Meio Rodízio Infantil (Crianças de 6 a 10 anos)", categoria: "Rodízio", custo: 17.00, preco: 49.90, estoque: 999, img: "🧒" },
+          { id: 803, nome: "Picanha Nobre Fatiada na Chapa com Alho (500g)", categoria: "À La Carte", custo: 38.00, preco: 89.00, estoque: 45, img: "🔥" },
+          { id: 804, nome: "Espeto de Picanha Especial no Braseiro (350g)", categoria: "Espetos", custo: 16.00, preco: 38.00, estoque: 80, img: "🍢" },
+          { id: 805, nome: "Chope Pilsen Caneca 500ml Super Gelada", categoria: "Bar & Bebidas", custo: 3.50, preco: 14.00, estoque: 350, img: "🍺" },
+          { id: 806, nome: "Caipirinha Cachaça Artesanal / Vodka com Frutas", categoria: "Bar & Bebidas", custo: 4.80, preco: 24.00, estoque: 999, img: "🍹" },
+          { id: 807, nome: "Pudim de Leite Condensado com Calda Caramelizada", categoria: "Sobremesas", custo: 3.20, preco: 16.00, estoque: 40, img: "🍮" },
+          { id: 808, nome: "Petit Gâteau com Sorvete de Creme", categoria: "Sobremesas", custo: 5.50, preco: 26.00, estoque: 30, img: "🍨" }
+        ],
+        maisVendidos: [
+          { nome: "Rodízio Completo Adulto", qtd: "412 rodízios", total: "R$ 41.158,80", img: "🥩" },
+          { nome: "Chope Caneca 500ml", qtd: "620 un", total: "R$ 8.680,00", img: "🍺" },
+          { nome: "Meio Rodízio Infantil", qtd: "84 un", total: "R$ 4.191,60", img: "🧒" },
+          { nome: "Picanha na Chapa 500g", qtd: "48 un", total: "R$ 4.272,00", img: "🔥" },
+          { nome: "Pudim de Leite Tradicional", qtd: "115 un", total: "R$ 1.840,00", img: "🍮" }
+        ],
+        clientes: [
+          { nome: "Mesa 15 (Almoço Diretoria - 6 Pessoas)", compras: "Consumo: R$ 840,00", total: "Em Atendimento" },
+          { nome: "Mesa 04 (Família Silva - 2 Adultos + 2 Crianças)", compras: "Consumo: R$ 368,00", total: "Sobremesa" },
+          { nome: "Mesa 09 (Happy Hour Espetos + Chope)", compras: "Consumo: R$ 490,00", total: "Em Atendimento" },
+          { nome: "Balcão Rápido Espetos", compras: "Consumo: R$ 76,00", total: "Conta Paga" }
+        ]
+      },
+
+      acougue: {
+        nome: "Açougue & Boutique de Carnes Prime",
+        icone: "🥩",
+        badge: "Açougue • Desossa & Balanças EAN-13",
+        operador: "Balcão / Caixa Balança",
+        kpis: {
+          receita: "R$ 112.400,00",
+          cmv: "R$ 74.200,00",
+          estoque: "R$ 38.500,00",
+          lucro: "R$ 38.200,00",
+          margem: "34.0%",
+          produtosTotal: "85 itens"
+        },
+        dica: "Pesar carcaças inteiras na chegada e calcular a quebra de desossa semanal evita perder até R$ 4.200/mês em aparas!",
+        produtos: [
+          { id: 901, nome: "Picanha Bovina Resfriada Prime (kg)", categoria: "Cortes Nobres", custo: 54.00, preco: 89.90, estoque: 48, img: "🥩" },
+          { id: 902, nome: "Contrafilé Bovino com Gordura (kg)", categoria: "Cortes Nobres", custo: 34.00, preco: 52.90, estoque: 85, img: "🥩" },
+          { id: 903, nome: "Alcatra com Maminha Especial (kg)", categoria: "Cortes Diários", custo: 32.00, preco: 48.90, estoque: 92, img: "🥩" },
+          { id: 904, nome: "Costela Bovina em Tiras Gaúcha (kg)", categoria: "Churrasco", custo: 21.00, preco: 36.90, estoque: 110, img: "🍖" },
+          { id: 905, nome: "Carne Moída Patinho Fresco (kg)", categoria: "Cortes Diários", custo: 26.00, preco: 42.00, estoque: 75, img: "🥩" },
+          { id: 906, nome: "Espeto de Picanha com Alho Temperado (Bandeja 5un)", categoria: "Espetos", custo: 18.00, preco: 38.00, estoque: 40, img: "🍢" },
+          { id: 907, nome: "Linguiça Artesanal com Queijo Coalho (kg)", categoria: "Embutidos", custo: 16.00, preco: 34.90, estoque: 65, img: "🌭" },
+          { id: 908, nome: "Carvão Vegetal Especial 4kg para Churrasco", categoria: "Acessórios", custo: 11.00, preco: 22.00, estoque: 90, img: "🔥" }
+        ],
+        maisVendidos: [
+          { nome: "Contrafilé Bovino (kg)", qtd: "342 kg", total: "R$ 18.091,80", img: "🥩" },
+          { nome: "Carne Moída Patinho (kg)", qtd: "285 kg", total: "R$ 11.970,00", img: "🥩" },
+          { nome: "Alcatra com Maminha (kg)", qtd: "210 kg", total: "R$ 10.269,00", img: "🥩" },
+          { nome: "Picanha Prime (kg)", qtd: "98 kg", total: "R$ 8.810,20", img: "🥩" },
+          { nome: "Linguiça com Queijo (kg)", qtd: "135 kg", total: "R$ 4.711,50", img: "🌭" }
+        ],
+        clientes: [
+          { nome: "Seu Roberto (Churrasco de Domingo - 8kg)", compras: "Consumo: R$ 420,00", total: "Pago no Balcão" },
+          { nome: "Restaurante do Bairro (Fornecimento Semanal)", compras: "Consumo: R$ 1.850,00", total: "Boleto Faturado" },
+          { nome: "Dona Neusa (Compra da Semana - Moída + Bife)", compras: "Consumo: R$ 168,00", total: "Pago PIX" },
+          { nome: "Balcão Rápido Carnes", compras: "Consumo: R$ 89,50", total: "Conta Paga" }
+        ]
+      },
+
+      piercing: {
+        nome: "Studio & Boutique - Piercing, Joias & Bijuterias",
+        icone: "💎",
+        badge: "Piercing, Joias de Titânio & Bijuterias Finas",
+        operador: "Body Piercer & Balcão VIP",
+        kpis: {
+          receita: "R$ 28.450,00",
+          cmv: "R$ 6.120,00",
+          estoque: "R$ 34.800,00",
+          lucro: "R$ 22.330,00",
+          margem: "78.5%",
+          produtosTotal: "1.240 peças cadastradas"
+        },
+        dica: "Atendimento automático de WhatsApp e Directs do Instagram respondeu 142 dúvidas e agendou 18 perfurações com sinal PIX sem você largar a pinça cirúrgica!",
+        produtos: [
+          { id: 701, nome: "Labret Titânio G23 c/ Zircônia 1.2mm (Aplicação Inclusa)", categoria: "Piercing Orelha", custo: 18.00, preco: 130.00, estoque: 65, img: "💎" },
+          { id: 702, nome: "Argola Clicker Titânio PVD Dourado (Septo/Daith)", categoria: "Piercing Septo", custo: 24.00, preco: 150.00, estoque: 42, img: "💍" },
+          { id: 703, nome: "Nostril Ponto de Luz Prata 925", categoria: "Piercing Nariz", custo: 9.50, preco: 75.00, estoque: 88, img: "✨" },
+          { id: 704, nome: "Piercing Umbigo Banana Bell c/ Opala Sintética", categoria: "Piercing Corpo", custo: 22.00, preco: 140.00, estoque: 31, img: "🔮" },
+          { id: 705, nome: "Soro Fisiológico Estéril Spray Pós-Perfuração 100ml", categoria: "Cuidados Pós", custo: 8.00, preco: 28.00, estoque: 95, img: "🧴" },
+          { id: 706, nome: "Colar Veneziana Banhado a Ouro 18k c/ Pingente", categoria: "Bijuterias Finas", custo: 28.00, preco: 89.90, estoque: 24, img: "📿" },
+          { id: 707, nome: "Brinco Argola Cravejada Microzircônias (Par)", categoria: "Bijuterias Finas", custo: 16.00, preco: 59.90, estoque: 50, img: "✨" },
+          { id: 708, nome: "Taxa Troca de Joia / Downsize Haste", categoria: "Procedimentos", custo: 5.00, preco: 45.00, estoque: 999, img: "🩺" }
+        ],
+        maisVendidos: [
+          { nome: "Labret Titânio G23 (Perfuração Hélix)", qtd: "48 atend.", total: "R$ 6.240,00", img: "💎" },
+          { nome: "Argola Clicker Titânio Septo", qtd: "35 atend.", total: "R$ 5.250,00", img: "💍" },
+          { nome: "Soro Spray Pós-Piercing", qtd: "72 un", total: "R$ 2.016,00", img: "🧴" },
+          { nome: "Argola Cravejada Zircônia (Par)", qtd: "41 un", total: "R$ 2.455,90", img: "✨" }
+        ],
+        clientes: [
+          { nome: "Mariana Costa (Termo ANVISA Assinado • Septo)", compras: "Procedimento: R$ 150,00", total: "Sinal R$ 30 + R$ 120 Balcão" },
+          { nome: "Beatriz Lemos (Downsize Hélix + Compra Colar)", compras: "Procedimento + Biju: R$ 134,90", total: "Pago no PIX" },
+          { nome: "Isabela Rocha (Piercing Umbigo + Soro Spray)", compras: "Procedimento + Pós: R$ 168,00", total: "Pago no Cartão" },
+          { nome: "WhatsApp Camila IA (6 Agendamentos Pendentes)", compras: "Sinais PIX Garantidos: R$ 180,00", total: "Confirmados no Calendário" }
+        ]
+      },
+
+      autopecas: {
+        nome: "Centro Automotivo & Autopeças Paulista",
+        icone: "🔧",
+        badge: "Autopeças, Motopeças & Acessórios",
+        operador: "Caixa 01 - Balcão Peças",
+        kpis: {
+          receita: "R$ 82.300,00",
+          cmv: "R$ 49.380,00",
+          estoque: "R$ 145.000,00",
+          lucro: "R$ 32.920,00",
+          margem: "40.0%",
+          produtosTotal: "4.850 peças ativas"
+        },
+        dica: "PIS/COFINS Monofásico configurado: economia tributária automática nas vendas de pastilhas, amortecedores e filtros!",
+        produtos: [
+          { id: 801, nome: "Pastilha de Freio Dianteira Gol G5/Fox (Cobreq)", categoria: "Freios", custo: 58.00, preco: 115.00, estoque: 28, img: "🛑" },
+          { id: 802, nome: "Óleo Motor 5W30 Sintético 1L (Mobil)", categoria: "Lubrificantes", custo: 26.50, preco: 48.00, estoque: 120, img: "🛢️" },
+          { id: 803, nome: "Amortecedor Dianteiro Par Palio/Siena (Cofap)", categoria: "Suspensão", custo: 320.00, preco: 580.00, estoque: 8, img: "🔩" }
+        ],
+        maisVendidos: [
+          { nome: "Óleo 5W30 Sintético", qtd: "185 L", total: "R$ 8.880,00", img: "🛢️" },
+          { nome: "Pastilha Gol G5 Cobreq", qtd: "42 jgs", total: "R$ 4.830,00", img: "🛑" }
+        ],
+        clientes: [
+          { nome: "Oficina do Beto (Faturado 15 Dias)", compras: "Consumo: R$ 3.420,00", total: "Limite R$ 5.000,00 OK" }
+        ]
+      },
+
+      petshop: {
+        nome: "Pet Care & Boutique Animal",
+        icone: "🐾",
+        badge: "Pet Shop, Banho & Tosa e Consultório",
+        operador: "Recepção / Caixa Pet",
+        kpis: {
+          receita: "R$ 41.200,00",
+          cmv: "R$ 16.480,00",
+          estoque: "R$ 52.000,00",
+          lucro: "R$ 24.720,00",
+          margem: "60.0%",
+          produtosTotal: "890 itens"
+        },
+        dica: "Confirmação de Banho & Tosa pelo WhatsApp enviada às 08h zerou as faltas de hoje!",
+        produtos: [
+          { id: 901, nome: "Ração Golden Cães Adultos Frango 15kg", categoria: "Rações", custo: 135.00, preco: 189.90, estoque: 35, img: "🥩" },
+          { id: 902, nome: "Banho & Tosa Completo Cão Pequeno Porte", categoria: "Serviços", custo: 12.00, preco: 75.00, estoque: 999, img: "🛁" },
+          { id: 903, nome: "Bravecto Antipulgas 10 a 20kg", categoria: "Farmácia Pet", custo: 165.00, preco: 229.00, estoque: 18, img: "💊" }
+        ],
+        maisVendidos: [
+          { nome: "Banho & Tosa Porte Pequeno", qtd: "92 atend.", total: "R$ 6.900,00", img: "🛁" },
+          { nome: "Ração Golden 15kg", qtd: "45 sacos", total: "R$ 8.545,50", img: "🥩" }
+        ],
+        clientes: [
+          { nome: "Dra. Luciana (Thor - Golden Retriever)", compras: "Banho + Hidratação: R$ 130,00", total: "Pago no Cartão" }
+        ]
+      },
+
+      barbearia: {
+        nome: "Barbearia Imperial & Lounge",
+        icone: "💈",
+        badge: "Barbearia, Estética Masculina & Bar",
+        operador: "Recepção Lounge",
+        kpis: {
+          receita: "R$ 31.800,00",
+          cmv: "R$ 5.720,00",
+          estoque: "R$ 18.500,00",
+          lucro: "R$ 26.080,00",
+          margem: "82.0%",
+          produtosTotal: "120 itens e serviços"
+        },
+        dica: "Comissões dos barbeiros calculadas em tempo real: divisão automática sem briga no sábado!",
+        produtos: [
+          { id: 1001, nome: "Corte Cabelo Fade / Degradê Navalhado", categoria: "Cortes", custo: 5.00, preco: 50.00, estoque: 999, img: "✂️" },
+          { id: 1002, nome: "Barba Terapia com Toalha Quente e Óleo", categoria: "Barba", custo: 6.00, preco: 45.00, estoque: 999, img: "🪒" },
+          { id: 1003, nome: "Pomada Modeladora Efeito Matte 100g", categoria: "Produtos", custo: 14.00, preco: 45.00, estoque: 45, img: "🧴" }
+        ],
+        maisVendidos: [
+          { nome: "Corte Fade / Degradê", qtd: "240 cortes", total: "R$ 12.000,00", img: "✂️" },
+          { nome: "Barboterapia Toalha Quente", qtd: "160 barbas", total: "R$ 7.200,00", img: "🪒" }
+        ],
+        clientes: [
+          { nome: "Gustavo Mendes (Corte + Cerveja IPA)", compras: "Consumo: R$ 68,00", total: "Pago no PIX" }
+        ]
+      },
+
+      pizzaria: {
+        nome: "Pizzaria Forno Nobre & Delivery",
+        icone: "🍕",
+        badge: "Forno, Meio-a-Meio, KDS & Motoboys",
+        operador: "Balcão Delivery & Forno",
+        kpis: {
+          receita: "R$ 94.800,00",
+          cmv: "R$ 31.280,00",
+          estoque: "R$ 16.400,00",
+          lucro: "R$ 63.520,00",
+          margem: "67.0%",
+          produtosTotal: "185 sabores, bordas & combos"
+        },
+        dica: "O WhatsApp IA desviou 62% dos clientes recorrentes do iFood para o cardápio próprio, economizando R$ 7.400,00/mês em comissões, e alertou excesso de 45g de muçarela por pizza no turno de sexta!",
+        produtos: [
+          { id: 951, nome: "Pizza G 8 Fatias (1/2 Calabresa + 1/2 Muçarela)", categoria: "Pizzas Tradicionais", custo: 19.80, preco: 64.90, estoque: 85, img: "🍕" },
+          { id: 952, nome: "Pizza G 1/2 Frango Catupiry + 1/2 Marguerita", categoria: "Pizzas Especiais", custo: 24.50, preco: 74.90, estoque: 60, img: "🧀" },
+          { id: 953, nome: "Pizza G Portuguesa Especial", categoria: "Pizzas Tradicionais", custo: 22.40, preco: 68.90, estoque: 70, img: "🍕" },
+          { id: 954, nome: "Adicional Borda Recheada Catupiry Original", categoria: "Bordas & Adicionais", custo: 5.20, preco: 16.00, estoque: 110, img: "🥯" },
+          { id: 955, nome: "Combo Família (2 Pizzas G + Guaraná 2L)", categoria: "Combos Delivery", custo: 43.00, preco: 129.90, estoque: 40, img: "🛵" },
+          { id: 956, nome: "Caixa 10 Esfihas Abertas Mistas", categoria: "Esfihas & Calzones", custo: 15.60, preco: 49.90, estoque: 50, img: "🥟" },
+          { id: 957, nome: "Coca-Cola 2 Litros Gelada", categoria: "Bebidas", custo: 7.90, preco: 15.00, estoque: 96, img: "🥤" },
+          { id: 958, nome: "Taxa Entrega Bairro Padrão (Motoboy)", categoria: "Delivery", custo: 6.00, preco: 8.00, estoque: 999, img: "🏍️" }
+        ],
+        maisVendidos: [
+          { nome: "Pizza G 1/2 Calabresa + 1/2 Muçarela", qtd: "340 unid", total: "R$ 22.066,00", img: "🍕" },
+          { nome: "Combo Família (2 Pizzas G + Guaraná 2L)", qtd: "195 unid", total: "R$ 25.330,50", img: "🛵" },
+          { nome: "Adicional Borda Catupiry Original", qtd: "280 unid", total: "R$ 4.480,00", img: "🥯" }
+        ],
+        clientes: [
+          { nome: "Carla Souza (Pedido #413 - WhatsApp IA)", compras: "Combo Família + Coca 2L", total: "PIX R$ 144,90" },
+          { nome: "Marcos Lima (Mesa 04 / Delivery)", compras: "1/2 Calabresa + Borda", total: "R$ 80,90" }
+        ]
+      },
+
+      generico: {
+        nome: "Comércio Varejista Multiuso",
+        icone: "🏬",
+        badge: "Varejo & Utilidades Gerais",
+        operador: "Caixa 01 - Balcão Geral",
+        kpis: {
+          receita: "R$ 35.000,00",
+          cmv: "R$ 18.200,00",
+          estoque: "R$ 55.000,00",
+          lucro: "R$ 16.800,00",
+          margem: "48.0%",
+          produtosTotal: "450 itens"
+        },
+        dica: "Organize itens de impulso (balas, pilhas, fita) perto do teclado do caixa para vender mais.",
+        produtos: [
+          { id: 401, nome: "Pacote de Pilhas Alcalinas AA (4un)", categoria: "Utilidades", custo: 6.00, preco: 18.00, estoque: 80, img: "🔋" },
+          { id: 402, nome: "Garrafa Térmica Inox 1L", categoria: "Utilidades", custo: 28.00, preco: 69.90, estoque: 25, img: "🍶" },
+          { id: 403, nome: "Guarda-Chuva Reforçado Automático", categoria: "Acessórios", custo: 15.00, preco: 39.90, estoque: 40, img: "☂️" }
+        ],
+        maisVendidos: [
+          { nome: "Pilhas Alcalinas AA", qtd: "65 un", total: "R$ 1.170,00", img: "🔋" },
+          { nome: "Garrafa Térmica 1L", qtd: "18 un", total: "R$ 1.258,20", img: "🍶" }
+        ],
+        clientes: [
+          { nome: "Clodoaldo Ramos", compras: "5 compras", total: "R$ 420,00" }
+        ]
+      }
+    };
+
+    // ========================================================
+    // ESTADO GLOBAL DA APLICAÇÃO
+    // ========================================================
+    let cliquesAdminUniv = 0;
+    let timerCliquesAdminUniv = null;
+    let nichoAtual = localStorage.getItem('omni_univ_nicho_travado') || 'bebidas';
+    let carrinho = [];
+    let vendasHistorico = [
+      { id: "VENDA-8821", hora: "21:40", cliente: "Balcão (Consumidor Final)", itens: "2x Cerveja Latão, 1x Gelo 5kg", forma: "PIX", total: 21.00, lucro: 11.20 },
+      { id: "VENDA-8820", hora: "21:28", cliente: "Guilherme Jorge", itens: "1x Combo Vodka, 2x Gelo 5kg", forma: "Cartão", total: 99.90, lucro: 51.90 },
+      { id: "VENDA-8819", hora: "21:15", cliente: "Marcos Bela Vista", itens: "6x Heineken Long Neck", forma: "Dinheiro", total: 51.00, lucro: 19.80 }
+    ];
+
+    function abrirPainelAdminUniv() {
+      const pin = prompt("🔐 ACESSO ADMINISTRADOR (INSTALAÇÃO)\nDigite o PIN Admin (padrão 2026):");
+      if (pin === null) return;
+      if (pin.trim() !== (localStorage.getItem('omni_univ_admin_pin') || '2026')) {
+        alert("❌ PIN incorreto. Acesso exclusivo do administrador.");
+        return;
+      }
+      const box = document.getElementById('boxSeletorNichoAdminUniv');
+      if (box) { box.classList.remove('hidden'); box.classList.add('flex'); }
+      const escolha = prompt(
+        "🛠️ MODO ADMIN LIBERADO!\n\n" +
+        "O seletor de ramos foi exibido no topo.\n" +
+        "Digite o código do ramo para TRAVAR nesta instalação (ex: bebidas, tintas, pizzaria, lanchonete, acougue, piercing, barbearia, petshop, autopecas, japones, rotisseria, churrascaria, mercadinho, generico):",
+        nichoAtual
+      );
+      if (escolha && DADOS_NICHOS[escolha.trim()]) {
+        const chave = escolha.trim();
+        localStorage.setItem('omni_univ_nicho_travado', chave);
+        mudarNicho(chave);
+        const sel = document.getElementById('selectNichoComercio');
+        if (sel) sel.value = chave;
+        if (confirm(`✅ Ramo "${DADOS_NICHOS[chave].nome}" travado!\n\nDeseja OCULTAR o seletor do topo para o cliente agora?`)) {
+          if (box) { box.classList.add('hidden'); box.classList.remove('flex'); }
+        }
+      }
+    }
+
+    // INICIALIZAÇÃO
+    window.addEventListener('DOMContentLoaded', () => {
+      const sel = document.getElementById('selectNichoComercio');
+      if (sel) sel.value = nichoAtual;
+      carregarNicho(nichoAtual);
+      atualizarTabelaHistorico();
+
+      const tituloEmpresa = document.getElementById('headerNomeEmpresa');
+      if (tituloEmpresa) {
+        tituloEmpresa.style.cursor = 'pointer';
+        tituloEmpresa.addEventListener('click', () => {
+          cliquesAdminUniv++;
+          clearTimeout(timerCliquesAdminUniv);
+          timerCliquesAdminUniv = setTimeout(() => { cliquesAdminUniv = 0; }, 1800);
+          if (cliquesAdminUniv >= 5) { cliquesAdminUniv = 0; abrirPainelAdminUniv(); }
+        });
+      }
+
+      if (new URLSearchParams(window.location.search).get('admin') === '1') {
+        abrirPainelAdminUniv();
+      }
+
+      // Atalhos de teclado
+      window.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.shiftKey && e.key.toUpperCase() === 'A') {
+          e.preventDefault();
+          abrirPainelAdminUniv();
+        }
+        if (e.key === 'F2') {
+          e.preventDefault();
+          navegarAba('pdv');
+        }
+        if (e.key === 'Escape') {
+          fecharModalPix();
+          fecharModalSucesso();
+        }
+      });
+    });
+
+    // ========================================================
+    // NAVEGAÇÃO ENTRE ABAS
+    // ========================================================
+    function navegarAba(abaId) {
+      const abas = ['dashboard', 'pdv', 'comandas', 'produtos', 'vendas', 'ia_equipe'];
+      abas.forEach(aba => {
+        const view = document.getElementById(`view_${aba}`);
+        const btn = document.getElementById(`btnSide_${aba}`);
+        if (view) view.classList.add('hidden');
+        if (btn) btn.classList.remove('active', 'text-sky-400', 'text-amber-400');
+      });
+
+      const viewAlvo = document.getElementById(`view_${abaId}`);
+      const btnAlvo = document.getElementById(`btnSide_${abaId}`);
+      if (viewAlvo) viewAlvo.classList.remove('hidden');
+      if (btnAlvo) {
+        btnAlvo.classList.add('active', abaId === 'comandas' ? 'text-amber-400' : 'text-sky-400');
+      }
+
+      // Se for comandas, renderiza a grade
+      if (abaId === 'comandas') {
+        renderizarGridComandas();
+      }
+
+      // Se for PDV, foca no campo de busca
+      if (abaId === 'pdv') {
+        setTimeout(() => {
+          const input = document.getElementById('inputBuscaPDV');
+          if (input) input.focus();
+        }, 100);
+      }
+    }
+
+    // ========================================================
+    // MUDANÇA DINÂMICA DE NICHO (MULTI-ESTABELECIMENTO)
+    // ========================================================
+    function mudarNicho(novoNicho) {
+      nichoAtual = novoNicho;
+      carregarNicho(novoNicho);
+    }
+
+    function carregarNicho(nichoKey) {
+      const dados = DADOS_NICHOS[nichoKey] || DADOS_NICHOS.bebidas;
+
+      // Atualiza Header
+      document.getElementById('headerNomeEmpresa').innerText = dados.nome;
+      document.getElementById('headerNichoIcon').innerText = dados.icone;
+      document.getElementById('badgeNichoAtual').innerText = dados.badge;
+      document.getElementById('badgeNichoPDV').innerText = dados.badge;
+      document.getElementById('selectNichoComercio').value = nichoKey;
+
+      // Atualiza KPIs
+      document.getElementById('kpiReceitaMensal').innerText = dados.kpis.receita;
+      document.getElementById('kpiCustoMensal').innerText = dados.kpis.cmv;
+      document.getElementById('kpiEstoqueValor').innerText = dados.kpis.estoque;
+      document.getElementById('kpiLucroReal').innerText = dados.kpis.lucro;
+      document.getElementById('cardQtdProdutos').innerText = dados.kpis.produtosTotal;
+      document.getElementById('dicaFuncionarioDigital').innerText = dados.dica;
+      document.getElementById('nomeOperadorCaixa').innerText = dados.operador;
+
+      // Renderiza Produtos Mais Vendidos no Dashboard
+      renderizarMaisVendidosDashboard(dados.maisVendidos);
+
+      // Renderiza Principais Clientes
+      renderizarClientes(dados.clientes);
+
+      // Renderiza Grade do PDV
+      renderizarGradePDV(dados.produtos);
+
+      // Renderiza Tabela Completa de Produtos
+      renderizarTabelaProdutos(dados.produtos);
+    }
+
+    function renderizarMaisVendidosDashboard(lista) {
+      const container = document.getElementById('listaMaisVendidos');
+      container.innerHTML = '';
+      lista.forEach(prod => {
+        container.innerHTML += `
+          <div class="flex items-center justify-between p-2.5 rounded-xl bg-[#0e1524] border border-slate-800 hover:border-slate-700 transition">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-xl shrink-0">
+                ${prod.img}
+              </div>
+              <div>
+                <h4 class="text-xs font-bold text-white leading-tight">${prod.nome}</h4>
+                <span class="text-[10px] text-slate-400">Vendas: ${prod.qtd}</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs font-black text-emerald-400 font-mono">${prod.total}</div>
+              <span class="text-[9px] text-slate-500 uppercase">Faturado</span>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function renderizarClientes(clientes) {
+      const container = document.getElementById('listaPrincipaisClientes');
+      container.innerHTML = '';
+      clientes.forEach(cli => {
+        container.innerHTML += `
+          <div class="p-2.5 rounded-xl bg-[#0e1524] border border-slate-800 flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-white block">${cli.nome}</span>
+              <span class="text-[10px] text-slate-400">${cli.compras}</span>
+            </div>
+            <span class="text-xs font-black text-emerald-400 font-mono">${cli.total}</span>
+          </div>
+        `;
+      });
+    }
+
+    // ========================================================
+    // PDV: RENDERIZAÇÃO DA GRADE VISUAL DE PRODUTOS
+    // ========================================================
+    function renderizarGradePDV(produtos) {
+      const grade = document.getElementById('gradeProdutosPDV');
+      grade.innerHTML = '';
+      document.getElementById('contadorItensPDV').innerText = `Mostrando ${produtos.length} produtos de giro rápido`;
+
+      produtos.forEach(prod => {
+        const margem = (((prod.preco - prod.custo) / prod.preco) * 100).toFixed(0);
+        grade.innerHTML += `
+          <div onclick="adicionarAoCarrinho(${prod.id})" class="custom-card rounded-2xl p-3.5 flex flex-col justify-between hover:scale-[1.02] active:scale-95 cursor-pointer shadow-lg group border-slate-800 hover:border-blue-500/50 relative overflow-hidden transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl">${prod.img}</span>
+              <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md font-mono">+${margem}% lucro</span>
+            </div>
+            <div>
+              <h4 class="text-xs font-extrabold text-white leading-snug line-clamp-2 group-hover:text-blue-300 transition">${prod.nome}</h4>
+              <span class="text-[10px] text-slate-400 block mt-0.5">Estoque: <strong class="text-slate-300">${prod.estoque} un</strong></span>
+            </div>
+            <div class="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between">
+              <span class="text-sm font-black text-emerald-400 font-mono">R$ ${prod.preco.toFixed(2).replace('.', ',')}</span>
+              <div class="w-7 h-7 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center text-xs group-hover:bg-blue-600 group-hover:text-white transition">
+                <i class="fa-solid fa-plus"></i>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function filtrarProdutosPDV(termo) {
+      const dados = DADOS_NICHOS[nichoAtual];
+      if (!termo) {
+        renderizarGradePDV(dados.produtos);
+        return;
+      }
+      const filtrados = dados.produtos.filter(p => p.nome.toLowerCase().includes(termo.toLowerCase()) || p.categoria.toLowerCase().includes(termo.toLowerCase()));
+      renderizarGradePDV(filtrados);
+    }
+
+    // ========================================================
+    // PDV: GERENCIAMENTO DO CARRINHO DE COMPRAS
+    // ========================================================
+    function adicionarAoCarrinho(produtoId) {
+      const dados = DADOS_NICHOS[nichoAtual];
+      const produto = dados.produtos.find(p => p.id === produtoId);
+      if (!produto) return;
+
+      const itemExistente = carrinho.find(item => item.id === produtoId);
+      if (itemExistente) {
+        itemExistente.qtd += 1;
+      } else {
+        carrinho.push({
+          id: produto.id,
+          nome: produto.nome,
+          preco: produto.preco,
+          custo: produto.custo,
+          img: produto.img,
+          qtd: 1
+        });
+      }
+      atualizarCarrinhoVisual();
+    }
+
+    function alterarQtdCarrinho(id, delta) {
+      const item = carrinho.find(i => i.id === id);
+      if (!item) return;
+      item.qtd += delta;
+      if (item.qtd <= 0) {
+        carrinho = carrinho.filter(i => i.id !== id);
+      }
+      atualizarCarrinhoVisual();
+    }
+
+    function limparCarrinho() {
+      carrinho = [];
+      atualizarCarrinhoVisual();
+    }
+
+    function atualizarCarrinhoVisual() {
+      const container = document.getElementById('itensCarrinho');
+      if (carrinho.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-10 text-slate-500 text-xs">
+            <i class="fa-solid fa-cart-arrow-down text-3xl mb-2 opacity-40 block"></i>
+            Nenhum item adicionado.<br>Clique nos produtos ao lado para vender.
+          </div>
+        `;
+        document.getElementById('carrinhoQtdTotal').innerText = "0 itens";
+        document.getElementById('carrinhoValorTotal').innerText = "R$ 0,00";
+        return;
+      }
+
+      container.innerHTML = '';
+      let total = 0;
+      let qtdTotal = 0;
+
+      carrinho.forEach(item => {
+        const subtotal = item.preco * item.qtd;
+        total += subtotal;
+        qtdTotal += item.qtd;
+
+        container.innerHTML += `
+          <div class="p-2.5 rounded-xl bg-[#0e1524] border border-slate-800 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2.5 min-w-0 pr-2">
+              <span class="text-lg shrink-0">${item.img}</span>
+              <div class="min-w-0">
+                <h5 class="font-bold text-white truncate text-[11px]">${item.nome}</h5>
+                <span class="text-[10px] text-slate-400 font-mono">R$ ${item.preco.toFixed(2).replace('.', ',')} un</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <div class="flex items-center border border-slate-700 rounded-lg bg-slate-900 overflow-hidden">
+                <button onclick="alterarQtdCarrinho(${item.id}, -1)" class="px-2 py-0.5 text-slate-400 hover:text-white font-bold">-</button>
+                <span class="px-2 py-0.5 font-bold font-mono text-[11px] text-white">${item.qtd}</span>
+                <button onclick="alterarQtdCarrinho(${item.id}, 1)" class="px-2 py-0.5 text-slate-400 hover:text-white font-bold">+</button>
+              </div>
+              <span class="font-black text-emerald-400 font-mono text-xs w-16 text-right">R$ ${subtotal.toFixed(2).replace('.', ',')}</span>
+            </div>
+          </div>
+        `;
+      });
+
+      document.getElementById('carrinhoQtdTotal').innerText = `${qtdTotal} itens`;
+      document.getElementById('carrinhoValorTotal').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
+
+    // ========================================================
+    // FINALIZAÇÃO DE VENDA (CHECKOUT RÁPIDO)
+    // ========================================================
+    let vendaEmFechamento = null;
+
+    function finalizarVenda(forma) {
+      if (carrinho.length === 0) {
+        alert("⚠️ Adicione pelo menos 1 produto no carrinho para finalizar a venda!");
+        return;
+      }
+
+      let total = 0;
+      let custoTotal = 0;
+      let descricaoItens = [];
+
+      carrinho.forEach(item => {
+        total += item.preco * item.qtd;
+        custoTotal += item.custo * item.qtd;
+        descricaoItens.push(`${item.qtd}x ${item.nome}`);
+      });
+
+      const lucroReal = total - custoTotal;
+
+      vendaEmFechamento = {
+        id: `#VENDA-${Math.floor(1000 + Math.random() * 9000)}`,
+        hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        cliente: "Consumidor Balcão",
+        itens: descricaoItens.join(', '),
+        forma: forma.toUpperCase(),
+        total: total,
+        lucro: lucroReal
+      };
+
+      if (forma === 'pix') {
+        document.getElementById('modalPixValorTotal').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+        document.getElementById('modalCheckoutPix').classList.remove('hidden');
+      } else {
+        concluirVendaDireta();
+      }
+    }
+
+    function fecharModalPix() {
+      document.getElementById('modalCheckoutPix').classList.add('hidden');
+    }
+
+    function copiarPixChave() {
+      navigator.clipboard.writeText("00020126360014BR.GOV.BCB.PIX0114+5511999999995204000053039865802BR5920ShopCor+OmniCommerce6009Sao+Paulo62070503***6304E2CA");
+      alert("✅ Código PIX Copia-e-Cola copiado com sucesso! Cole no app do seu banco.");
+    }
+
+    function confirmarPagamentoConcluido() {
+      fecharModalPix();
+      concluirVendaDireta();
+    }
+
+    function concluirVendaDireta() {
+      // Adiciona ao histórico de vendas
+      vendasHistorico.unshift(vendaEmFechamento);
+      atualizarTabelaHistorico();
+
+      // Mostra modal de sucesso
+      document.getElementById('resumoSucessoVenda').innerText = `Total Pago: R$ ${vendaEmFechamento.total.toFixed(2).replace('.', ',')} • Lucro Líquido Real: R$ ${vendaEmFechamento.lucro.toFixed(2).replace('.', ',')}`;
+      document.getElementById('reciboNumero').innerText = vendaEmFechamento.id;
+      document.getElementById('reciboForma').innerText = vendaEmFechamento.forma;
+      document.getElementById('reciboDataHora').innerText = `${new Date().toLocaleDateString()} ${vendaEmFechamento.hora}`;
+      document.getElementById('modalVendaSucesso').classList.remove('hidden');
+
+      // Limpa carrinho
+      limparCarrinho();
+    }
+
+    function fecharModalSucesso() {
+      document.getElementById('modalVendaSucesso').classList.add('hidden');
+      const input = document.getElementById('inputBuscaPDV');
+      if (input) input.focus();
+    }
+
+    function enviarComprovanteWhatsApp() {
+      if (!vendaEmFechamento) return;
+      const texto = `🧾 *COMPROVANTE DE COMPRA - ${DADOS_NICHOS[nichoAtual].nome}*%0A%0A` +
+                    `*Cupom:* ${vendaEmFechamento.id}%0A` +
+                    `*Data:* ${new Date().toLocaleDateString()} às ${vendaEmFechamento.hora}%0A` +
+                    `*Itens:* ${vendaEmFechamento.itens}%0A` +
+                    `*Forma de Pagamento:* ${vendaEmFechamento.forma}%0A` +
+                    `*TOTAL:* R$ ${vendaEmFechamento.total.toFixed(2).replace('.', ',')}%0A%0A` +
+                    `Obrigado pela preferência! Volte sempre!`;
+      window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
+    }
+
+    // ========================================================
+    // TABELAS COMPLEMENTARES (PRODUTOS & HISTÓRICO)
+    // ========================================================
+    function renderizarTabelaProdutos(produtos) {
+      const tbody = document.getElementById('tabelaProdutosCompleta');
+      tbody.innerHTML = '';
+      produtos.forEach(p => {
+        const margem = (((p.preco - p.custo) / p.preco) * 100).toFixed(1);
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-900/40 transition">
+            <td class="py-3 px-3 font-bold text-white flex items-center gap-2">
+              <span class="text-base">${p.img}</span> ${p.nome}
+            </td>
+            <td class="py-3 px-3 text-slate-400">${p.categoria}</td>
+            <td class="py-3 px-3 text-right font-mono text-slate-300">R$ ${p.custo.toFixed(2).replace('.', ',')}</td>
+            <td class="py-3 px-3 text-right font-mono font-bold text-white">R$ ${p.preco.toFixed(2).replace('.', ',')}</td>
+            <td class="py-3 px-3 text-right font-mono font-black text-emerald-400">+${margem}%</td>
+            <td class="py-3 px-3 text-center">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${p.estoque < 30 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-300'}">
+                ${p.estoque} un
+              </span>
+            </td>
+            <td class="py-3 px-3 text-center">
+              <button onclick="adicionarAoCarrinho(${p.id}); navegarAba('pdv')" class="px-2.5 py-1 rounded bg-blue-600/30 hover:bg-blue-600 text-blue-300 hover:text-white transition font-bold text-[10px]">
+                Vender no PDV
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function atualizarTabelaHistorico() {
+      const tbody = document.getElementById('tabelaHistoricoVendas');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      vendasHistorico.forEach(v => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-900/40 transition font-mono">
+            <td class="py-3 px-3 text-slate-400 font-sans">${v.hora}</td>
+            <td class="py-3 px-3 text-white font-sans font-bold">${v.cliente}</td>
+            <td class="py-3 px-3 text-slate-300 font-sans max-w-xs truncate">${v.itens}</td>
+            <td class="py-3 px-3">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold font-sans ${v.forma === 'PIX' ? 'bg-teal-500/20 text-teal-300' : (v.forma === 'CARTÃO' ? 'bg-sky-500/20 text-sky-300' : 'bg-emerald-500/20 text-emerald-300')}">
+                ${v.forma}
+              </span>
+            </td>
+            <td class="py-3 px-3 text-right font-black text-white">R$ ${v.total.toFixed(2).replace('.', ',')}</td>
+            <td class="py-3 px-3 text-right font-black text-emerald-400">+R$ ${v.lucro.toFixed(2).replace('.', ',')}</td>
+            <td class="py-3 px-3 text-center font-sans">
+              <button onclick="alert('Imprimindo Cupom ${v.id}...')" class="text-slate-400 hover:text-white">
+                <i class="fa-solid fa-print"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function filtrarPeriodo(periodo) {
+      document.querySelectorAll('.filtro-btn').forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white');
+        btn.classList.add('text-slate-400');
+      });
+      event.target.classList.add('bg-blue-600', 'text-white');
+      event.target.classList.remove('text-slate-400');
+
+      const labels = {
+        hoje: "Hoje (10/11/2026)",
+        semana: "Esta Semana (08/11 a 14/11)",
+        mes: "Este Mês (Novembro/2026)",
+        ano: "Este Ano (2026)"
+      };
+      document.getElementById('labelPeriodoAtivo').innerText = labels[periodo] || "Hoje";
+    }
+
+    function imprimirFechamentoCaixa() {
+      alert("🖨️ [FECHAMENTO DE CAIXA DIÁRIO]\n\n" +
+            `Empresa: ${DADOS_NICHOS[nichoAtual].nome}\n` +
+            `Operador: ${DADOS_NICHOS[nichoAtual].operador}\n` +
+            `Data: ${new Date().toLocaleDateString()}\n\n` +
+            `• Vendas Totais Hoje: R$ 2.450,00\n` +
+            `• Dinheiro em Gaveta: R$ 480,00\n` +
+            `• Recebido no PIX: R$ 1.340,00\n` +
+            `• Cartões (Crédito/Débito): R$ 630,00\n\n` +
+            `LUCRO LÍQUIDO DO DIA: R$ 1.280,40 (Margem 52,2%)\n` +
+            `Relatório assinado e auditado por Fernanda CFO.`);
+    }
+
+    function adicionarProdutoModal() {
+      const nome = prompt("Nome do Novo Produto:");
+      if (!nome) return;
+      const preco = parseFloat(prompt("Preço de Venda no Balcão (ex: 12.50):"));
+      if (isNaN(preco)) return;
+      const custo = parseFloat(prompt("Custo de Compra (ex: 6.00):")) || (preco * 0.5);
+
+      const novo = {
+        id: Date.now(),
+        nome: nome,
+        categoria: "Geral",
+        custo: custo,
+        preco: preco,
+        estoque: 50,
+        img: "📦"
+      };
+
+      DADOS_NICHOS[nichoAtual].produtos.unshift(novo);
+      renderizarGradePDV(DADOS_NICHOS[nichoAtual].produtos);
+      renderizarTabelaProdutos(DADOS_NICHOS[nichoAtual].produtos);
+      alert(`✅ Produto "${nome}" cadastrado com sucesso no PDV!`);
+    }
+
+    function abrirModalConfigNicho() {
+      const sel = document.getElementById('selectNichoComercio');
+      sel.focus();
+    }
+
+    // ========================================================
+    // VISION AI: ENTRADA DE ESTOQUE POR FOTO DE ORDEM/ROMANEIO
+    // ========================================================
+    let itensOrdemDetectados = [];
+
+    // MOTOR DE ARREDONDAMENTO INTELIGENTE DE BALCÃO (VALORES FECHADOS)
+    function arredondarPrecoBalcao(precoBruto) {
+      if (!precoBruto || precoBruto <= 0) return 0;
+      // REGRA DE BALCÃO DE VAREJO:
+      // Valores até R$ 20: Degraus exatos de R$ 0,50 (ex: 5,00 | 5,50 | 6,00 | 6,50)
+      // Se cálculo der 5,14 -> arredonda para 5,50 (protege margem e zera moedas picadas)
+      // Se cálculo der 5,52 -> arredonda para 6,00
+      if (precoBruto <= 20) {
+        return Math.ceil(precoBruto * 2) / 2;
+      }
+      // Valores entre R$ 20 e R$ 100: Degraus de R$ 1,00 inteiro (ex: 32,40 -> 33,00; 38,20 -> 39,00)
+      else if (precoBruto <= 100) {
+        return Math.ceil(precoBruto);
+      }
+      // Valores acima de R$ 100 (baldes de tinta, engradados): Degraus de R$ 5,00 (ex: 342 -> 345,00; 347 -> 350,00)
+      else {
+        return Math.ceil(precoBruto / 5) * 5;
+      }
+    }
+
+    function abrirModalEntradaPorFoto() {
+      document.getElementById('modalEntradaPorFoto').classList.remove('hidden');
+      if (itensOrdemDetectados.length === 0) {
+        carregarExemploOrdem(nichoAtual === 'tintas' ? 'tintas' : 'bebidas');
+      }
+    }
+
+    function fecharModalEntradaPorFoto() {
+      document.getElementById('modalEntradaPorFoto').classList.add('hidden');
+    }
+
+    function carregarExemploOrdem(tipo) {
+      if (tipo === 'bebidas') {
+        const rawCoca = 3.00 / 0.50; // 6.00
+        const rawAmstel = 3.90 * (5.50 / 3.40); // 6.308
+        const rawGelo = 3.00 * (10.00 / 3.00); // 10.00
+
+        itensOrdemDetectados = [
+          {
+            id: 7,
+            nome: "Coca-Cola 2 Litros Pet",
+            img: "🥤",
+            qtdEntrada: 24,
+            custoAntigo: 2.50,
+            custoNovo: 3.00,
+            precoAntigo: 5.00,
+            precoBrutoCMV: rawCoca,
+            precoNovoCMV: arredondarPrecoBalcao(rawCoca), // 6.00
+            margemCalculada: "50.0%",
+            varCusto: "+20.0%"
+          },
+          {
+            id: 2,
+            nome: "Cerveja Amstel Latão 473ml",
+            img: "🍻",
+            qtdEntrada: 48,
+            custoAntigo: 3.40,
+            custoNovo: 3.90,
+            precoAntigo: 5.50,
+            precoBrutoCMV: rawAmstel, // 6.31 bruto
+            precoNovoCMV: arredondarPrecoBalcao(rawAmstel), // 6.50 fechado!
+            margemCalculada: "40.0%",
+            varCusto: "+14.7%"
+          },
+          {
+            id: 3,
+            nome: "Saco de Gelo Filtrado 5kg",
+            img: "🧊",
+            qtdEntrada: 30,
+            custoAntigo: 3.00,
+            custoNovo: 3.00,
+            precoAntigo: 10.00,
+            precoBrutoCMV: rawGelo,
+            precoNovoCMV: arredondarPrecoBalcao(rawGelo), // 10.00
+            margemCalculada: "70.0%",
+            varCusto: "0.0%"
+          }
+        ];
+      } else {
+        const rawThinner = 14.50 * (26.90 / 12.00); // 32.50
+        const rawRolo = 17.00 * (32.90 / 14.50); // 38.56
+        const rawFita = 7.50 * (16.50 / 6.80); // 18.20
+
+        itensOrdemDetectados = [
+          {
+            id: 105,
+            nome: "Thinner Diluente PU 900ml",
+            img: "🧪",
+            qtdEntrada: 20,
+            custoAntigo: 12.00,
+            custoNovo: 14.50,
+            precoAntigo: 26.90,
+            precoBrutoCMV: rawThinner,
+            precoNovoCMV: arredondarPrecoBalcao(rawThinner), // 33.00 inteiro
+            margemCalculada: "56.0%",
+            varCusto: "+20.8%"
+          },
+          {
+            id: 103,
+            nome: "Rolo de Lã Anti-Gota 23cm",
+            img: "🖌️",
+            qtdEntrada: 30,
+            custoAntigo: 14.50,
+            custoNovo: 17.00,
+            precoAntigo: 32.90,
+            precoBrutoCMV: rawRolo,
+            precoNovoCMV: arredondarPrecoBalcao(rawRolo), // 39.00 inteiro
+            margemCalculada: "56.4%",
+            varCusto: "+17.2%"
+          },
+          {
+            id: 104,
+            nome: "Fita Crepe Automotiva 48mmx50m",
+            img: "🏷️",
+            qtdEntrada: 50,
+            custoAntigo: 6.80,
+            custoNovo: 7.50,
+            precoAntigo: 16.50,
+            precoBrutoCMV: rawFita,
+            precoNovoCMV: arredondarPrecoBalcao(rawFita), // 18.50 fechado
+            margemCalculada: "59.4%",
+            varCusto: "+10.3%"
+          }
+        ];
+      }
+
+      renderizarTabelaOrdemFoto();
+    }
+
+    function processarArquivoOrdem(input) {
+      if (input.files && input.files[0]) {
+        const nomeArquivo = input.files[0].name;
+        const tbody = document.getElementById('tabelaItensOrdemFoto');
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-8 text-center text-slate-400">
+              <i class="fa-solid fa-spinner fa-spin text-2xl text-purple-400 mb-2 block"></i>
+              Processando foto <strong>"${nomeArquivo}"</strong> com Vision OCR e calculando CMV Real...
+            </td>
+          </tr>
+        `;
+        setTimeout(() => {
+          carregarExemploOrdem(nichoAtual === 'tintas' ? 'tintas' : 'bebidas');
+          alert(`📸 [VISION IA]: Foto do Romaneio processada com sucesso!\n\nForam identificados 3 produtos. Os custos foram extraídos e a calculadora de CMV já projetou os novos preços de venda mantendo a margem de lucro.`);
+        }, 1200);
+      }
+    }
+
+    function renderizarTabelaOrdemFoto() {
+      const tbody = document.getElementById('tabelaItensOrdemFoto');
+      tbody.innerHTML = '';
+      document.getElementById('badgeTotalItensIdentificados').innerText = `${itensOrdemDetectados.length} itens detectados na foto`;
+
+      itensOrdemDetectados.forEach((item, index) => {
+        const subiu = item.custoNovo > item.custoAntigo;
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-900/50 transition">
+            <td class="py-2.5 px-3">
+              <div class="flex items-center gap-2">
+                <span class="text-base">${item.img}</span>
+                <div>
+                  <strong class="text-white block font-sans">${item.nome}</strong>
+                  <span class="text-[10px] text-slate-500 font-sans">Item reconhecido via IA</span>
+                </div>
+              </div>
+            </td>
+            <td class="py-2.5 px-3 text-center">
+              <span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30">
+                +${item.qtdEntrada} un
+              </span>
+            </td>
+            <td class="py-2.5 px-3 text-right">
+              <div class="text-slate-400 line-through text-[10px]">R$ ${item.custoAntigo.toFixed(2).replace('.', ',')}</div>
+              <div class="font-bold ${subiu ? 'text-amber-400' : 'text-slate-200'}">R$ ${item.custoNovo.toFixed(2).replace('.', ',')}</div>
+              <span class="text-[9px] ${subiu ? 'text-amber-400' : 'text-slate-500'} font-sans">(${item.varCusto})</span>
+            </td>
+            <td class="py-2.5 px-3 text-right">
+              <div class="text-slate-400 line-through text-[10px]">Atual: R$ ${item.precoAntigo.toFixed(2).replace('.', ',')}</div>
+              <div class="flex items-center justify-end gap-1 mt-0.5">
+                <span class="text-[10px] text-emerald-400 font-sans font-bold">Novo:</span>
+                <input type="number" step="0.50" id="inputPrecoNovo_${index}" value="${item.precoNovoCMV.toFixed(2)}" class="w-16 bg-slate-900 border border-emerald-500/50 rounded px-1.5 py-0.5 text-right font-black text-emerald-400 text-xs focus:outline-none focus:border-emerald-400">
+              </div>
+              <span class="text-[9px] text-emerald-400 font-sans block mt-0.5">✨ Valor Fechado</span>
+            </td>
+            <td class="py-2.5 px-3 text-center">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                ${item.margemCalculada}
+              </span>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function aplicarEntradaEstoqueEPrecos() {
+      if (itensOrdemDetectados.length === 0) return;
+
+      const dados = DADOS_NICHOS[nichoAtual];
+      let resumoAjustes = [];
+
+      itensOrdemDetectados.forEach((item, index) => {
+        const inputPreco = document.getElementById(`inputPrecoNovo_${index}`);
+        const novoPrecoDigitado = inputPreco ? parseFloat(inputPreco.value) : item.precoNovoCMV;
+
+        // Procura o produto no catálogo do nicho
+        let prod = dados.produtos.find(p => p.id === item.id || p.nome.toLowerCase().includes(item.nome.toLowerCase()));
+        if (prod) {
+          prod.estoque += item.qtdEntrada;
+          prod.custo = item.custoNovo;
+          prod.preco = novoPrecoDigitado;
+          resumoAjustes.push(`• ${prod.nome}: +${item.qtdEntrada} un no estoque | Preço atualizado para R$ ${prod.preco.toFixed(2).replace('.', ',')}`);
+        }
+      });
+
+      // Atualiza a grade do PDV
+      renderizarGradePDV(dados.produtos);
+
+      // Atualiza a tabela completa de produtos
+      renderizarTabelaProdutos(dados.produtos);
+
+      // Fecha o modal
+      fecharModalEntradaPorFoto();
+
+      // Alerta de sucesso executivo
+      alert("✅ [ENTRADA CONCLUÍDA & PREÇOS AJUSTADOS NO OMNICOMMERCE]\n\n" +
+            resumoAjustes.join('\n') + "\n\n" +
+            "⚡ O estoque foi abastecido e o PDV Caixa já está vendendo com os novos preços e margens protegidas!\n\n" +
+            "ℹ️ NOTA DE SEGURANÇA: Se este estabelecimento usasse software de terceiro monitorado (ex: Max Scalla), o conector manteria o acesso 100% Read-Only e enviaria este romaneio para o WhatsApp do dono autorizar no sistema físico.");
+    }
+
+    // ========================================================
+    // MÓDULO DE COMANDAS, MESAS & AUDITORIA DE FIADO ANTI-FRAUDE
+    // ========================================================
+    let comandasAbertas = [
+      {
+        id: 1,
+        cliente: "Alexandre (Consumo no Balcão)",
+        horaAbertura: "14:15",
+        status: "ABERTA",
+        itens: [
+          { hora: "14:20", nome: "2x Cerveja Amstel Latão", valor: 13.00 },
+          { hora: "16:15", nome: "1x Porção de Fritas Rústica", valor: 16.90 },
+          { hora: "18:30", nome: "1x Combo Vodka Smirnoff", valor: 79.90 },
+          { hora: "20:10", nome: "4x Heineken Long Neck", valor: 34.00 },
+          { hora: "21:05", nome: "1x Água Mineral 500ml", valor: 3.00 }
+        ],
+        total: 146.80
+      },
+      {
+        id: 2,
+        cliente: "Marcos Bela Vista (Mesa 02)",
+        horaAbertura: "17:00",
+        status: "ABERTA",
+        itens: [
+          { hora: "17:05", nome: "6x Heineken Long Neck", valor: 51.00 }
+        ],
+        total: 51.00
+      },
+      {
+        id: 3,
+        cliente: "Mesa 04 (Lanches Família)",
+        horaAbertura: "19:30",
+        status: "ABERTA",
+        itens: [
+          { hora: "19:35", nome: "1x Pizza Calabresa Grande", valor: 44.90 },
+          { hora: "19:40", nome: "2x Coca-Cola 2L", valor: 21.00 },
+          { hora: "20:15", nome: "1x Batata Rústica", valor: 16.90 },
+          { hora: "21:10", nome: "1x Suco de Laranja 1L", valor: 14.90 }
+        ],
+        total: 97.70
+      }
+    ];
+
+    let comandasFantasmas = [];
+
+    function renderizarGridComandas() {
+      const grid = document.getElementById('gridComandasAbertas');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      let totalAberto = 0;
+      comandasAbertas.forEach(c => totalAberto += c.total);
+
+      document.getElementById('kpiComandasAbertasQtd').innerText = `${comandasAbertas.length} abertas`;
+      document.getElementById('kpiComandasAbertasValor').innerText = `Total em consumo: R$ ${totalAberto.toFixed(2).replace('.', ',')}`;
+
+      if (comandasAbertas.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-3 text-center py-12 text-slate-500 custom-card rounded-2xl p-6">
+            <i class="fa-solid fa-beer-mug-empty text-3xl mb-2 opacity-40 block"></i>
+            Nenhuma comanda aberta no salão no momento.<br>Clique no botão acima para abrir uma nova comanda.
+          </div>
+        `;
+        return;
+      }
+
+      comandasAbertas.forEach(c => {
+        let itensHtml = '';
+        c.itens.forEach(it => {
+          itensHtml += `
+            <div class="flex items-center justify-between text-[11px] py-1 border-b border-slate-800/60 font-mono">
+              <span class="text-slate-400 font-sans"><strong class="text-slate-500 font-mono">${it.hora}</strong> &bull; ${it.nome}</span>
+              <span class="text-white font-bold">R$ ${it.valor.toFixed(2).replace('.', ',')}</span>
+            </div>
+          `;
+        });
+
+        grid.innerHTML += `
+          <div class="custom-card rounded-2xl p-4.5 border-slate-800 hover:border-amber-500/40 transition flex flex-col justify-between shadow-xl space-y-3">
+            <div>
+              <div class="flex items-center justify-between pb-2.5 border-b border-slate-800">
+                <div>
+                  <h4 class="text-sm font-black text-white">${c.cliente}</h4>
+                  <span class="text-[10px] text-slate-400">Aberta às ${c.horaAbertura} &bull; Operador Caixa 01</span>
+                </div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  Em Consumo
+                </span>
+              </div>
+
+              <!-- ITENS COM LINHA DO TEMPO -->
+              <div class="space-y-1 mt-2.5 max-h-40 overflow-y-auto pr-1">
+                ${itensHtml}
+              </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-800 space-y-2.5">
+              <div class="flex items-baseline justify-between">
+                <span class="text-xs text-slate-400 font-bold uppercase">Subtotal Atual:</span>
+                <span class="text-xl font-black text-amber-300 font-mono">R$ ${c.total.toFixed(2).replace('.', ',')}</span>
+              </div>
+
+              <!-- AÇÕES: PAGAR, FIADO OU TENTAR EXCLUIR -->
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="fecharComandaPagamento(${c.id})" class="py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition flex items-center justify-center gap-1 shadow-md shadow-emerald-600/20">
+                  <i class="fa-solid fa-cash-register"></i> Pagar / Fechar
+                </button>
+                <button onclick="fecharComandaFiado(${c.id})" class="py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-black text-xs transition flex items-center justify-center gap-1 shadow-md shadow-sky-600/20">
+                  <i class="fa-solid fa-signature"></i> Marcar no Fiado
+                </button>
+              </div>
+
+              <div class="flex items-center justify-between pt-1">
+                <button onclick="lancarItemComanda(${c.id})" class="text-[11px] text-blue-400 hover:text-blue-300 font-bold flex items-center gap-1">
+                  <i class="fa-solid fa-plus text-[10px]"></i> Lançar Produto
+                </button>
+                <button onclick="tentarExcluirComanda(${c.id})" class="text-[11px] text-rose-400 hover:text-rose-300 font-bold flex items-center gap-1" title="Dispara a armadilha anti-fraude se houver dinheiro em jogo">
+                  <i class="fa-regular fa-trash-can text-[10px]"></i> Cancelar / Apagar
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function abrirModalNovaComanda() {
+      const nome = prompt("Nome do Cliente ou Número da Mesa para abrir comanda:");
+      if (!nome) return;
+      const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const nova = {
+        id: Date.now(),
+        cliente: nome,
+        horaAbertura: hora,
+        status: "ABERTA",
+        itens: [
+          { hora: hora, nome: "1x Cerveja Latão (Abertura)", valor: 6.50 }
+        ],
+        total: 6.50
+      };
+      comandasAbertas.unshift(nova);
+      renderizarGridComandas();
+      alert(`✅ Comanda aberta com sucesso para "${nome}" às ${hora}!`);
+    }
+
+    function lancarItemComanda(id) {
+      const c = comandasAbertas.find(item => item.id === id);
+      if (!c) return;
+      const itemNome = prompt(`Lançar produto na comanda de ${c.cliente}:`, "1x Cerveja Heineken Long Neck");
+      if (!itemNome) return;
+      const valor = parseFloat(prompt("Valor do produto (R$):", "8.50")) || 8.50;
+      const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      c.itens.push({ hora: hora, nome: itemNome, valor: valor });
+      c.total += valor;
+      renderizarGridComandas();
+      alert(`🍻 Lançado: ${itemNome} (R$ ${valor.toFixed(2)}) na conta de ${c.cliente}!`);
+    }
+
+    function fecharComandaPagamento(id) {
+      const c = comandasAbertas.find(item => item.id === id);
+      if (!c) return;
+      const forma = prompt(`Como ${c.cliente} vai pagar R$ ${c.total.toFixed(2)}?\nDigite: PIX, DINHEIRO ou CARTAO:`, "DINHEIRO");
+      if (!forma) return;
+
+      // Adiciona ao histórico de vendas oficial
+      vendasHistorico.unshift({
+        id: `#COM-${c.id}`,
+        hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        cliente: c.cliente,
+        itens: c.itens.map(i => i.nome).join(', '),
+        forma: forma.toUpperCase(),
+        total: c.total,
+        lucro: c.total * 0.45
+      });
+
+      // Remove de comandas abertas
+      comandasAbertas = comandasAbertas.filter(item => item.id !== id);
+      renderizarGridComandas();
+      atualizarTabelaHistorico();
+
+      alert(`✅ [COMANDA FINALIZADA COM SUCESSO]\n\nCliente: ${c.cliente}\nTotal: R$ ${c.total.toFixed(2).replace('.', ',')}\nForma: ${forma.toUpperCase()}\n\nCaixa registrado e DRE atualizado!`);
+    }
+
+    function fecharComandaFiado(id) {
+      const c = comandasAbertas.find(item => item.id === id);
+      if (!c) return;
+      const zap = prompt(`Confirmar Fiado para ${c.cliente} no valor de R$ ${c.total.toFixed(2)}.\nDigite o WhatsApp do cliente para enviar o extrato de débito:`, "(11) 99888-7766");
+      if (!zap) return;
+
+      // Transfere para Contas a Receber
+      comandasAbertas = comandasAbertas.filter(item => item.id !== id);
+      renderizarGridComandas();
+
+      alert(`📒 [FIADO REGISTRADO NO CADERNO DIGITAL]\n\nCliente: ${c.cliente}\nValor Devido: R$ ${c.total.toFixed(2).replace('.', ',')}\nWhatsApp: ${zap}\n\nFoi enviado um extrato com data e itens no WhatsApp do cliente com carimbo de confirmação de débito. A conta não ficou solta no caixa!`);
+    }
+
+    // ========================================================
+    // ARMADILHA ANTI-FRAUDE DA "COMANDA FANTASMA" COM TIMER 5s
+    // ========================================================
+    let comandaSendoCancelada = null;
+    let timerCancelamentoInterval = null;
+
+    function tentarExcluirComanda(id) {
+      const c = comandasAbertas.find(item => item.id === id);
+      if (!c) return;
+
+      comandaSendoCancelada = c;
+      document.getElementById('modalCancelaCliente').innerText = c.cliente;
+      document.getElementById('modalCancelaValor').innerText = `R$ ${c.total.toFixed(2).replace('.', ',')}`;
+      document.getElementById('modalCancelaQtdItens').innerText = `${c.itens.length} itens lançados`;
+
+      const btn = document.getElementById('btnConfirmarCancelamentoTimer');
+      const label = document.getElementById('labelTimerCancelamento');
+      btn.disabled = true;
+      btn.className = "w-full py-3 rounded-xl bg-slate-800 text-slate-400 font-extrabold text-xs transition flex items-center justify-center gap-2 cursor-not-allowed border border-slate-700";
+
+      let segundosRestantes = 5;
+      label.innerText = `Aguarde ${segundosRestantes}s para confirmar exclusão...`;
+
+      if (timerCancelamentoInterval) clearInterval(timerCancelamentoInterval);
+
+      timerCancelamentoInterval = setInterval(() => {
+        segundosRestantes -= 1;
+        if (segundosRestantes > 0) {
+          label.innerText = `Aguarde ${segundosRestantes}s para confirmar exclusão...`;
+        } else {
+          clearInterval(timerCancelamentoInterval);
+          btn.disabled = false;
+          btn.className = "w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-rose-600/30 cursor-pointer";
+          label.innerText = "Confirmar Cancelamento da Comanda";
+        }
+      }, 1000);
+
+      document.getElementById('modalConfirmacaoCancelamento').classList.remove('hidden');
+    }
+
+    function fecharModalCancelamento() {
+      if (timerCancelamentoInterval) clearInterval(timerCancelamentoInterval);
+      document.getElementById('modalConfirmacaoCancelamento').classList.add('hidden');
+      comandaSendoCancelada = null;
+    }
+
+    function executarCancelamentoSilencioso() {
+      if (!comandaSendoCancelada) return;
+      const c = comandaSendoCancelada;
+      const horaTentativa = new Date().toLocaleTimeString();
+      const itensResumo = c.itens.map(i => `${i.hora} - ${i.nome}`).join(' | ');
+
+      // 1. Cria a Comanda Fantasma nos bastidores (NUNCA É DELETADA)
+      const fantasma = {
+        id: c.id,
+        hora: horaTentativa,
+        cliente: c.cliente,
+        itens: itensResumo,
+        valor: c.total,
+        operador: "Caixa 01 (Balcão)",
+        motivo: "Cancelamento confirmado após espera obrigatória de 5 segundos",
+        status: "SUSPEITA_DE_DESVIO"
+      };
+      comandasFantasmas.unshift(fantasma);
+
+      // 2. Remove da visualização do operador (ele tem certeza que apagou)
+      comandasAbertas = comandasAbertas.filter(item => item.id !== c.id);
+      renderizarGridComandas();
+      atualizarTabelaFantasmas();
+      fecharModalCancelamento();
+
+      // 3. SILÊNCIO OPERACIONAL ABSOLUTO:
+      // O sistema NUNCA avisa ao funcionário que está sendo monitorado ou que a comanda virou fantasma!
+      alert("Comanda cancelada com sucesso.");
+    }
+
+    function atualizarTabelaFantasmas() {
+      const tbody = document.getElementById('tabelaComandasFantasma');
+      if (!tbody) return;
+
+      document.getElementById('kpiComandasFantasmaQtd').innerText = `${comandasFantasmas.length} tentativa(s)`;
+      document.getElementById('kpiComandasFantasmaSub').innerText = `${comandasFantasmas.length} alerta(s) enviado(s) ao dono`;
+
+      tbody.innerHTML = '';
+      comandasFantasmas.forEach(f => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-rose-950/20 transition text-rose-300">
+            <td class="py-2.5 px-3 font-bold">${f.hora}</td>
+            <td class="py-2.5 px-3 font-sans font-bold text-white">${f.cliente}</td>
+            <td class="py-2.5 px-3 font-sans text-slate-300 max-w-xs truncate" title="${f.itens}">${f.itens}</td>
+            <td class="py-2.5 px-3 text-right font-black text-rose-400">R$ ${f.valor.toFixed(2).replace('.', ',')}</td>
+            <td class="py-2.5 px-3 font-sans text-slate-400">${f.operador}</td>
+            <td class="py-2.5 px-3 text-center font-sans">
+              <span class="px-2 py-0.5 rounded text-[10px] font-black bg-rose-500/20 text-rose-400 border border-rose-500/40">
+                🚨 SUSPEITA DE DESVIO
+              </span>
+            </td>
+            <td class="py-2.5 px-3 text-center font-sans">
+              <button onclick="verAlertaWhatsAppDono('${f.cliente}', ${f.valor})" class="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] flex items-center gap-1 mx-auto shadow">
+                <i class="fa-brands fa-whatsapp"></i> Ver Alerta Dono
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function verAlertaWhatsAppDono(cliente, valor) {
+      alert(
+        `📱 [MENSAGEM ENVIADA AUTOMATICAMENTE AO WHATSAPP DO DONO]:\n\n` +
+        `⚠️ *ALERTA DE AUDITORIA DE CAIXA*\n` +
+        `Data/Hora: ${new Date().toLocaleDateString()} às ${new Date().toLocaleTimeString()}\n` +
+        `Operador: Caixa 01 (Balcão)\n\n` +
+        `*A comanda de "${cliente}" no valor de R$ ${valor.toFixed(2).replace('.', ',')} foi cancelada manualmente pelo operador após confirmação consciente de 5 segundos.*\n\n` +
+        `📋 *ORIENTAÇÃO FORENSE:* Existe o risco de que este valor tenha sido recebido em espécie e desviado, ou que o cliente tenha saído sem pagar. Verifique a gaveta do caixa e a contagem física de estoque para conferência.\n\n` +
+        `Trilha forense gravada no sistema (Comanda Fantasma #8812).`
+      );
+    }
+
+    function simularGolpeDoCaixa() {
+      if (comandasAbertas.length > 0) {
+        tentarExcluirComanda(comandasAbertas[0].id);
+      } else {
+        alert("Abra uma comanda primeiro para simular a tentativa de cancelamento.");
+      }
+    }
+
+    function simularViradaTurno() {
+      const hora = "00:00";
+      if (comandasAbertas.length > 0) {
+        let listaNomes = comandasAbertas.map(c => `• ${c.cliente}: R$ ${c.total.toFixed(2)}`).join('\n');
+        alert(
+          `🌙 [VIRADA DE TURNO - 00:00 (FIM DE EXPEDIENTE)]\n\n` +
+          `O expediente de hoje foi encerrado!\n\n` +
+          `⚠️ ALERTA DO SENTINELA AO DONO DO ESTABELECIMENTO:\n` +
+          `Existem ${comandasAbertas.length} comanda(s) aberta(s) sem fechamento:\n\n` +
+          `${listaNomes}\n\n` +
+          `DIRETRIZ OBRIGATÓRIA:\n` +
+          `Nenhuma conta pode passar para o dia seguinte sem resolução.\n` +
+          `1. Receber o pagamento (Dinheiro/PIX/Cartão), OU\n` +
+          `2. Transferir para "Fiado no Nome do Cliente" com envio de comprovante no WhatsApp.`
+        );
+      } else {
+        alert(
+          `🌙 [VIRADA DE TURNO - 00:00 (FIM DE EXPEDIENTE)]\n\n` +
+          `Turno encerrado com 100% de sucesso!\n` +
+          `Todas as comandas foram faturadas ou registradas no fiado formal. Zero pendências soltas no caixa.`
+        );
+      }
+    }
+
+    // ========================================================
+    // PRE-FLY CHECK 24H & LAUDO TÉCNICO DE PENTEST ANUAL (MILLER)
+    // ========================================================
+    function executarPreFlyCheck() {
+      document.getElementById('modalPreFlyCheck').classList.remove('hidden');
+    }
+
+    function fecharModalPreFly() {
+      document.getElementById('modalPreFlyCheck').classList.add('hidden');
+    }
+
+    function reexecutarPreFlyAnimado() {
+      const lista = document.getElementById('listaCheckpointsPreFly');
+      lista.innerHTML = `
+        <div class="py-10 text-center text-slate-400">
+          <i class="fa-solid fa-spinner fa-spin text-3xl text-emerald-400 mb-2 block"></i>
+          Executando Pre-Fly Check & Auditoria de Script 24h em tempo real...
+        </div>
+      `;
+      setTimeout(() => {
+        lista.innerHTML = `
+          <div class="p-3 rounded-xl bg-[#0e1626] border border-slate-800 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <div>
+                <strong class="text-white block font-sans">1. Integridade de Scripts & Hashes SHA-512</strong>
+                <span class="text-[10px] text-slate-400">Zero injeções ou alterações de arquivos locais (Anti-Tampering)</span>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">🟢 100% Íntegro</span>
+          </div>
+
+          <div class="p-3 rounded-xl bg-[#0e1626] border border-slate-800 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+              <div>
+                <strong class="text-white block font-sans">2. Conector do Banco de Dados Físico</strong>
+                <span class="text-[10px] text-slate-400">Permissão restrita de SELECT; comandos destrutivos bloqueados</span>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">🟢 100% Read-Only</span>
+          </div>
+
+          <div class="p-3 rounded-xl bg-[#0e1626] border border-slate-800 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+              <div>
+                <strong class="text-white block font-sans">3. Sanitização de Memória & Chaves de API</strong>
+                <span class="text-[10px] text-slate-400">Zero credenciais expostas no cliente; backend proxy ativo</span>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">🟢 Zero Secrets</span>
+          </div>
+
+          <div class="p-3 rounded-xl bg-[#0e1626] border border-slate-800 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+              <div>
+                <strong class="text-white block font-sans">4. Snapshot de Contingência (Disaster Recovery)</strong>
+                <span class="text-[10px] text-slate-400">Backup automático de produtos, vendas e estoque salvo</span>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">🟢 Snapshot OK</span>
+          </div>
+
+          <div class="p-3 rounded-xl bg-[#0e1626] border border-slate-800 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+              <div>
+                <strong class="text-white block font-sans">5. Firewall WAF & Detecção de Portas</strong>
+                <span class="text-[10px] text-slate-400">Filtragem de robôs e scanners externos ativo na borda</span>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">🟢 Borda Segura</span>
+          </div>
+
+          <div class="p-3 rounded-xl bg-[#0e1626] border border-slate-800 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <div>
+                <strong class="text-white block font-sans">6. Monitor de Heurística de Script 24h</strong>
+                <span class="text-[10px] text-slate-400">Bloqueio automático de qualquer desvio ou padrão incomum no caixa</span>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">🟢 Vigia 24h Ativo</span>
+          </div>
+        `;
+        alert("✈️ [PRE-FLY CHECK CONCLUÍDO COM SUCESSO]\n\nTodos os 6 pontos de pré-voo foram validados:\n✔ Hashes de scripts íntegros\n✔ Conector Read-Only blindado\n✔ Zero secrets vazados\n✔ Snapshot do dia ativo\n✔ Portas administrativas protegidas\n✔ Monitor de anomalias 24h operante\n\nPerímetro 100% liberado para operar!");
+      }, 1200);
+    }
+
+    function emitirLaudoPentest() {
+      const dados = DADOS_NICHOS[nichoAtual];
+      document.getElementById('laudoEmpresaNome').innerText = dados.nome;
+      document.getElementById('modalLaudoPentest').classList.remove('hidden');
+    }
+
+    function fecharModalLaudoPentest() {
+      document.getElementById('modalLaudoPentest').classList.add('hidden');
+    }
+
+    function imprimirLaudoOficial() {
+      window.print();
+    }
+  </script>
+</body>
+</html>

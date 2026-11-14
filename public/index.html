@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>OmniCommerce 2.0 • PDV & ERP Simples, Rápido e Humano</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    /* Scrollbar estilizada */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    .dark ::-webkit-scrollbar-thumb { background: #334155; }
+    /* Efeito de clique tátil */
+    .btn-touch:active { transform: scale(0.97); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col transition-colors duration-200 dark:bg-slate-950 dark:text-slate-100">
+
+  <!-- ========================================== -->
+  <!-- BARRA SUPERIOR (HEADER CLEAN)              -->
+  <!-- ========================================== -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 px-4 sm:px-6 py-3 transition-colors duration-200 dark:bg-slate-900 dark:border-slate-800">
+    <div class="max-w-[1700px] mx-auto flex items-center justify-between gap-4">
+      
+      <!-- LOGO E IDENTIDADE (5 cliques abre Painel Admin de Instalação) -->
+      <div id="logoLojaAdminTrigger" onclick="registrarCliqueAdmin()" class="flex items-center gap-3 cursor-pointer select-none" title="OmniCommerce OS">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 text-lg font-black flex-shrink-0">
+          <i class="fa-solid fa-gem"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white" id="headerNomeLoja">
+              Studio & Boutique VIP
+            </h1>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/50" id="headerBadgeNicho">
+              Piercing & Bijuterias
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 flex items-center gap-1.5 font-medium">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+            <span>Caixa 01 Aberto</span>
+            <span class="text-slate-300 dark:text-slate-700">•</span>
+            <span id="relogioHeader" class="font-mono text-[11px] font-semibold text-slate-500 dark:text-slate-400">12:00:00</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- SELETOR DE RAMO / NICHO (EXCLUSIVO ADMIN / MODO DEMO) -->
+      <div id="boxSeletorNichoAdmin" class="hidden items-center gap-2">
+        <span class="text-xs font-semibold text-amber-500"><i class="fa-solid fa-lock-open mr-1"></i>Admin:</span>
+        <select id="selectNicho" onchange="trocarNicho(this.value)" class="bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200">
+          <option value="piercing">💎 Estúdio Piercing & Bijuterias</option>
+          <option value="pizzaria">🍕 Pizzaria & Esfiharia (Forno & Delivery)</option>
+          <option value="lanchonete">🍔 Lanchonete & Hamburgueria Artesanal</option>
+          <option value="acougue">🥩 Açougue & Carnes Nobres</option>
+          <option value="rotisseria">🍗 Rotisseria & Frango Assado</option>
+          <option value="bebidas">🍺 Depósito de Bebidas & Conveniência</option>
+          <option value="tintas">🎨 Loja de Tintas & Construção</option>
+          <option value="japones">🍣 Restaurante Sushi & Delivery</option>
+          <option value="petshop">🐾 Pet Shop & Banho e Tosa</option>
+          <option value="barbearia">💈 Barbearia & Salão</option>
+        </select>
+        <button onclick="ocultarSeletorAdmin()" class="px-2 py-1 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 text-[10px] font-bold dark:bg-slate-700 dark:text-slate-200" title="Travar e ocultar seletor do cliente">
+          <i class="fa-solid fa-lock"></i>
+        </button>
+      </div>
+
+      <!-- AÇÕES DE TOPO E MODO CLARO/ESCURO -->
+      <div class="flex items-center gap-2.5">
+        
+        <!-- BOTÃO TESTE REAL GUIADO (DESTAQUE) -->
+        <button onclick="iniciarTesteRealGuiado()" class="btn-touch px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs shadow-md shadow-emerald-600/20 flex items-center gap-1.5">
+          <i class="fa-solid fa-play"></i>
+          <span>Teste Rápido (1 Min)</span>
+        </button>
+
+        <!-- MODO NOTURNO TOGGLE -->
+        <button onclick="toggleModoEscuro()" class="btn-touch w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300" title="Alternar Modo Claro/Escuro">
+          <i class="fa-solid fa-moon dark:hidden"></i>
+          <i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
+        </button>
+
+        <!-- STATUS ROBÔ WHATSAPP DISCRETO -->
+        <button onclick="trocarAba('whatsapp')" class="btn-touch hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold dark:bg-emerald-950/40 dark:border-emerald-800/40 dark:text-emerald-300">
+          <i class="fa-brands fa-whatsapp text-emerald-600 dark:text-emerald-400 text-sm"></i>
+          <span>Robô Camila: <strong class="text-emerald-700 dark:text-emerald-300" id="badgeZapMsgs">18 atendidos</strong></span>
+        </button>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- BARRA DE NAVEGAÇÃO ENTRE ABAS PRINCIPAIS  -->
+  <!-- ========================================== -->
+  <nav class="bg-white border-b border-slate-200 px-4 sm:px-6 py-2 transition-colors duration-200 dark:bg-slate-900/80 dark:border-slate-800">
+    <div class="max-w-[1700px] mx-auto flex items-center justify-between overflow-x-auto gap-2">
+      <div class="flex items-center gap-1 sm:gap-2">
+        <button onclick="trocarAba('pdv')" id="tabBtn_pdv" class="tab-btn px-4 py-2 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition bg-emerald-600 text-white shadow-sm">
+          <i class="fa-solid fa-cash-register"></i>
+          <span>1. PDV Caixa Rápido</span>
+        </button>
+        <button onclick="trocarAba('caixa')" id="tabBtn_caixa" class="tab-btn px-4 py-2 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>2. Caixa de Hoje</span>
+        </button>
+        <button onclick="trocarAba('estoque')" id="tabBtn_estoque" class="tab-btn px-4 py-2 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+          <i class="fa-solid fa-boxes-stacked"></i>
+          <span>3. Estoque Fácil</span>
+        </button>
+        <button onclick="trocarAba('agenda')" id="tabBtn_agenda" class="tab-btn px-4 py-2 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+          <i class="fa-solid fa-calendar-check"></i>
+          <span>4. Agenda & Termos ANVISA</span>
+        </button>
+        <button onclick="trocarAba('whatsapp')" id="tabBtn_whatsapp" class="tab-btn px-4 py-2 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+          <i class="fa-brands fa-whatsapp text-emerald-500"></i>
+          <span>5. Robô de Atendimento IA</span>
+        </button>
+      </div>
+
+      <!-- ATALHO DE AJUDA / TECLAS -->
+      <div class="hidden xl:flex items-center gap-3 text-xs text-slate-400 font-mono">
+        <span><kbd class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-300 text-slate-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300">F2</kbd> Busca</span>
+        <span><kbd class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-300 text-slate-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300">F5</kbd> Pagar</span>
+        <span><kbd class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-300 text-slate-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300">ESC</kbd> Limpar</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- CONTEÚDO PRINCIPAL (TELAS DAS ABAS)        -->
+  <!-- ========================================== -->
+  <main class="flex-1 max-w-[1700px] w-full mx-auto p-3 sm:p-6">
+
+    <!-- ---------------------------------------- -->
+    <!-- ABA 1: PDV CAIXA RÁPIDO (TELA DE VENDAS) -->
+    <!-- ---------------------------------------- -->
+    <section id="view_pdv" class="view-tab grid grid-cols-1 lg:grid-cols-12 gap-5">
+      
+      <!-- COLUNA DA ESQUERDA: PRODUTOS E BUSCA (8 COLS) -->
+      <div class="lg:col-span-7 xl:col-span-8 flex flex-col gap-4">
+        
+        <!-- BUSCA E LEITOR DE CÓDIGO DE BARRAS -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center gap-3 dark:bg-slate-900 dark:border-slate-800">
+          <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 text-base dark:bg-slate-800">
+            <i class="fa-solid fa-barcode"></i>
+          </div>
+          <div class="flex-1">
+            <input 
+              type="text" 
+              id="inputBuscaPDV" 
+              oninput="filtrarProdutos(this.value)"
+              placeholder="Digite o nome, código de barras ou bipe a peça... (Pressione F2)" 
+              class="w-full bg-transparent text-sm sm:text-base font-medium text-slate-800 placeholder-slate-400 focus:outline-none dark:text-slate-100 dark:placeholder-slate-500"
+              autofocus
+            >
+          </div>
+          <button onclick="document.getElementById('inputBuscaPDV').value=''; filtrarProdutos('');" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <i class="fa-solid fa-circle-xmark"></i>
+          </button>
+        </div>
+
+        <!-- FILTRO DE CATEGORIAS RÁPIDAS (CHIPS) -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1" id="gradeCategorias">
+          <!-- Gerado dinamicamente -->
+        </div>
+
+        <!-- GRADE DE PRODUTOS / PEÇAS TOUCH (CARDS GRANDES) -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3.5" id="gradeCardsProdutos">
+          <!-- Renderizado via Javascript -->
+        </div>
+
+      </div>
+
+      <!-- COLUNA DA DIREITA: CARRINHO & FECHAMENTO (4 COLS) -->
+      <div class="lg:col-span-5 xl:col-span-4 flex flex-col">
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 sticky top-24 flex flex-col justify-between min-h-[580px] dark:bg-slate-900 dark:border-slate-800">
+          
+          <!-- TOPO DO CUPOM -->
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-receipt text-emerald-600 dark:text-emerald-400"></i>
+                <h3 class="font-extrabold text-sm text-slate-800 dark:text-slate-100">Cupom de Venda Atual</h3>
+              </div>
+              <button onclick="limparCarrinho()" class="text-xs text-rose-500 hover:text-rose-700 font-bold flex items-center gap-1 transition">
+                <i class="fa-solid fa-trash-can"></i> Limpar
+              </button>
+            </div>
+
+            <!-- LISTA DE ITENS NO CARRINHO -->
+            <div class="mt-3 space-y-2.5 max-h-[300px] overflow-y-auto pr-1" id="listaCarrinho">
+              <!-- Itens injetados via JS -->
+              <div class="text-center py-12 text-slate-400">
+                <i class="fa-solid fa-basket-shopping text-3xl mb-2 opacity-40"></i>
+                <p class="text-xs">Nenhum item adicionado ainda.<br>Clique nos produtos ao lado ou bipe um código.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- RESUMO FINANCEIRO E BOTÃO DE PAGAMENTO -->
+          <div class="pt-4 border-t border-slate-100 mt-4 dark:border-slate-800">
+            
+            <div class="space-y-1.5 text-xs text-slate-500 dark:text-slate-400 mb-3">
+              <div class="flex justify-between">
+                <span>Subtotal Itens:</span>
+                <span class="font-mono font-bold text-slate-700 dark:text-slate-200" id="subtotalCupom">R$ 0,00</span>
+              </div>
+              <div class="flex justify-between text-emerald-600 dark:text-emerald-400">
+                <span>Desconto / Sinal PIX:</span>
+                <span class="font-mono font-bold" id="descontoCupom">R$ 0,00</span>
+              </div>
+            </div>
+
+            <!-- VALOR TOTAL GIGANTE -->
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between mb-4 dark:bg-slate-800/70 dark:border-slate-700/60">
+              <div>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total a Pagar</span>
+                <span class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Sem taxas extras</span>
+              </div>
+              <div class="text-right">
+                <span class="text-3xl font-black font-mono text-emerald-600 dark:text-emerald-400" id="totalCupom">R$ 0,00</span>
+              </div>
+            </div>
+
+            <!-- BOTÕES RÁPIDOS DE PAGAMENTO -->
+            <div class="grid grid-cols-3 gap-2 mb-3">
+              <button onclick="abrirModalPagamento('PIX')" class="btn-touch py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-black flex flex-col items-center justify-center gap-1 transition dark:bg-emerald-950/60 dark:border-emerald-800 dark:text-emerald-300">
+                <i class="fa-brands fa-pix text-base text-emerald-600 dark:text-emerald-400"></i>
+                <span>PIX (F3)</span>
+              </button>
+              <button onclick="abrirModalPagamento('Cartão')" class="btn-touch py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 text-xs font-black flex flex-col items-center justify-center gap-1 transition dark:bg-blue-950/60 dark:border-blue-800 dark:text-blue-300">
+                <i class="fa-solid fa-credit-card text-base text-blue-600 dark:text-blue-400"></i>
+                <span>Cartão</span>
+              </button>
+              <button onclick="abrirModalPagamento('Dinheiro')" class="btn-touch py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-black flex flex-col items-center justify-center gap-1 transition dark:bg-amber-950/60 dark:border-amber-800 dark:text-amber-300">
+                <i class="fa-solid fa-money-bill-wave text-base text-amber-600 dark:text-amber-400"></i>
+                <span>Dinheiro</span>
+              </button>
+            </div>
+
+            <!-- BOTÃO PRINCIPAL FINALIZAR -->
+            <button onclick="abrirModalPagamento('PIX')" id="btnFinalizarVenda" class="btn-touch w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-base shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>FINALIZAR VENDA (F9)</span>
+            </button>
+
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ---------------------------------------- -->
+    <!-- ABA 2: CAIXA DO DIA (FINANCEIRO HUMANO)  -->
+    <!-- ---------------------------------------- -->
+    <section id="view_caixa" class="view-tab hidden space-y-6">
+      
+      <!-- CARDS DE RESUMO DO DIA -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-bold mb-2">
+            <span>TOTAL VENDIDO HOJE</span>
+            <i class="fa-solid fa-sack-dollar text-emerald-500 text-base"></i>
+          </div>
+          <div class="text-2xl sm:text-3xl font-black text-slate-900 font-mono dark:text-white" id="kpiReceitaDia">
+            R$ 2.480,00
+          </div>
+          <span class="text-xs text-emerald-600 font-bold mt-1 inline-block">18 vendas realizadas</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-bold mb-2">
+            <span>RECEBIDO NO PIX</span>
+            <i class="fa-brands fa-pix text-teal-500 text-base"></i>
+          </div>
+          <div class="text-2xl sm:text-3xl font-black text-teal-600 font-mono dark:text-teal-400" id="kpiPixDia">
+            R$ 1.840,00
+          </div>
+          <span class="text-xs text-slate-400 mt-1 inline-block">74% das vendas (cai na hora)</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-bold mb-2">
+            <span>CARTÕES & DINHEIRO</span>
+            <i class="fa-solid fa-credit-card text-blue-500 text-base"></i>
+          </div>
+          <div class="text-2xl sm:text-3xl font-black text-blue-600 font-mono dark:text-blue-400" id="kpiCartaoDia">
+            R$ 640,00
+          </div>
+          <span class="text-xs text-slate-400 mt-1 inline-block">Crédito, Débito e Espécie</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-bold mb-2">
+            <span>LUCRO LÍQUIDO ESTIMADO</span>
+            <i class="fa-solid fa-arrow-trend-up text-emerald-500 text-base"></i>
+          </div>
+          <div class="text-2xl sm:text-3xl font-black text-emerald-600 font-mono dark:text-emerald-400" id="kpiLucroDia">
+            R$ 1.910,00
+          </div>
+          <span class="text-xs text-emerald-600 font-bold mt-1 inline-block">Margem Real de 77.0%</span>
+        </div>
+
+      </div>
+
+      <!-- HISTÓRICO DAS ÚLTIMAS VENDAS COM COMPROVANTE -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 dark:bg-slate-900 dark:border-slate-800">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Últimas Vendas Passadas no Caixa</h3>
+            <p class="text-xs text-slate-400">Clique para reimprimir o cupom ou reenviar no WhatsApp do cliente</p>
+          </div>
+          <button onclick="alert('Relatório de fechamento de caixa impresso e enviado para o e-mail do proprietário!')" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 dark:bg-slate-800 dark:text-slate-200">
+            <i class="fa-solid fa-print"></i> Fechar Caixa do Dia
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-slate-100 text-slate-400 font-mono dark:border-slate-800">
+                <th class="py-3 px-3">Hora</th>
+                <th class="py-3 px-3">Cupom</th>
+                <th class="py-3 px-3">Cliente</th>
+                <th class="py-3 px-3">Itens / Procedimento</th>
+                <th class="py-3 px-3">Pagamento</th>
+                <th class="py-3 px-3 font-mono text-right">Valor</th>
+                <th class="py-3 px-3 text-center">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaHistoricoVendas" class="divide-y divide-slate-100 dark:divide-slate-800/60">
+              <!-- Injetado dinamicamente -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ---------------------------------------- -->
+    <!-- ABA 3: ESTOQUE FÁCIL (SEM COMPLICAÇÃO)   -->
+    <!-- ---------------------------------------- -->
+    <section id="view_estoque" class="view-tab hidden space-y-5">
+      
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 dark:bg-slate-900 dark:border-slate-800">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Controle de Estoque & Peças</h3>
+            <p class="text-xs text-slate-400">Atualização em tempo real de estoque, custo e margem de lucro</p>
+          </div>
+          <button onclick="abrirModalNovoProduto()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/20 flex items-center gap-2">
+            <i class="fa-solid fa-plus"></i> Novo Item / Joia
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-slate-100 text-slate-400 font-mono dark:border-slate-800">
+                <th class="py-3 px-3">Item / Peça</th>
+                <th class="py-3 px-3">Categoria</th>
+                <th class="py-3 px-3 font-mono">Custo (CMV)</th>
+                <th class="py-3 px-3 font-mono">Preço Venda</th>
+                <th class="py-3 px-3 font-mono">Margem</th>
+                <th class="py-3 px-3 text-center">Qtd Estoque</th>
+                <th class="py-3 px-3 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaEstoqueCompleto" class="divide-y divide-slate-100 dark:divide-slate-800/60">
+              <!-- Renderizado via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ---------------------------------------- -->
+    <!-- ABA 4: AGENDA & TERMOS ANVISA DIGITAL    -->
+    <!-- ---------------------------------------- -->
+    <section id="view_agenda" class="view-tab hidden space-y-6">
+      
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 dark:bg-slate-900 dark:border-slate-800">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Agenda do Dia & Fichas ANVISA</h3>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300">
+                100% Digital no Celular
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Clientes com sinal PIX pago e termo de saúde assinado antes de sentar na maca</p>
+          </div>
+          <button onclick="abrirModalTermoDigital('Nova Cliente Balcão')" class="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-file-signature"></i> Assinar Termo na Maca
+          </button>
+        </div>
+
+        <!-- LISTA DE AGENDAMENTOS DO DIA -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" id="cardsAgendaDia">
+          <!-- Renderizado via JS -->
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ---------------------------------------- -->
+    <!-- ABA 5: ROBÔ DE ATENDIMENTO WHATSAPP IA   -->
+    <!-- ---------------------------------------- -->
+    <section id="view_whatsapp" class="view-tab hidden grid grid-cols-1 lg:grid-cols-12 gap-5">
+      
+      <!-- PAINEL DE CONVERSA AO VIVO DO WHATSAPP (7 COLS) -->
+      <div class="lg:col-span-7 bg-white rounded-3xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between min-h-[580px] dark:bg-slate-900 dark:border-slate-800">
+        <div>
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-emerald-500 flex items-center justify-center text-white text-lg">
+                <i class="fa-brands fa-whatsapp"></i>
+              </div>
+              <div>
+                <h4 class="font-extrabold text-sm text-slate-900 dark:text-white">Camila IA • Atendimento 24h</h4>
+                <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">Online • Respondendo em 3 segundos</p>
+              </div>
+            </div>
+            <span class="text-xs font-mono text-slate-400">Simulador Real</span>
+          </div>
+
+          <!-- MENSAGENS SIMULADAS -->
+          <div class="mt-4 space-y-3 max-h-[380px] overflow-y-auto pr-1" id="chatSimuladorBox">
+            
+            <div class="p-3 rounded-2xl rounded-tl-sm bg-slate-100 text-slate-700 text-xs max-w-[85%] dark:bg-slate-800 dark:text-slate-200">
+              <span class="text-[10px] text-slate-400 font-bold block mb-1">Cliente Mariana:</span>
+              "Olá! Vi o story do piercing no septo! Dói muito furar? Quanto fica com a joia de titânio dourada e tem vaga pra sábado?"
+            </div>
+
+            <div class="p-3.5 rounded-2xl rounded-tr-sm bg-emerald-600 text-white text-xs max-w-[90%] ml-auto shadow-sm">
+              <span class="text-[10px] text-emerald-200 font-bold block mb-1">Camila IA (Respondido às 14:02 em 3 segundos):</span>
+              "Oie Mariana, tudo bem? 😍 O septo é super tranquilo! A agulha passa pelo 'sweet spot' (ponto macio) e dura só 2 segundos!<br><br>
+              Trabalhamos exclusivamente com <strong>Titânio G23 Grau Implante</strong>, que é 100% biocompatível e não inflama.<br>
+              • Aplicação + Argola Clicker Titânio Dourado: <strong>R$ 140,00</strong>.<br>
+              • Para sábado temos horário às <strong>15:00</strong> ou às <strong>16:30</strong>! Qual prefere?"
+            </div>
+
+            <div class="p-3 rounded-2xl rounded-tl-sm bg-slate-100 text-slate-700 text-xs max-w-[85%] dark:bg-slate-800 dark:text-slate-200">
+              <span class="text-[10px] text-slate-400 font-bold block mb-1">Cliente Mariana:</span>
+              "Nossa que rápido! Quero sábado às 15:00!"
+            </div>
+
+            <div class="p-3.5 rounded-2xl rounded-tr-sm bg-emerald-600 text-white text-xs max-w-[90%] ml-auto shadow-sm">
+              <span class="text-[10px] text-emerald-200 font-bold block mb-1">Camila IA:</span>
+              "Perfeito! Horário reservado na maca! ✨<br><br>
+              Para travar sua vaga e separar sua joia esterilizada, segue o PIX do sinal de <strong>R$ 30,00</strong> (chave celular: 11987654321).<br><br>
+              E clica aqui no link para assinar seu <strong>Termo ANVISA no celular</strong> antes de vir: <span class="underline">omni.link/termo-mariana</span>"
+            </div>
+
+          </div>
+        </div>
+
+        <!-- CAMPO PARA TESTAR UMA MENSAGEM AO VIVO COM O ROBÔ -->
+        <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2">
+          <input 
+            type="text" 
+            id="inputSimularMensagem"
+            placeholder="Digite como se fosse uma cliente (ex: 'Quanto custa furar a orelha?')..." 
+            class="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
+            onkeydown="if(event.key==='Enter') enviarMensagemSimulada()"
+          >
+          <button onclick="enviarMensagemSimulada()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm">
+            Enviar
+          </button>
+        </div>
+
+      </div>
+
+      <!-- PAINEL LATERAL: BENEFÍCIOS E AUTOMAÇÃO (5 COLS) -->
+      <div class="lg:col-span-5 space-y-4">
+        
+        <div class="bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-3xl p-6 shadow-md">
+          <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-200 mb-2">
+            <i class="fa-solid fa-bolt"></i> O Fim do Celular Apitando na Maca
+          </div>
+          <h3 class="text-xl font-black leading-snug">Você de Luva Furando.<br>A IA Vendendo e Agendando.</h3>
+          <p class="text-xs text-emerald-100 mt-2 leading-relaxed">
+            Elimina o estresse de passar horas respondendo "quanto é", "dói furar" e "tem horário". O robô só coloca na agenda quem paga o sinal de R$ 30 antecipado!
+          </p>
+          <div class="mt-4 grid grid-cols-2 gap-2 text-center text-xs">
+            <div class="p-2.5 rounded-2xl bg-white/10 backdrop-blur-sm">
+              <span class="block text-lg font-black font-mono">0%</span>
+              <span class="text-[10px] text-emerald-200">Faltas no Sábado</span>
+            </div>
+            <div class="p-2.5 rounded-2xl bg-white/10 backdrop-blur-sm">
+              <span class="block text-lg font-black font-mono">R$ 2.400</span>
+              <span class="text-[10px] text-emerald-200">Economia Secretária</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm space-y-3 text-xs dark:bg-slate-900 dark:border-slate-800">
+          <h4 class="font-extrabold text-slate-900 dark:text-white">Gatilhos Automáticos Já Ativos:</h4>
+          
+          <div class="flex items-start gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60">
+            <i class="fa-solid fa-clock-rotate-left text-teal-600 mt-0.5"></i>
+            <div>
+              <strong class="text-slate-800 dark:text-slate-200">Pós-Perfuração 3º Dia:</strong>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Manda mensagem ensinando a higienizar com soro morno.</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60">
+            <i class="fa-solid fa-gem text-pink-500 mt-0.5"></i>
+            <div>
+              <strong class="text-slate-800 dark:text-slate-200">Downsize aos 30 Dias (Troca de Joia):</strong>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Avisa que a orelha desinchou e oferece nova joia curta para evitar queloide. Gera recompra automática!</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL DE PAGAMENTO (PIX / CARTÃO / DINHEIRO) -->
+  <!-- ========================================== -->
+  <div id="modalPagamento" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full p-6 text-center transform transition-all dark:bg-slate-900 dark:border-slate-800">
+      
+      <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mx-auto mb-3 dark:bg-emerald-950 dark:text-emerald-400">
+        <i class="fa-brands fa-pix" id="iconeModalPagamento"></i>
+      </div>
+
+      <h3 class="text-lg font-black text-slate-900 dark:text-white" id="tituloModalPagamento">Pagamento via PIX Instantâneo</h3>
+      <p class="text-xs text-slate-400 mt-1">Aponte a câmera do celular ou copie a chave cópia e cola</p>
+
+      <div class="my-5 p-4 rounded-2xl bg-slate-50 border border-slate-100 dark:bg-slate-800/60 dark:border-slate-700">
+        <span class="text-xs text-slate-400 font-bold block mb-1">VALOR TOTAL:</span>
+        <span class="text-3xl font-black font-mono text-emerald-600 dark:text-emerald-400" id="valorModalPagamento">R$ 0,00</span>
+      </div>
+
+      <!-- QR CODE PIX SIMULADO -->
+      <div id="boxQrCodePix" class="my-4 flex flex-col items-center justify-center">
+        <div class="w-44 h-44 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-center dark:border-slate-700">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=00020126580014br.gov.bcb.pix0136omnicommerce-teste-real-pix5204000053039865802BR5915STUDIO_PIERCING6009SAO_PAULO62070503***6304E2CA" alt="QR Code PIX" class="w-40 h-40 rounded-xl">
+        </div>
+        <button onclick="copiarPix()" class="mt-3 text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 dark:text-emerald-400">
+          <i class="fa-regular fa-copy"></i> Copiar Código PIX Copia e Cola
+        </button>
+      </div>
+
+      <!-- BOTÕES DO MODAL -->
+      <div class="grid grid-cols-2 gap-3 mt-6">
+        <button onclick="fecharModalPagamento()" class="py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300">
+          Cancelar
+        </button>
+        <button onclick="confirmarVendaFinalizada()" class="py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-lg shadow-emerald-600/25 transition">
+          Confirmar Pagamento
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL SUCESSO / COMPROVANTE DE VENDA      -->
+  <!-- ========================================== -->
+  <div id="modalSucessoVenda" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-sm w-full p-6 text-center transform transition-all dark:bg-slate-900 dark:border-slate-800">
+      <div class="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto mb-3 animate-bounce dark:bg-emerald-950 dark:text-emerald-400">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <h3 class="text-xl font-black text-slate-900 dark:text-white">Venda Confirmada!</h3>
+      <p class="text-xs text-slate-400 mt-1" id="resumoCupomFinalizado">Cupom gerado e estoque baixado com sucesso.</p>
+
+      <div class="mt-6 flex flex-col gap-2">
+        <button onclick="window.print()" class="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm dark:bg-slate-700">
+          <i class="fa-solid fa-print"></i> Imprimir Cupom Não Fiscal
+        </button>
+        <button onclick="fecharModalSucesso(); trocarAba('caixa');" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs">
+          Ver no Caixa do Dia
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL TERMO DE CONSENTIMENTO ANVISA       -->
+  <!-- ========================================== -->
+  <div id="modalTermoAnvisa" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-6 text-left transform transition-all dark:bg-slate-900 dark:border-slate-800">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div>
+          <h3 class="font-extrabold text-sm text-slate-900 dark:text-white">Ficha de Anamnese & Termo ANVISA</h3>
+          <p class="text-[11px] text-slate-400">Validade jurídica para aplicação corporal</p>
+        </div>
+        <button onclick="fecharModalTermo()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <i class="fa-solid fa-xmark text-base"></i>
+        </button>
+      </div>
+
+      <div class="my-4 space-y-3 text-xs text-slate-600 max-h-[340px] overflow-y-auto pr-1 dark:text-slate-300">
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 dark:bg-slate-800/60 dark:border-slate-700">
+          <strong class="block text-slate-800 dark:text-slate-200 mb-1">Dados da Cliente:</strong>
+          <p>Nome: <span id="termoNomeCliente" class="font-bold text-slate-900 dark:text-white">Mariana Costa</span> • CPF: 432.***.***-89</p>
+          <p>Procedimento: <strong>Argola Clicker Titânio G23 (Septo)</strong></p>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="flex items-center gap-2">
+            <input type="checkbox" checked class="rounded text-emerald-600">
+            <span>Declaro não ser gestante ou lactante.</span>
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" checked class="rounded text-emerald-600">
+            <span>Declaro não ter histórico de queloide em cartilagem.</span>
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" checked class="rounded text-emerald-600">
+            <span>Recebi as orientações de limpeza diária com soro estéril.</span>
+          </label>
+        </div>
+
+        <!-- CAMPO DE ASSINATURA DIGITAL NA TELA -->
+        <div class="mt-3">
+          <label class="block text-[11px] font-bold text-slate-500 mb-1">Assinatura da Cliente com Dedo/Mouse:</label>
+          <div class="h-24 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center text-slate-400 text-xs italic dark:bg-slate-800 dark:border-slate-700">
+            [ Assinatura Digital Biométrica Coletada com Sucesso ]
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
+        <button onclick="fecharModalTermo()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold dark:bg-slate-800 dark:text-slate-300">Fechar</button>
+        <button onclick="salvarTermoAssinado()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm">
+          Salvar Termo Blindado
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT: LÓGICA DO SISTEMA 2.0          -->
+  <!-- ========================================== -->
+  <script>
+    // ----------------------------------------
+    // BANCO DE DADOS DINÂMICO MULTI-NICHO
+    // ----------------------------------------
+    const BANCO_DADOS = {
+      piercing: {
+        nome: "Studio & Boutique VIP",
+        badge: "Piercing, Joias Titânio & Bijuterias",
+        categorias: ["Todos", "Piercings Orelha", "Piercings Nariz/Septo", "Bijuterias Finas", "Cuidados Pós"],
+        produtos: [
+          { id: 1, nome: "Labret Titânio G23 c/ Zircônia 1.2mm", cat: "Piercings Orelha", preco: 130.00, custo: 18.00, estoque: 45, img: "💎", desc: "Aplicação Inclusa • Grau Implante" },
+          { id: 2, nome: "Argola Clicker Titânio Dourado (Septo)", cat: "Piercings Nariz/Septo", preco: 140.00, custo: 22.00, estoque: 32, img: "💍", desc: "Anodização biomédica" },
+          { id: 3, nome: "Nostril Ponto de Luz Prata 925", cat: "Piercings Nariz/Septo", preco: 75.00, custo: 9.50, estoque: 60, img: "✨", desc: "Haste fina confortável" },
+          { id: 4, nome: "Piercing Umbigo Banana Bell Opala", cat: "Piercings Orelha", preco: 145.00, custo: 24.00, estoque: 18, img: "🔮", desc: "Rosca interna antialérgica" },
+          { id: 5, nome: "Soro Fisiológico Estéril Spray 100ml", cat: "Cuidados Pós", preco: 28.00, custo: 8.00, estoque: 90, img: "🧴", desc: "Spray contínuo pós-furo" },
+          { id: 6, nome: "Colar Banhado Ouro 18k Pingente Coração", cat: "Bijuterias Finas", preco: 89.90, custo: 26.00, estoque: 22, img: "📿", desc: "Garantia 6 meses banho" },
+          { id: 7, nome: "Brinco Argola Cravejada Microzircônia", cat: "Bijuterias Finas", preco: 59.90, custo: 16.00, estoque: 35, img: "✨", desc: "Fecho click clássico" },
+          { id: 8, nome: "Taxa Downsize Haste Curta (30d)", cat: "Cuidados Pós", preco: 45.00, custo: 5.00, estoque: 999, img: "🩺", desc: "Troca após desinchar" }
+        ],
+        agenda: [
+          { hora: "14:30", cliente: "Mariana Costa", proc: "Argola Clicker Septo Titânio", status: "Sinal R$ 30 Pago", termo: true },
+          { hora: "15:30", cliente: "Beatriz Lemos", proc: "Perfuração Hélix + Soro Spray", status: "Sinal R$ 30 Pago", termo: true },
+          { hora: "16:15", cliente: "Carla Silveira", proc: "Downsize Haste Tragus (30d)", status: "Aguardando", termo: false }
+        ]
+      },
+      acougue: {
+        nome: "Boutique de Carnes Prime",
+        badge: "Açougue & Cortes Especiais",
+        categorias: ["Todos", "Bovinos Nobres", "Espetos & Churrasco", "Suínos", "Temperados"],
+        produtos: [
+          { id: 101, nome: "Picanha Prime Bovina (kg)", cat: "Bovinos Nobres", preco: 89.90, custo: 54.00, estoque: 42, img: "🥩", desc: "Capa de gordura uniforme" },
+          { id: 102, nome: "Fraldinha Red Angus (kg)", cat: "Bovinos Nobres", preco: 59.90, custo: 36.00, estoque: 30, img: "🥩", desc: "Marmoreio excelente" },
+          { id: 103, nome: "Kit 10 Espetos Artesanais Carnes", cat: "Espetos & Churrasco", preco: 65.00, custo: 22.00, estoque: 25, img: "🍢", desc: "Alcatra com bacon" },
+          { id: 104, nome: "Linguiça Artesanal com Queijo Coalho (kg)", cat: "Temperados", preco: 38.00, custo: 16.00, estoque: 55, img: "🌭", desc: "Receita da casa" }
+        ],
+        agenda: [
+          { hora: "11:00", cliente: "Dr. Marcelo", proc: "Kit Churrasco 12 Pessoas", status: "Pronto Retirada", termo: false }
+        ]
+      },
+      bebidas: {
+        nome: "Distribuidora Express & Gelada",
+        badge: "Bebidas & Gelo 24h",
+        categorias: ["Todos", "Cervejas", "Destilados", "Sem Álcool", "Gelo & Carvão"],
+        produtos: [
+          { id: 201, nome: "Fardo Cerveja Heineken 350ml (12un)", cat: "Cervejas", preco: 69.90, custo: 49.00, estoque: 120, img: "🍺", desc: "Super gelada" },
+          { id: 202, nome: "Saco de Gelo Filtrado 5kg", cat: "Gelo & Carvão", preco: 14.00, custo: 4.50, estoque: 80, img: "🧊", desc: "Em cubos" },
+          { id: 203, nome: "Combo Vodka Smirnoff + 4 Energéticos", cat: "Destilados", preco: 89.90, custo: 42.00, estoque: 35, img: "🍾", desc: "Com copo de brinde" }
+        ],
+        agenda: []
+      },
+      pizzaria: {
+        nome: "Pizzaria Forno Nobre & Delivery",
+        badge: "Forno, KDS & Delivery",
+        categorias: ["Todos", "Pizzas Tradicionais", "Pizzas Especiais", "Bordas & Adicionais", "Esfihas & Calzones", "Bebidas & Combos"],
+        produtos: [
+          { id: 301, nome: "Pizza Grande 8 Fatias (1/2 Calabresa + 1/2 Muçarela)", cat: "Pizzas Tradicionais", preco: 64.90, custo: 19.80, estoque: 85, img: "🍕", desc: "Regra maior valor • Massa 48h" },
+          { id: 302, nome: "Pizza Grande Portuguesa Especial", cat: "Pizzas Tradicionais", preco: 68.90, custo: 22.40, estoque: 70, img: "🍕", desc: "Presunto, ovo, ervilha e cebola" },
+          { id: 303, nome: "Pizza G 1/2 Frango Catupiry + 1/2 Marguerita", cat: "Pizzas Especiais", preco: 74.90, custo: 24.50, estoque: 60, img: "🧀", desc: "Catupiry Original • Manjericão fresco" },
+          { id: 304, nome: "Adicional Borda Recheada Catupiry Original", cat: "Bordas & Adicionais", preco: 16.00, custo: 5.20, estoque: 110, img: "🥯", desc: "180g por pizza" },
+          { id: 305, nome: "Combo Família: 2 Pizzas G + Guaraná 2L", cat: "Bebidas & Combos", preco: 129.90, custo: 43.00, estoque: 40, img: "🛵", desc: "Taxa zero no WhatsApp" },
+          { id: 306, nome: "Caixa 10 Esfihas Abertas Mistas", cat: "Esfihas & Calzones", preco: 49.90, custo: 15.60, estoque: 50, img: "🥟", desc: "Carne, queijo e calabresa" },
+          { id: 307, nome: "Coca-Cola 2 Litros Gelada", cat: "Bebidas & Combos", preco: 15.00, custo: 7.90, estoque: 96, img: "🥤", desc: "Entrega bar/geladeira" }
+        ],
+        agenda: [
+          { hora: "19:15", cliente: "Pedido #412 - Marcos (Bairro Centro)", servico: "1/2 Calabresa + 1/2 Frango c/ Borda • Motoboy: João", status: "No Forno (12 min)" },
+          { hora: "19:22", cliente: "Pedido #413 - Carla (WhatsApp IA)", servico: "Combo Família + Coca 2L • PIX Confirmado", status: "Saiu p/ Entrega" },
+          { hora: "19:30", cliente: "Mesa 04 - Família Oliveira", servico: "Pizza Portuguesa G + 2 Sucos", status: "Aguardando Montagem" }
+        ]
+      },
+      lanchonete: {
+        nome: "Burger House & Lanchonete Express",
+        badge: "Chapa, Combos & Balcão",
+        categorias: ["Todos", "Burgers Artesanais", "Combos", "Porções", "Bebidas & Shakes"],
+        produtos: [
+          { id: 401, nome: "Smash Duplo Bacon Cheddar", cat: "Burgers Artesanais", preco: 34.90, custo: 11.80, estoque: 90, img: "🍔", desc: "2x90g blend bovino + bacon crocante" },
+          { id: 402, nome: "Combo X-Tudo + Fritas P + Refri Lata", cat: "Combos", preco: 44.90, custo: 15.40, estoque: 75, img: "🍟", desc: "Mais vendido no delivery" },
+          { id: 403, nome: "Porção Batata Rústica c/ Cheddar e Bacon", cat: "Porções", preco: 32.00, custo: 9.20, estoque: 60, img: "🧀", desc: "450g para compartilhar" },
+          { id: 404, nome: "Milkshake Ovomaltine 400ml", cat: "Bebidas & Shakes", preco: 22.00, custo: 6.50, estoque: 45, img: "🥤", desc: "Sorvete artesanal" }
+        ],
+        agenda: [
+          { hora: "19:40", cliente: "Pedido #108 - Lucas (Retirada Balcão)", servico: "2x Smash Duplo + 1 Batata Cheddar", status: "Na Chapa" },
+          { hora: "19:45", cliente: "Pedido #109 - Fernanda (WhatsApp IA)", servico: "Combo X-Tudo + Milkshake", status: "Pago PIX • Motoboy" }
+        ]
+      },
+      rotisseria: {
+        nome: "Rotisseria Sabor de Domingo",
+        badge: "Assados, Fornadas & Reservas",
+        categorias: ["Todos", "Frangos & Assados", "Massas & Lasanhas", "Guarnições", "Bebidas"],
+        produtos: [
+          { id: 501, nome: "Frango Assado Temperado na Brasa (Fornada 11h)", cat: "Frangos & Assados", preco: 49.90, custo: 19.50, estoque: 32, img: "🍗", desc: "Com farofa especial" },
+          { id: 502, nome: "Costela Suína ao Molho Barbecue (Kg)", cat: "Frangos & Assados", preco: 68.00, custo: 27.00, estoque: 25, img: "🍖", desc: "Assada 4 horas" },
+          { id: 503, nome: "Lasanha Bolonhesa Artesanal 1kg", cat: "Massas & Lasanhas", preco: 54.00, custo: 18.20, estoque: 18, img: "🍝", desc: "Serve 3 pessoas" },
+          { id: 504, nome: "Maionese Caseira Pote 500g", cat: "Guarnições", preco: 18.00, custo: 5.40, estoque: 40, img: "🥗", desc: "Fresca do dia" }
+        ],
+        agenda: [
+          { hora: "11:00", cliente: "Reserva #22 - Sra. Helena", servico: "2x Frango Assado + 1 Maionese 500g", status: "Sinal PIX Pago" },
+          { hora: "11:30", cliente: "Reserva #23 - Carlos Eduardo", servico: "1x Costela Barbecue + Lasanha", status: "No Forno" }
+        ]
+      },
+      tintas: {
+        nome: "ShopCor Tintas & Acabamentos",
+        badge: "Tintas, Sistema Tintométrico & Rotas",
+        categorias: ["Todos", "Acrílicas & Látex", "Esmaltes & Vernizes", "Acessórios", "Massas & Seladores"],
+        produtos: [
+          { id: 601, nome: "Tinta Acrílica Fosca Premium Branco Neve 18L", cat: "Acrílicas & Látex", preco: 389.90, custo: 245.00, estoque: 28, img: "🎨", desc: "Alto rendimento" },
+          { id: 602, nome: "Massa Corrida PVA Lata 25kg", cat: "Massas & Seladores", preco: 84.90, custo: 52.00, estoque: 45, img: "🪣", desc: "Secagem rápida" },
+          { id: 603, nome: "Rolo de Lã Antigota 23cm + Suporte", cat: "Acessórios", preco: 34.90, custo: 16.50, estoque: 60, img: "🖌️", desc: "Profissional" },
+          { id: 604, nome: "Esmalte Sintético Brilhante 3,6L", cat: "Esmaltes & Vernizes", preco: 129.00, custo: 82.00, estoque: 22, img: "✨", desc: "Madeira e metais" }
+        ],
+        agenda: [
+          { hora: "08:30", cliente: "Obra Construtora Alfa", servico: "Rota Entrega: 6 Latas 18L + 4 Massas 25kg", status: "Em Rota" }
+        ]
+      },
+      japones: {
+        nome: "Kuroki Sushi Bar & Delivery",
+        badge: "Rodízio, À La Carte & Sushibar",
+        categorias: ["Todos", "Combinados", "Temakis", "Hot Rolls", "Bebidas Orientais"],
+        produtos: [
+          { id: 701, nome: "Combinado Salmão Premium 30 Peças", cat: "Combinados", preco: 119.90, custo: 42.00, estoque: 40, img: "🍣", desc: "Sashimi, niguiri e uramaki" },
+          { id: 702, nome: "Temaki Salmão Filadélfia Completo", cat: "Temakis", preco: 36.90, custo: 12.50, estoque: 65, img: "🍙", desc: "Cream cheese e cebolinha" },
+          { id: 703, nome: "Hot Roll Crocante (10 unid)", cat: "Hot Rolls", preco: 34.00, custo: 10.20, estoque: 55, img: "🍤", desc: "Molho tarê da casa" },
+          { id: 704, nome: "Sake Importado Dose / Garrafa", cat: "Bebidas Orientais", preco: 45.00, custo: 19.00, estoque: 24, img: "🍶", desc: "Servido gelado" }
+        ],
+        agenda: [
+          { hora: "20:00", cliente: "Mesa 07 - Casal Rodrigo", servico: "2x Rodízio Completo", status: "Em Atendimento" },
+          { hora: "20:15", cliente: "Delivery #88 - Amanda (WhatsApp)", servico: "Combinado 30 Peças + Hot Roll", status: "Sushibar" }
+        ]
+      },
+      petshop: {
+        nome: "Mundo Pet Clínica & Banho e Tosa",
+        badge: "Banho e Tosa, Rações & Vacinas",
+        categorias: ["Todos", "Banho & Tosa", "Rações Premium", "Brinquedos & Guias", "Farmácia Pet"],
+        produtos: [
+          { id: 801, nome: "Banho & Tosa Higiênica (Porte Pequeno)", cat: "Banho & Tosa", preco: 75.00, custo: 18.00, estoque: 99, img: "🛁", desc: "Com hidratação" },
+          { id: 802, nome: "Ração Golden Special Cães Adultos 15kg", cat: "Rações Premium", preco: 169.90, custo: 124.00, estoque: 30, img: "🦴", desc: "Frango e carne" },
+          { id: 803, nome: "Antipulgas Simparic 10 a 20kg", cat: "Farmácia Pet", preco: 118.00, custo: 79.00, estoque: 22, img: "💊", desc: "Proteção 35 dias" },
+          { id: 804, nome: "Coleira Peitoral Nylon + Guia", cat: "Brinquedos & Guias", preco: 59.90, custo: 21.00, estoque: 35, img: "🐾", desc: "Ajustável" }
+        ],
+        agenda: [
+          { hora: "09:30", cliente: "Thor (Golden Retriever) - Ana", servico: "Banho + Tosa Tesoura + Corte Unhas", status: "Na Secagem" },
+          { hora: "10:30", cliente: "Mel (Shih-Tzu) - Bruno", servico: "Banho + Hidratação", status: "Aguardando" }
+        ]
+      },
+      barbearia: {
+        nome: "Barber Club & Estilo Clássico",
+        badge: "Cortes, Barboterapia & Clube",
+        categorias: ["Todos", "Cortes & Barba", "Planos Mensais", "Pomadas & Óleos", "Bar & Cervejas"],
+        produtos: [
+          { id: 901, nome: "Corte Degradê / Fade + Finalização", cat: "Cortes & Barba", preco: 55.00, custo: 5.00, estoque: 99, img: "✂️", desc: "40 min com barbeiro" },
+          { id: 902, nome: "Combo Corte + Barboterapia Toalha Quente", cat: "Cortes & Barba", preco: 95.00, custo: 10.00, estoque: 99, img: "🪒", desc: "Mais pedido" },
+          { id: 903, nome: "Pomada Modeladora Efeito Matte 120g", cat: "Pomadas & Óleos", preco: 45.00, custo: 17.00, estoque: 42, img: "💈", desc: "Fixação forte" },
+          { id: 904, nome: "Cerveja Long Neck Heineken Gelada", cat: "Bar & Cervejas", preco: 12.00, custo: 5.80, estoque: 70, img: "🍺", desc: "Cortesia no plano VIP" }
+        ],
+        agenda: [
+          { hora: "15:00", cliente: "Gustavo Mendes (Barbeiro: Léo)", servico: "Corte Degradê + Barboterapia", status: "Confirmado" },
+          { hora: "15:45", cliente: "Rafael Costa (Plano Mensal)", servico: "Corte Social", status: "Aguardando" }
+        ]
+      }
+    };
+
+    // ----------------------------------------
+    // ESTADO DA APLICAÇÃO & MODO ADMIN
+    // ----------------------------------------
+    const ADMIN_PIN_PADRAO = '2026';
+    let cliquesAdmin = 0;
+    let timerCliquesAdmin = null;
+    let nichoAtual = localStorage.getItem('omni_clean_nicho_travado') || 'piercing';
+    let categoriaAtiva = 'Todos';
+    let carrinho = [];
+    const vendasPadrao = [
+      { id: "CUPOM-9041", hora: "14:10", cliente: "Giovanna Silva", itens: "1x Atendimento / Produto", forma: "PIX", total: 158.00 },
+      { id: "CUPOM-9040", hora: "13:45", cliente: "Rafaela Diniz", itens: "1x Item Balcão", forma: "Cartão", total: 140.00 }
+    ];
+    let historicoVendas = [];
+
+    function carregarVendasSalvas(nicho) {
+      try {
+        const salvo = localStorage.getItem(`omni_clean_vendas_${nicho}`);
+        historicoVendas = salvo ? JSON.parse(salvo) : [...vendasPadrao];
+      } catch (e) {
+        historicoVendas = [...vendasPadrao];
+      }
+    }
+
+    function salvarVendasLocais() {
+      try {
+        localStorage.setItem(`omni_clean_vendas_${nichoAtual}`, JSON.stringify(historicoVendas.slice(0, 100)));
+      } catch (e) {}
+    }
+
+    // INICIALIZAÇÃO
+    window.addEventListener('DOMContentLoaded', () => {
+      carregarVendasSalvas(nichoAtual);
+      const selTop = document.getElementById('selectNicho');
+      if (selTop) selTop.value = nichoAtual;
+      carregarNicho(nichoAtual);
+      atualizarRelogio();
+      setInterval(atualizarRelogio, 1000);
+
+      // Se abrir com ?admin=1, abre o painel de instalação do administrador
+      if (new URLSearchParams(window.location.search).get('admin') === '1') {
+        abrirPainelAdmin();
+      }
+
+      // Atalhos de teclado
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'F2') {
+          e.preventDefault();
+          document.getElementById('inputBuscaPDV').focus();
+        }
+        if (e.key === 'F9') {
+          e.preventDefault();
+          if (carrinho.length > 0) abrirModalPagamento('PIX');
+        }
+        if (e.ctrlKey && e.shiftKey && e.key.toUpperCase() === 'A') {
+          e.preventDefault();
+          abrirPainelAdmin();
+        }
+        if (e.key === 'Escape') {
+          fecharModalPagamento();
+          fecharModalSucesso();
+          fecharModalTermo();
+          fecharPainelAdmin();
+        }
+      });
+    });
+
+    function registrarCliqueAdmin() {
+      cliquesAdmin++;
+      clearTimeout(timerCliquesAdmin);
+      timerCliquesAdmin = setTimeout(() => { cliquesAdmin = 0; }, 1800);
+      if (cliquesAdmin >= 5) {
+        cliquesAdmin = 0;
+        abrirPainelAdmin();
+      }
+    }
+
+    function abrirPainelAdmin() {
+      const pinSalvo = localStorage.getItem('omni_clean_admin_pin') || ADMIN_PIN_PADRAO;
+      const digitado = prompt("🔐 ACESSO ADMINISTRADOR (INSTALAÇÃO)\nDigite o PIN de Administrador (padrão 2026):");
+      if (digitado === null) return;
+      if (digitado.trim() !== pinSalvo) {
+        alert("❌ PIN incorreto. Acesso restrito ao administrador do sistema.");
+        return;
+      }
+      const box = document.getElementById('boxSeletorNichoAdmin');
+      if (box) {
+        box.classList.remove('hidden');
+        box.classList.add('flex');
+      }
+      const escolha = prompt(
+        "🛠️ MODO ADMIN ATIVADO!\n\n" +
+        "O seletor de ramos foi liberado no topo da tela.\n" +
+        "Você também pode escolher agora qual ramo TRAVAR para este cliente:\n\n" +
+        "piercing | pizzaria | lanchonete | acougue | rotisseria | bebidas | tintas | japones | petshop | barbearia\n\n" +
+        "(Deixe em branco para apenas manter o seletor visível no topo em Modo Demo)",
+        nichoAtual
+      );
+      if (escolha && BANCO_DADOS[escolha.trim()]) {
+        const chave = escolha.trim();
+        localStorage.setItem('omni_clean_nicho_travado', chave);
+        trocarNicho(chave);
+        const selTop = document.getElementById('selectNicho');
+        if (selTop) selTop.value = chave;
+        const travar = confirm(`✅ Ramo "${BANCO_DADOS[chave].nome}" salvo para este cliente!\n\nDeseja OCULTAR o seletor do topo agora (OK = Ocultar para o cliente | Cancelar = Manter visível para demonstração)?`);
+        if (travar) ocultarSeletorAdmin();
+      }
+    }
+
+    function fecharPainelAdmin() {
+      // Reservado para tecla Esc
+    }
+
+    function ocultarSeletorAdmin() {
+      localStorage.setItem('omni_clean_nicho_travado', nichoAtual);
+      const box = document.getElementById('boxSeletorNichoAdmin');
+      if (box) {
+        box.classList.add('hidden');
+        box.classList.remove('flex');
+      }
+    }
+
+    function atualizarRelogio() {
+      const now = new Date();
+      document.getElementById('relogioHeader').innerText = now.toLocaleTimeString('pt-BR');
+    }
+
+    // NAVEGAÇÃO DE ABAS
+    function trocarAba(abaId) {
+      document.querySelectorAll('.view-tab').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(el => {
+        el.classList.remove('bg-emerald-600', 'text-white', 'shadow-sm');
+        el.classList.add('text-slate-600', 'hover:bg-slate-100', 'dark:text-slate-300', 'dark:hover:bg-slate-800');
+      });
+
+      const view = document.getElementById(`view_${abaId}`);
+      const btn = document.getElementById(`tabBtn_${abaId}`);
+      if (view) view.classList.remove('hidden');
+      if (btn) {
+        btn.classList.add('bg-emerald-600', 'text-white', 'shadow-sm');
+        btn.classList.remove('text-slate-600', 'hover:bg-slate-100', 'dark:text-slate-300', 'dark:hover:bg-slate-800');
+      }
+
+      if (abaId === 'pdv') {
+        setTimeout(() => document.getElementById('inputBuscaPDV').focus(), 100);
+      }
+    }
+
+    // CARREGAR DADOS DO NICHO
+    function trocarNicho(novoNicho) {
+      nichoAtual = novoNicho;
+      categoriaAtiva = 'Todos';
+      carrinho = [];
+      atualizarCarrinhoUI();
+      carregarVendasSalvas(novoNicho);
+      carregarNicho(novoNicho);
+    }
+
+    function carregarNicho(key) {
+      const dados = BANCO_DADOS[key] || BANCO_DADOS.piercing;
+      document.getElementById('headerNomeLoja').innerText = dados.nome;
+      document.getElementById('headerBadgeNicho').innerText = dados.badge;
+
+      // Renderiza Categorias
+      const boxCat = document.getElementById('gradeCategorias');
+      boxCat.innerHTML = '';
+      dados.categorias.forEach((cat, index) => {
+        const btn = document.createElement('button');
+        btn.onclick = () => filtrarCategoria(cat);
+        btn.className = `px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition btn-touch ${
+          cat === categoriaAtiva 
+            ? 'bg-slate-800 text-white dark:bg-emerald-600' 
+            : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300'
+        }`;
+        btn.innerText = cat;
+        boxCat.appendChild(btn);
+      });
+
+      renderizarGradeProdutos(dados.produtos);
+      renderizarTabelaEstoque(dados.produtos);
+      renderizarHistoricoVendas();
+      renderizarAgenda(dados.agenda || []);
+    }
+
+    // RENDERIZAR CARDS DE PRODUTOS
+    function renderizarGradeProdutos(lista) {
+      const box = document.getElementById('gradeCardsProdutos');
+      box.innerHTML = '';
+
+      if (lista.length === 0) {
+        box.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-xs">Nenhum produto encontrado.</div>`;
+        return;
+      }
+
+      lista.forEach(prod => {
+        const card = document.createElement('div');
+        card.onclick = () => adicionarAoCarrinho(prod.id);
+        card.className = "btn-touch bg-white rounded-3xl p-4 border border-slate-200 hover:border-emerald-500 hover:shadow-md cursor-pointer transition flex flex-col justify-between dark:bg-slate-900 dark:border-slate-800 dark:hover:border-emerald-500";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-start justify-between">
+              <span class="text-3xl">${prod.img}</span>
+              <span class="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                Est: ${prod.estoque}
+              </span>
+            </div>
+            <h4 class="font-extrabold text-xs sm:text-sm text-slate-900 mt-2.5 leading-snug line-clamp-2 dark:text-white">${prod.nome}</h4>
+            <p class="text-[11px] text-slate-400 mt-0.5">${prod.desc || prod.cat}</p>
+          </div>
+          <div class="mt-3.5 pt-2 border-t border-slate-100 flex items-center justify-between dark:border-slate-800">
+            <span class="text-xs text-slate-400 font-medium">Preço</span>
+            <span class="text-base font-black font-mono text-emerald-600 dark:text-emerald-400">R$ ${prod.preco.toFixed(2).replace('.', ',')}</span>
+          </div>
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    // FILTROS
+    function filtrarCategoria(cat) {
+      categoriaAtiva = cat;
+      const dados = BANCO_DADOS[nichoAtual] || BANCO_DADOS.piercing;
+      carregarNicho(nichoAtual);
+      if (cat === 'Todos') {
+        renderizarGradeProdutos(dados.produtos);
+      } else {
+        const filtrados = dados.produtos.filter(p => p.cat === cat);
+        renderizarGradeProdutos(filtrados);
+      }
+    }
+
+    function filtrarProdutos(termo) {
+      const dados = BANCO_DADOS[nichoAtual] || BANCO_DADOS.piercing;
+      if (!termo.trim()) {
+        filtrarCategoria(categoriaAtiva);
+        return;
+      }
+      const busca = termo.toLowerCase();
+      const filtrados = dados.produtos.filter(p => 
+        p.nome.toLowerCase().includes(busca) || 
+        p.cat.toLowerCase().includes(busca) ||
+        p.id.toString() === busca
+      );
+      renderizarGradeProdutos(filtrados);
+    }
+
+    // CARRINHO & CUPOM FISCAL
+    function adicionarAoCarrinho(prodId) {
+      const dados = BANCO_DADOS[nichoAtual] || BANCO_DADOS.piercing;
+      const prod = dados.produtos.find(p => p.id === prodId);
+      if (!prod) return;
+
+      const itemExistente = carrinho.find(item => item.id === prodId);
+      if (itemExistente) {
+        itemExistente.qtd++;
+      } else {
+        carrinho.push({ ...prod, qtd: 1 });
+      }
+      atualizarCarrinhoUI();
+    }
+
+    function alterarQtdCarrinho(prodId, delta) {
+      const item = carrinho.find(i => i.id === prodId);
+      if (!item) return;
+      item.qtd += delta;
+      if (item.qtd <= 0) {
+        carrinho = carrinho.filter(i => i.id !== prodId);
+      }
+      atualizarCarrinhoUI();
+    }
+
+    function limparCarrinho() {
+      carrinho = [];
+      atualizarCarrinhoUI();
+    }
+
+    function atualizarCarrinhoUI() {
+      const box = document.getElementById('listaCarrinho');
+      const totalEl = document.getElementById('totalCupom');
+      const subtotalEl = document.getElementById('subtotalCupom');
+
+      if (carrinho.length === 0) {
+        box.innerHTML = `
+          <div class="text-center py-12 text-slate-400">
+            <i class="fa-solid fa-basket-shopping text-3xl mb-2 opacity-40"></i>
+            <p class="text-xs">Nenhum item adicionado ainda.<br>Clique nos produtos ao lado ou bipe um código.</p>
+          </div>
+        `;
+        totalEl.innerText = "R$ 0,00";
+        subtotalEl.innerText = "R$ 0,00";
+        return;
+      }
+
+      box.innerHTML = '';
+      let totalGeral = 0;
+
+      carrinho.forEach(item => {
+        const itemTotal = item.preco * item.qtd;
+        totalGeral += itemTotal;
+
+        const row = document.createElement('div');
+        row.className = "flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 border border-slate-100 dark:bg-slate-800/60 dark:border-slate-700/60";
+        row.innerHTML = `
+          <div class="min-w-0 flex-1 pr-2">
+            <h5 class="text-xs font-bold text-slate-800 truncate dark:text-slate-100">${item.nome}</h5>
+            <span class="text-[11px] text-slate-400 font-mono">R$ ${item.preco.toFixed(2).replace('.', ',')} un</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="flex items-center rounded-xl bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-700">
+              <button onclick="alterarQtdCarrinho(${item.id}, -1)" class="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-slate-100 font-bold text-xs">-</button>
+              <span class="w-7 text-center font-mono font-bold text-xs text-slate-800 dark:text-slate-100">${item.qtd}</span>
+              <button onclick="alterarQtdCarrinho(${item.id}, 1)" class="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-slate-100 font-bold text-xs">+</button>
+            </div>
+            <span class="font-mono font-black text-xs text-emerald-600 dark:text-emerald-400 min-w-[65px] text-right">
+              R$ ${itemTotal.toFixed(2).replace('.', ',')}
+            </span>
+          </div>
+        `;
+        box.appendChild(row);
+      });
+
+      totalEl.innerText = `R$ ${totalGeral.toFixed(2).replace('.', ',')}`;
+      subtotalEl.innerText = `R$ ${totalGeral.toFixed(2).replace('.', ',')}`;
+    }
+
+    // MODAL DE PAGAMENTO
+    let formaPagamentoAtual = 'PIX';
+
+    function abrirModalPagamento(forma) {
+      if (carrinho.length === 0) {
+        alert("Adicione pelo menos um item ao carrinho antes de finalizar!");
+        return;
+      }
+      formaPagamentoAtual = forma;
+      const totalStr = document.getElementById('totalCupom').innerText;
+      document.getElementById('valorModalPagamento').innerText = totalStr;
+
+      const titulo = document.getElementById('tituloModalPagamento');
+      const icone = document.getElementById('iconeModalPagamento');
+      const boxPix = document.getElementById('boxQrCodePix');
+
+      if (forma === 'PIX') {
+        titulo.innerText = "Pagamento via PIX Instantâneo";
+        icone.className = "fa-brands fa-pix";
+        boxPix.classList.remove('hidden');
+      } else if (forma === 'Cartão') {
+        titulo.innerText = "Pagamento via Cartão (Maquininha)";
+        icone.className = "fa-solid fa-credit-card";
+        boxPix.classList.add('hidden');
+      } else {
+        titulo.innerText = "Pagamento em Dinheiro";
+        icone.className = "fa-solid fa-money-bill-wave";
+        boxPix.classList.add('hidden');
+      }
+
+      document.getElementById('modalPagamento').classList.remove('hidden');
+    }
+
+    function fecharModalPagamento() {
+      document.getElementById('modalPagamento').classList.add('hidden');
+    }
+
+    function copiarPix() {
+      alert("Chave PIX Copia e Cola copiada para a área de transferência!");
+    }
+
+    function confirmarVendaFinalizada() {
+      fecharModalPagamento();
+      const totalStr = document.getElementById('totalCupom').innerText;
+      
+      // Registra no histórico
+      const novoCupom = {
+        id: `CUPOM-${Math.floor(1000 + Math.random() * 9000)}`,
+        hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        cliente: "Cliente Balcão",
+        itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', '),
+        forma: formaPagamentoAtual,
+        total: parseFloat(totalStr.replace('R$ ', '').replace('.', '').replace(',', '.'))
+      };
+
+      historicoVendas.unshift(novoCupom);
+      salvarVendasLocais();
+      renderHistoricoLinhas();
+
+      // Limpa carrinho e mostra sucesso
+      carrinho = [];
+      atualizarCarrinhoUI();
+
+      document.getElementById('resumoCupomFinalizado').innerText = `Venda de ${totalStr} finalizada com sucesso via ${formaPagamentoAtual}.`;
+      document.getElementById('modalSucessoVenda').classList.remove('hidden');
+    }
+
+    function fecharModalSucesso() {
+      document.getElementById('modalSucessoVenda').classList.add('hidden');
+    }
+
+    // HISTÓRICO DE VENDAS (CAIXA DO DIA)
+    function renderizarHistoricoVendas() {
+      renderHistoricoLinhas();
+    }
+
+    function renderHistoricoLinhas() {
+      const tbody = document.getElementById('tabelaHistoricoVendas');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      historicoVendas.forEach(v => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 dark:hover:bg-slate-800/40 transition";
+        tr.innerHTML = `
+          <td class="py-3 px-3 font-mono font-bold text-slate-500">${v.hora}</td>
+          <td class="py-3 px-3 font-mono font-bold text-slate-900 dark:text-white">${v.id}</td>
+          <td class="py-3 px-3 font-medium text-slate-800 dark:text-slate-200">${v.cliente}</td>
+          <td class="py-3 px-3 text-slate-500 truncate max-w-xs dark:text-slate-400">${v.itens}</td>
+          <td class="py-3 px-3">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${
+              v.forma === 'PIX' ? 'bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+            }">${v.forma}</span>
+          </td>
+          <td class="py-3 px-3 font-mono font-black text-right text-emerald-600 dark:text-emerald-400">R$ ${v.total.toFixed(2).replace('.', ',')}</td>
+          <td class="py-3 px-3 text-center">
+            <button onclick="alert('Reenviando cupom para WhatsApp do cliente...')" class="text-slate-400 hover:text-emerald-600 transition" title="Enviar no WhatsApp">
+              <i class="fa-brands fa-whatsapp text-sm"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // TABELA ESTOQUE
+    function renderizarTabelaEstoque(lista) {
+      const tbody = document.getElementById('tabelaEstoqueCompleto');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      lista.forEach(p => {
+        const margem = ((p.preco - p.custo) / p.preco * 100).toFixed(0);
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 dark:hover:bg-slate-800/40 transition";
+        tr.innerHTML = `
+          <td class="py-3 px-3 font-bold text-slate-900 flex items-center gap-2 dark:text-white">
+            <span class="text-base">${p.img}</span>
+            <span>${p.nome}</span>
+          </td>
+          <td class="py-3 px-3 text-slate-500 dark:text-slate-400">${p.cat}</td>
+          <td class="py-3 px-3 font-mono text-slate-500">R$ ${p.custo.toFixed(2).replace('.', ',')}</td>
+          <td class="py-3 px-3 font-mono font-bold text-slate-800 dark:text-slate-200">R$ ${p.preco.toFixed(2).replace('.', ',')}</td>
+          <td class="py-3 px-3 font-mono font-black text-emerald-600 dark:text-emerald-400">${margem}%</td>
+          <td class="py-3 px-3 text-center font-mono font-bold">${p.estoque} un</td>
+          <td class="py-3 px-3 text-center">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${
+              p.estoque > 20 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+            }">${p.estoque > 20 ? 'Normal' : 'Repor'}</span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // AGENDA E TERMOS
+    function renderizarAgenda(lista) {
+      const box = document.getElementById('cardsAgendaDia');
+      if (!box) return;
+      box.innerHTML = '';
+
+      if (lista.length === 0) {
+        box.innerHTML = `<div class="col-span-full text-center py-8 text-slate-400 text-xs">Nenhum agendamento para este ramo hoje.</div>`;
+        return;
+      }
+
+      lista.forEach(ag => {
+        const card = document.createElement('div');
+        card.className = "p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between dark:bg-slate-800/60 dark:border-slate-700";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400">${ag.hora}</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300">${ag.status}</span>
+            </div>
+            <h4 class="font-bold text-sm text-slate-900 mt-2 dark:text-white">${ag.cliente}</h4>
+            <p class="text-xs text-slate-500 mt-0.5 dark:text-slate-400">${ag.proc}</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between dark:border-slate-700">
+            <span class="text-[11px] ${ag.termo ? 'text-emerald-600 font-bold' : 'text-amber-600 font-bold'}">
+              <i class="fa-solid ${ag.termo ? 'fa-check' : 'fa-clock'} mr-1"></i>
+              ${ag.termo ? 'Termo Assinado' : 'Termo Pendente'}
+            </span>
+            <button onclick="abrirModalTermoDigital('${ag.cliente}')" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-[11px] font-bold text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200">
+              Ver Termo
+            </button>
+          </div>
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    // MODAL TERMO ANVISA
+    function abrirModalTermoDigital(cliente) {
+      document.getElementById('termoNomeCliente').innerText = cliente;
+      document.getElementById('modalTermoAnvisa').classList.remove('hidden');
+    }
+
+    function fecharModalTermo() {
+      document.getElementById('modalTermoAnvisa').classList.add('hidden');
+    }
+
+    function salvarTermoAssinado() {
+      alert("✅ Termo ANVISA com assinatura digital arquivado com sucesso e salvo na nuvem criptografada!");
+      fecharModalTermo();
+    }
+
+    function abrirModalNovoProduto() {
+      const nome = prompt("Digite o nome da nova peça/produto:");
+      if (!nome) return;
+      const preco = parseFloat(prompt("Digite o preço de venda (R$):", "120.00") || "0");
+      const custo = parseFloat(prompt("Digite o custo de compra (CMV R$):", "20.00") || "0");
+      const estoque = parseInt(prompt("Quantidade inicial em estoque:", "30") || "0");
+
+      const dados = BANCO_DADOS[nichoAtual] || BANCO_DADOS.piercing;
+      dados.produtos.unshift({
+        id: Math.floor(1000 + Math.random() * 9000),
+        nome: nome,
+        cat: "Geral",
+        preco: preco,
+        custo: custo,
+        estoque: estoque,
+        img: "📦",
+        desc: "Item cadastrado recentemente"
+      });
+
+      carregarNicho(nichoAtual);
+      alert(`Produto "${nome}" cadastrado com sucesso!`);
+    }
+
+    // SIMULADOR DO ROBÔ DE WHATSAPP
+    function enviarMensagemSimulada() {
+      const input = document.getElementById('inputSimularMensagem');
+      const texto = input.value.trim();
+      if (!texto) return;
+
+      const chatBox = document.getElementById('chatSimuladorBox');
+      
+      // Mensagem do cliente
+      const msgCliente = document.createElement('div');
+      msgCliente.className = "p-3 rounded-2xl rounded-tl-sm bg-slate-100 text-slate-700 text-xs max-w-[85%] dark:bg-slate-800 dark:text-slate-200";
+      msgCliente.innerHTML = `<span class="text-[10px] text-slate-400 font-bold block mb-1">Você:</span>${texto}`;
+      chatBox.appendChild(msgCliente);
+      input.value = '';
+
+      // Resposta automática da IA
+      setTimeout(() => {
+        let respostaIA = "Olá! 😍 Agradecemos seu contato! Nossas joias são todas em Titânio G23 biomédico e já acompanham o procedimento completo. Qual região você gostaria de furar?";
+        if (texto.toLowerCase().includes("preço") || texto.toLowerCase().includes("quanto")) {
+          respostaIA = "Trabalhamos com pacotes completos: Joia de Titânio G23 + Perfuração Asseptizada sai a partir de R$ 130! Para qual local você gostaria de agendar?";
+        } else if (texto.toLowerCase().includes("dor") || texto.toLowerCase().includes("dói")) {
+          respostaIA = "A perfuração é super rápida, dura menos de 2 segundos! Nossas agulhas são americanas biseladas para o máximo conforto. Pode vir tranquila! ✨";
+        }
+
+        const msgIA = document.createElement('div');
+        msgIA.className = "p-3.5 rounded-2xl rounded-tr-sm bg-emerald-600 text-white text-xs max-w-[90%] ml-auto shadow-sm";
+        msgIA.innerHTML = `<span class="text-[10px] text-emerald-200 font-bold block mb-1">Camila IA (Respondeu agora):</span>${respostaIA}`;
+        chatBox.appendChild(msgIA);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }, 700);
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // TESTE REAL GUIADO (PASSO A PASSO AUTOMÁTICO)
+    function iniciarTesteRealGuiado() {
+      trocarAba('pdv');
+      limparCarrinho();
+      const dados = BANCO_DADOS[nichoAtual] || BANCO_DADOS.piercing;
+      const p1 = dados.produtos[0];
+      const p2 = dados.produtos[1] || dados.produtos[0];
+      if (!p1) return;
+
+      alert(`🚀 BEM-VINDO AO TESTE REAL GUIADO!\n\nPasso 1: Vamos simular a venda de "${p1.nome}" + "${p2.nome}" em ${dados.nome}!`);
+      adicionarAoCarrinho(p1.id);
+      setTimeout(() => {
+        adicionarAoCarrinho(p2.id);
+        alert("Passo 2: O carrinho calculou o total automaticamente.\n\nAgora vamos finalizar com 1 clique no PIX!");
+        abrirModalPagamento('PIX');
+      }, 500);
+    }
+
+    // MODO ESCURO TOGGLE
+    function toggleModoEscuro() {
+      document.documentElement.classList.toggle('dark');
+    }
+  </script>
+</body>
+</html>

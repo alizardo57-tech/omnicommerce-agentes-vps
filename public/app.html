@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniCommerce SaaS • Login, Painel Super Admin & Módulos por Cliente</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased">
+
+  <!-- TELA DE LOGIN -->
+  <section id="telaLogin" class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-7 shadow-2xl">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-11 h-11 rounded-2xl bg-emerald-600 flex items-center justify-center text-white text-xl font-black">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-black text-white">OmniCommerce OS</h1>
+          <p class="text-xs text-slate-400">Acesso Super Admin & Administradores de Loja</p>
+        </div>
+      </div>
+
+      <form onsubmit="fazerLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-400 mb-1">E-mail de Acesso</label>
+          <input id="loginEmail" type="email" required placeholder="admin@omnicommerce.com" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-400 mb-1">Senha</label>
+          <input id="loginSenha" type="password" required placeholder="••••••" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+        </div>
+        <div id="erroLogin" class="hidden text-xs text-rose-400 font-bold bg-rose-950/40 border border-rose-500/30 rounded-xl p-2.5"></div>
+        <button type="submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm transition">
+          Entrar no Sistema
+        </button>
+      </form>
+
+      <div class="mt-5 pt-4 border-t border-slate-800 space-y-2">
+        <p class="text-[11px] text-slate-400 font-bold">Testar perfis prontos (1 clique):</p>
+        <div class="grid grid-cols-1 gap-2 text-xs">
+          <button onclick="preencherLogin('admin@omnicommerce.com','admin2026')" class="px-3 py-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold text-left hover:bg-amber-500/25">
+            👑 Super Admin Geral (Você) — admin@omnicommerce.com
+          </button>
+          <button onclick="preencherLogin('fornonobre@loja.com','123456')" class="px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 font-bold text-left hover:bg-slate-700">
+            🍕 Cliente 1 (Só PDV + ERP) — fornonobre@loja.com
+          </button>
+          <button onclick="preencherLogin('studiovip@loja.com','123456')" class="px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 font-bold text-left hover:bg-slate-700">
+            💎 Cliente 2 (Todos Módulos) — studiovip@loja.com
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAINEL SUPER ADMIN (GERAL DE CLIENTES) -->
+  <section id="telaSuperAdmin" class="hidden max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
+    <header class="flex flex-wrap items-center justify-between gap-3 bg-slate-900 border border-slate-800 rounded-2xl p-4">
+      <div>
+        <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">Super Admin Geral</span>
+        <h2 class="text-xl font-black text-white mt-1">Painel Geral de Clientes & Módulos Contratados</h2>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="badgeHibridoAdmin" class="text-xs font-mono px-3 py-1.5 rounded-xl bg-slate-800 text-emerald-400">Híbrido: ...</span>
+        <button onclick="sair()" class="px-3.5 py-2 rounded-xl bg-rose-600/20 border border-rose-500/30 text-rose-300 text-xs font-bold hover:bg-rose-600/30">Sair</button>
+      </div>
+    </header>
+
+    <!-- CADASTRAR NOVO CLIENTE -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+      <h3 class="text-sm font-black text-white mb-3"><i class="fa-solid fa-plus-circle text-emerald-400 mr-2"></i>Cadastrar Nova Loja / Cliente</h3>
+      <form onsubmit="cadastrarCliente(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+        <input id="novoNome" required placeholder="Nome da Loja" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+        <select id="novoSetor" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold"></select>
+        <input id="novoEmail" type="email" required placeholder="E-mail Admin da Loja" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+        <input id="novoSenha" required placeholder="Senha Inicial" value="123456" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+        <button type="submit" class="rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2 px-4">Criar Cliente</button>
+      </form>
+    </div>
+
+    <!-- LISTA DE CLIENTES COM CHAVES DE MÓDULOS -->
+    <div id="listaClientesAdmin" class="grid grid-cols-1 gap-4"></div>
+  </section>
+
+  <!-- PAINEL DO CLIENTE (ADMIN DA LOJA DELE - SÓ VÊ OS MÓDULOS HABILITADOS) -->
+  <section id="telaCliente" class="hidden max-w-6xl mx-auto p-4 sm:p-6 space-y-5">
+    <header class="flex flex-wrap items-center justify-between gap-3 bg-slate-900 border border-slate-800 rounded-2xl p-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 id="cliNomeLoja" class="text-xl font-black text-white">Minha Loja</h2>
+          <span id="cliSetorBadge" class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">setor</span>
+        </div>
+        <p id="cliUsuarioInfo" class="text-xs text-slate-400 mt-0.5"></p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="recarregarPermissoesCliente()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-emerald-400 border border-slate-700">
+          <i class="fa-solid fa-rotate mr-1"></i> Atualizar Módulos
+        </button>
+        <button onclick="sair()" class="px-3.5 py-2 rounded-xl bg-rose-600/20 border border-rose-500/30 text-rose-300 text-xs font-bold">Sair</button>
+      </div>
+    </header>
+
+    <!-- ABAS LIBERADAS PARA ESTE CLIENTE -->
+    <nav id="cliAbasModulos" class="flex flex-wrap gap-2"></nav>
+
+    <!-- CONTEÚDO DO MÓDULO SELECIONADO -->
+    <div id="cliConteudoModulo" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 min-h-[300px]"></div>
+  </section>
+
+  <script>
+    let tokenAtual = localStorage.getItem('omni_saas_token') || '';
+    let sessaoAtual = null;
+    const NOMES_MODULOS = {
+      pdv: { label: 'PDV Caixa', icon: 'fa-cash-register' },
+      erp: { label: 'ERP Estoque & Financeiro', icon: 'fa-boxes-stacked' },
+      agenda: { label: 'Agenda / Forno / Termos', icon: 'fa-calendar-check' },
+      whatsapp_ia: { label: 'WhatsApp IA (Camila)', icon: 'fa-brands fa-whatsapp' },
+      agentes11: { label: 'Esquadrão 11 Agentes', icon: 'fa-robot' }
+    };
+
+    function preencherLogin(email, senha) {
+      document.getElementById('loginEmail').value = email;
+      document.getElementById('loginSenha').value = senha;
+    }
+
+    async function api(url, opts = {}) {
+      const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+      if (tokenAtual) headers.Authorization = `Bearer ${tokenAtual}`;
+      const resp = await fetch(url, { ...opts, headers });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.erro || 'Erro na requisição');
+      return data;
+    }
+
+    async function fazerLogin(e) {
+      e.preventDefault();
+      const errBox = document.getElementById('erroLogin');
+      errBox.classList.add('hidden');
+      try {
+        const res = await api('/api/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: document.getElementById('loginEmail').value,
+            senha: document.getElementById('loginSenha').value
+          })
+        });
+        tokenAtual = res.token;
+        localStorage.setItem('omni_saas_token', tokenAtual);
+        sessaoAtual = res;
+        abrirTelaPorPerfil(res);
+      } catch (err) {
+        errBox.innerText = err.message;
+        errBox.classList.remove('hidden');
+      }
+    }
+
+    function sair() {
+      tokenAtual = '';
+      sessaoAtual = null;
+      localStorage.removeItem('omni_saas_token');
+      document.getElementById('telaSuperAdmin').classList.add('hidden');
+      document.getElementById('telaCliente').classList.add('hidden');
+      document.getElementById('telaLogin').classList.remove('hidden');
+    }
+
+    function abrirTelaPorPerfil(dados) {
+      document.getElementById('telaLogin').classList.add('hidden');
+      if (dados.usuario.role === 'SUPER_ADMIN') {
+        document.getElementById('telaCliente').classList.add('hidden');
+        document.getElementById('telaSuperAdmin').classList.remove('hidden');
+        carregarPainelSuperAdmin();
+      } else {
+        document.getElementById('telaSuperAdmin').classList.add('hidden');
+        document.getElementById('telaCliente').classList.remove('hidden');
+        renderizarPainelCliente(dados);
+      }
+    }
+
+    async function carregarPainelSuperAdmin() {
+      const [{ clientes, setores }, hib] = await Promise.all([
+        api('/api/superadmin/clientes'),
+        api('/api/hibrido/status')
+      ]);
+      document.getElementById('badgeHibridoAdmin').innerText = `Modo: ${hib.modoAtivo} (${hib.latenciaMs ? hib.latenciaMs + 'ms' : 'Local'})`;
+
+      const sel = document.getElementById('novoSetor');
+      sel.innerHTML = setores.map(s => `<option value="${s}">${s.toUpperCase()}</option>`).join('');
+
+      const box = document.getElementById('listaClientesAdmin');
+      box.innerHTML = clientes.map(c => `
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <strong class="text-white text-base">${c.nome}</strong>
+              <span class="ml-2 px-2 py-0.5 rounded text-[10px] font-black uppercase bg-blue-500/20 text-blue-300">${c.setor}</span>
+              <span class="ml-2 text-xs text-slate-400 font-mono">${c.emailAdmin}</span>
+            </div>
+            <label class="flex items-center gap-2 text-xs font-bold cursor-pointer">
+              <input type="checkbox" ${c.ativo ? 'checked' : ''} onchange="atualizarCliente('${c.id}', { ativo: this.checked })" class="accent-emerald-500 w-4 h-4">
+              <span class="${c.ativo ? 'text-emerald-400' : 'text-rose-400'}">${c.ativo ? 'Conta Ativa' : 'Suspensa'}</span>
+            </label>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            ${Object.keys(NOMES_MODULOS).map(m => `
+              <label class="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold cursor-pointer ${
+                c.modulos[m] ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300' : 'bg-slate-950 border-slate-800 text-slate-500'
+              }">
+                <input type="checkbox" ${c.modulos[m] ? 'checked' : ''} onchange="toggleModulo('${c.id}', '${m}', this.checked, ${JSON.stringify(c.modulos).replace(/"/g, '&quot;')})" class="accent-emerald-500">
+                <span>${NOMES_MODULOS[m].label}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function toggleModulo(clienteId, modKey, valor, modulosAtuais) {
+      const novos = { ...modulosAtuais, [modKey]: valor };
+      await atualizarCliente(clienteId, { modulos: novos });
+    }
+
+    async function atualizarCliente(clienteId, payload) {
+      await api(`/api/superadmin/clientes/${clienteId}/modulos`, { method: 'PATCH', body: JSON.stringify(payload) });
+      carregarPainelSuperAdmin();
+    }
+
+    async function cadastrarCliente(e) {
+      e.preventDefault();
+      await api('/api/superadmin/clientes', {
+        method: 'POST',
+        body: JSON.stringify({
+          nome: document.getElementById('novoNome').value,
+          setor: document.getElementById('novoSetor').value,
+          emailAdmin: document.getElementById('novoEmail').value,
+          senhaAdmin: document.getElementById('novoSenha').value,
+          modulos: { pdv: true, erp: true, agenda: false, whatsapp_ia: false, agentes11: false }
+        })
+      });
+      e.target.reset();
+      carregarPainelSuperAdmin();
+    }
+
+    function renderizarPainelCliente(dados) {
+      const t = dados.tenant;
+      document.getElementById('cliNomeLoja').innerText = t.nome;
+      document.getElementById('cliSetorBadge').innerText = t.setor;
+      document.getElementById('cliUsuarioInfo').innerText = `Logado como: ${dados.usuario.nome} (${dados.usuario.email}) • Apenas módulos contratados visíveis`;
+
+      const habilitados = Object.keys(NOMES_MODULOS).filter(m => t.modulos[m]);
+      const nav = document.getElementById('cliAbasModulos');
+      nav.innerHTML = habilitados.map((m, idx) => `
+        <button onclick="abrirModuloCliente('${m}')" class="px-4 py-2.5 rounded-xl text-xs font-bold border transition ${
+          idx === 0 ? 'bg-emerald-600 border-emerald-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
+        }">
+          <i class="fa-solid ${NOMES_MODULOS[m].icon} mr-1.5"></i> ${NOMES_MODULOS[m].label}
+        </button>
+      `).join('');
+
+      if (habilitados.length > 0) abrirModuloCliente(habilitados[0]);
+      else document.getElementById('cliConteudoModulo').innerHTML = '<p class="text-sm text-rose-400">Nenhum módulo habilitado para esta loja.</p>';
+    }
+
+    function abrirModuloCliente(modKey) {
+      const t = sessaoAtual.tenant;
+      const produtos = sessaoAtual.produtosSetor || [];
+      const box = document.getElementById('cliConteudoModulo');
+      if (modKey === 'pdv') {
+        box.innerHTML = `
+          <h3 class="text-lg font-black text-white mb-3">PDV Caixa (${t.setor.toUpperCase()})</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            ${produtos.map(p => `<div class="p-4 rounded-xl bg-slate-950 border border-slate-800"><strong class="text-sm text-white">${p.nome}</strong><div class="text-emerald-400 font-mono font-bold mt-1">R$ ${Number(p.preco).toFixed(2)}</div></div>`).join('')}
+          </div>`;
+      } else if (modKey === 'erp') {
+        box.innerHTML = `<h3 class="text-lg font-black text-white mb-2">ERP Estoque & CMV</h3><p class="text-xs text-slate-300">Total de itens ativos no setor <strong>${t.setor}</strong>: ${produtos.length}.</p>`;
+      } else {
+        box.innerHTML = `<h3 class="text-lg font-black text-emerald-400 mb-2">${NOMES_MODULOS[modKey].label}</h3><p class="text-sm text-slate-300">Módulo habilitado pelo Administrador Geral para <strong>${t.nome}</strong>.</p>`;
+      }
+    }
+
+    async function recarregarPermissoesCliente() {
+      const res = await api('/api/auth/me');
+      sessaoAtual = res;
+      renderizarPainelCliente(res);
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      if (!tokenAtual) return;
+      try {
+        const res = await api('/api/auth/me');
+        sessaoAtual = res;
+        abrirTelaPorPerfil(res);
+      } catch { sair(); }
+    });
+  </script>
+</body>
+</html>
