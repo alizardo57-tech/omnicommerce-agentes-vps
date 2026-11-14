@@ -1,7 +1,8 @@
 const express = require('express');
-const { garantirBaseSaaS, salvarDb } = require('../db/tenants');
+const { garantirBaseSaaS } = require('../db/tenants');
+const { salvarDb } = require('../db/store');
 const { SETORES } = require('../config/setores');
-const { autenticar } = require('../middlewares/auth');
+const { autenticar } = require('../middleware/auth');
 const { lerDbLoja, salvarDbLoja } = require('../db/tenantStore');
 
 const router = express.Router();
