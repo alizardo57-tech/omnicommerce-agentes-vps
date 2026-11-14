@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bella Pizza • Cardápio Feed</title>
+  <title>Bella Pizza • Cardápio Oficial</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}</style>
 </head>
 <body class="bg-zinc-50 text-zinc-900 min-h-screen antialiased pb-24">
-  <!-- TOPBAR ESTILO INSTAGRAM -->
   <header class="sticky top-0 z-40 bg-white/95 border-b border-zinc-200 backdrop-blur-md">
     <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
       <div class="flex items-center gap-2 min-w-0">
@@ -34,12 +33,12 @@
   </header>
 
   <main class="max-w-xl mx-auto">
-    <!-- PERFIL ESTILO INSTAGRAM -->
+    <!-- PERFIL REALISTA ESTILO INSTAGRAM -->
     <section class="bg-white border-b border-zinc-200 px-4 pt-5 pb-4">
       <div class="flex items-center gap-5">
-        <div class="p-[3px] rounded-full bg-gradient-to-tr from-amber-400 via-rose-500 to-fuchsia-600 flex-shrink-0">
+        <div class="p-[3px] rounded-full bg-gradient-to-tr from-amber-500 via-rose-600 to-fuchsia-600 flex-shrink-0">
           <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white p-0.5 overflow-hidden">
-            <img id="perfilLogo" src="/img/bella-pizza-logo.svg" alt="Logo da Loja" class="w-full h-full object-cover rounded-full">
+            <img id="perfilLogo" src="/img/bella-pizza-logo.jpg" alt="Logo da Loja" class="w-full h-full object-cover rounded-full">
           </div>
         </div>
         <div class="flex-1 grid grid-cols-3 text-center">
@@ -51,24 +50,27 @@
 
       <div class="mt-3">
         <h1 id="vitrineNome" class="font-bold text-sm text-zinc-900">Carregando loja...</h1>
-        <p id="vitrineSub" class="text-xs text-zinc-600 mt-0.5 leading-relaxed">Cardápio oficial • Escolha no feed e peça com 1 clique</p>
+        <p id="vitrineSub" class="text-xs text-zinc-600 mt-0.5 leading-relaxed"></p>
       </div>
 
       <div id="acoesPerfil" class="mt-3.5 flex gap-2 text-xs"></div>
 
-      <!-- FIXADOS / DESTAQUES (CATEGORIAS) -->
+      <!-- FIXADOS / DESTAQUES (CATEGORIAS COM FOTOS REAIS) -->
       <div id="filtrosCategoria" class="mt-4 flex gap-3.5 overflow-x-auto pb-1 no-scrollbar"></div>
     </section>
 
-    <!-- FEED DE FOTOS ESTILO INSTAGRAM -->
-    <div id="gridVitrine" class="divide-y divide-zinc-200 bg-white"></div>
+    <!-- 1. MONTE SUA PIZZA (1/2 A 1/2) + 2. PROMOÇÕES + 3. REFRIGERANTES PRO LADO -->
+    <div id="secoesEspeciais" class="space-y-4 py-3"></div>
+
+    <!-- 4. FEED DE FOTOS ESTILO INSTAGRAM -->
+    <div id="gridVitrine" class="divide-y divide-zinc-200 bg-white border-t border-zinc-200"></div>
   </main>
 
-  <!-- MODAL SACOLA & CHECKOUT -->
+  <!-- MODAL SACOLA / MONTE SUA PIZZA / CHECKOUT -->
   <div id="modalCheckout" class="hidden fixed inset-0 z-50 bg-zinc-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl border border-zinc-200 max-h-[92vh] flex flex-col overflow-hidden">
       <div class="px-5 py-4 border-b border-zinc-100 flex items-center justify-between">
-        <h2 class="text-base font-bold text-zinc-900">Finalizar Pedido</h2>
+        <h2 id="modalTitulo" class="text-base font-bold text-zinc-900">Finalizar Pedido</h2>
         <button onclick="fecharCarrinho()" class="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-600 flex items-center justify-center text-sm">&times;</button>
       </div>
       <div id="conteudoCheckout" class="p-5 overflow-y-auto space-y-4 text-sm"></div>
