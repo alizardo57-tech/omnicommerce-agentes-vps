@@ -138,7 +138,8 @@ router.get('/demo/loja/:tenantId', (req, res) => {
   const db = garantirBaseSaaS();
   const tenant = db.tenants.find(t => t.id === req.params.tenantId && t.ativo);
   if (!tenant) return res.status(404).json({ erro: 'Loja não encontrada.' });
-  res.json({ id: tenant.id, nome: tenant.nome, setor: tenant.setor });
+  const produtos = tenant.produtos || (SETORES[tenant.setor] ? SETORES[tenant.setor].produtosIniciais : []);
+  res.json({ id: tenant.id, nome: tenant.nome, setor: tenant.setor, produtos });
 });
 
 router.post('/demo/chat/:tenantId', async (req, res) => {

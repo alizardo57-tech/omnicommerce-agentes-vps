@@ -5,11 +5,11 @@ async function tentarGeminiModelo(model, apiKey, systemPrompt, userMessage) {
     ? {
         systemInstruction: { parts: [{ text: systemPrompt }] },
         contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-        generationConfig: { temperature: 0.2, maxOutputTokens: 450 }
+        generationConfig: { temperature: 0.2, maxOutputTokens: 220 }
       }
     : {
         contents: [{ role: 'user', parts: [{ text: `${systemPrompt}\n\nCliente: ${userMessage}` }] }],
-        generationConfig: { temperature: 0.2, maxOutputTokens: 450 }
+        generationConfig: { temperature: 0.2, maxOutputTokens: 220 }
       };
 
   const controller = new AbortController();

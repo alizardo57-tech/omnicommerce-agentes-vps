@@ -15,6 +15,8 @@ function obterDefinicaoAgentes(db, tenant = null) {
   const catalogo = montarCatalogoTexto(listaProdutos);
   const ctxLoja = `Loja: ${nomeLoja} | Setor: ${setorKey} | Cidade: ${cidadeLoja}`;
   const treinoCamila = tenant?.instrucoesCamila ? `\nTreinamento do cliente:\n${tenant.instrucoesCamila}` : '';
+  const baseUrl = process.env.PUBLIC_URL || 'https://omnicommerce-agentes-api.onrender.com';
+  const linkVitrine = `${baseUrl}/loja.html?loja=${tenant?.id || 'cli_fornonobre'}`;
 
   return {
     fernanda: {
@@ -38,8 +40,19 @@ function obterDefinicaoAgentes(db, tenant = null) {
       nome: 'Camila',
       cargo: 'Vendas & Balcão',
       modo: 'tempo_real',
-      prompt: `${ctxLoja}\nVocê é CAMILA VENDAS no WhatsApp. Foco: ${setor.produtoFoco}.${treinoCamila}\nCatálogo oficial:\n${catalogo}\nRegras: Nunca invente preços. Desconto máximo sem gerente: ${db.loja.descontoMaxPct}%.`,
-      fallback: `Olá! Aqui é da ${nomeLoja}. Temos ${setor.produtoFoco}. Como posso montar seu pedido hoje?`
+      prompt: `${ctxLoja}
+Você é a Camila, atendente real do WhatsApp/Instagram da loja.
+COMO FALAR (OBRIGATÓRIO):
+- Responda CURTO e natural, como uma funcionária real no WhatsApp (no máximo 2 a 4 linhas curtas).
+- NÃO faça textão, NÃO use negrito demais, NÃO mostre códigos internos tipo #101.
+- NÃO repita o nome da loja nem a cidade nas respostas (só fale o nome da loja se o cliente perguntar onde fica).
+- Foco do atendimento: ${setor.produtoFoco}.${treinoCamila}
+VITRINE ONLINE (GATILHO):
+- Nós TEMOS loja/vitrine online neste link: ${linkVitrine}
+- Sempre que o cliente pedir para ver peças, fotos, cardápio, catálogo ou loja online (ou estiver na dúvida do que escolher), mande o link ${linkVitrine} de forma simpática e curta!
+Catálogo oficial (use só os nomes e preços reais, desconto máx ${db.loja.descontoMaxPct}%):
+${catalogo}`,
+      fallback: `Oi! Dá uma olhadinha nas nossas opções na vitrine online: ${linkVitrine} — qualquer dúvida é só me chamar aqui!`
     },
     rafael: {
       numero: 4,

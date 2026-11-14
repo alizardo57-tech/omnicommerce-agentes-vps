@@ -99,7 +99,8 @@
         });
         const data = await resp.json();
         const tag = canalAtual === 'Instagram' ? 'Instagram Direct' : 'WhatsApp';
-        box.innerHTML += `<div class="p-3 rounded-2xl rounded-tl-sm bg-slate-800 text-slate-200 max-w-[85%]"><span class="text-[10px] text-emerald-400 font-bold block mb-0.5">Camila (${tag})</span>${data.resposta || data.erro}</div>`;
+        const respHtml = String(data.resposta || data.erro).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" class="underline text-emerald-300 font-bold">$1</a>');
+        box.innerHTML += `<div class="p-3 rounded-2xl rounded-tl-sm bg-slate-800 text-slate-200 max-w-[85%] whitespace-pre-line"><span class="text-[10px] text-emerald-400 font-bold block mb-0.5">Camila (${tag})</span>${respHtml}</div>`;
       } catch {
         box.innerHTML += `<div class="p-2 text-rose-400">Erro de conexão. Tente novamente.</div>`;
       }
@@ -107,6 +108,10 @@
     }
 
     carregarLoja();
+    const itemSelecionado = params.get('item');
+    if (itemSelecionado) {
+      document.getElementById('inputMsg').value = `Oi! Vi na vitrine e tenho interesse em: ${itemSelecionado}`;
+    }
   </script>
 </body>
 </html>
