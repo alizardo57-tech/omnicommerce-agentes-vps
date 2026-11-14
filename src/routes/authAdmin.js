@@ -117,9 +117,38 @@ router.post('/cliente/camila/chat', autenticar, exigirModulo('whatsapp_ia'), asy
   try {
     const db = garantirBaseSaaS();
     const tenant = req.usuario.tenantId ? db.tenants.find(t => t.id === req.usuario.tenantId) : null;
-    const { mensagem } = req.body || {};
+    const { mensagem, canal = 'WhatsApp' } = req.body || {};
     if (!mensagem) return res.status(400).json({ erro: 'Digite uma mensagem para a Camila.' });
-    const resultado = await executarAgente({ agenteId: 'camila', mensagem, tenant });
+    const resultado = await executarAgente({ agenteId: 'camila', mensagem, tenant, canal });
+    res.json({ ok: true, ...resultado });
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+});
+
+router.get('/cliente/conversas', autenticar, (req, res) => {
+  const db = garantirBaseSaaS();
+  const tid = req.usuario.tenantId;
+  const lista = (db.logsAgentes || []).filter(l => !tid || l.tenantId === tid).slice(0, 30);
+  res.json({ conversas: lista });
+});
+
+// Endpoint público de demonstração para o cliente testar WhatsApp/Instagram pelo link
+router.get('/demo/loja/:tenantId', (req, res) => {
+  const db = garantirBaseSaaS();
+  const tenant = db.tenants.find(t => t.id === req.params.tenantId && t.ativo);
+  if (!tenant) return res.status(404).json({ erro: 'Loja não encontrada.' });
+  res.json({ id: tenant.id, nome: tenant.nome, setor: tenant.setor });
+});
+
+router.post('/demo/chat/:tenantId', async (req, res) => {
+  try {
+    const db = garantirBaseSaaS();
+    const tenant = db.tenants.find(t => t.id === req.params.tenantId && t.ativo);
+    if (!tenant) return res.status(404).json({ erro: 'Loja não encontrada.' });
+    const { mensagem, canal = 'WhatsApp' } = req.body || {};
+    if (!mensagem) return res.status(400).json({ erro: 'Mensagem vazia.' });
+    const resultado = await executarAgente({ agenteId: 'camila', mensagem, tenant, canal });
     res.json({ ok: true, ...resultado });
   } catch (err) {
     res.status(500).json({ erro: err.message });

@@ -3,7 +3,7 @@ const { gerarRespostaIA } = require('../services/llm');
 const { enviarMensagemWhatsApp } = require('../services/whatsapp');
 const { obterDefinicaoAgentes } = require('./definicoes11');
 
-async function executarAgente({ agenteId, mensagem, clienteTelefone = null, enviarWhatsApp = false, tenant = null }) {
+async function executarAgente({ agenteId, mensagem, clienteTelefone = null, enviarWhatsApp = false, tenant = null, canal = 'Painel' }) {
   const db = lerDb();
   const agentes = obterDefinicaoAgentes(db, tenant);
   const agente = agentes[agenteId];
@@ -16,9 +16,11 @@ async function executarAgente({ agenteId, mensagem, clienteTelefone = null, envi
   db.logsAgentes.unshift({
     data: new Date().toISOString(),
     agente: `${agente.numero}. ${agente.nome}`,
-    setor: db.loja.setor,
-    entrada: mensagem.slice(0, 120),
-    resposta: resposta.slice(0, 300)
+    canal,
+    tenantId: tenant?.id || 'global',
+    setor: tenant?.setor || db.loja.setor,
+    entrada: mensagem.slice(0, 140),
+    resposta: resposta.slice(0, 350)
   });
   db.logsAgentes = db.logsAgentes.slice(0, 100);
   salvarDb(db);

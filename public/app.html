@@ -216,7 +216,10 @@
               <input id="treino_${c.id}" value="${(c.instrucoesCamila || '').replace(/"/g, '&quot;')}" placeholder="Treinamento da Camila (como este cliente atende)..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200">
               <button onclick="salvarTreinoCamila('${c.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold">Salvar Treino</button>
             </div>
-            <button onclick="adicionarProdutoCliente('${c.id}')" class="px-3 py-1.5 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-300 text-xs font-bold hover:bg-blue-600/30">+ Produto Teste na Loja</button>
+            <button onclick="adicionarProdutoCliente('${c.id}')" class="px-3 py-1.5 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-300 text-xs font-bold hover:bg-blue-600/30">+ Produto</button>
+          </div>
+          <div class="text-[11px] text-slate-400">
+            Link Demo WhatsApp/Insta p/ este cliente: <a href="/demo-chat.html?loja=${c.id}" target="_blank" class="text-emerald-400 underline font-mono">/demo-chat.html?loja=${c.id}</a>
           </div>
         </div>
       `).join('');
@@ -298,36 +301,32 @@
           <tbody class="divide-y divide-slate-800">${produtos.map(p => `<tr><td class="py-2 text-white font-bold">${p.nome}</td><td class="py-2 text-emerald-400 font-mono">R$ ${Number(p.preco).toFixed(2)}</td><td class="py-2 font-mono">${p.estoque} un</td></tr>`).join('')}</tbody></table></div>`;
       } else if (modKey === 'whatsapp_ia') {
         box.innerHTML = `
-          <h3 class="text-lg font-black text-emerald-400 mb-1">Chat de Teste Ao Vivo • Camila IA (${t.nome})</h3>
-          <p class="text-xs text-slate-400 mb-3">Treinamento ativo: <em>${t.instrucoesCamila || 'Padrão do setor'}</em></p>
-          <div id="chatCamilaMsgs" class="bg-slate-950 border border-slate-800 rounded-xl p-4 h-64 overflow-y-auto space-y-2 text-xs mb-3">
-            <div class="p-2.5 rounded-xl bg-emerald-950/50 border border-emerald-500/30 text-emerald-200 max-w-[85%]">Olá! Sou a <strong>Camila</strong> da <strong>${t.nome}</strong>. Pergunte sobre preços, produtos ou faça um pedido de teste!</div>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div>
+              <h3 class="text-lg font-black text-emerald-400">Camila IA • WhatsApp & Instagram Direct (${t.nome})</h3>
+              <p class="text-xs text-slate-400">Treinamento ativo: <em>${t.instrucoesCamila || 'Padrão do setor'}</em></p>
+            </div>
+            <a href="/demo-chat.html?loja=${t.id}" target="_blank" class="px-3 py-1.5 rounded-xl bg-pink-600/20 border border-pink-500/40 text-pink-300 text-xs font-bold">Abrir Link Demo Celular (WhatsApp/Insta)</a>
           </div>
-          <form onsubmit="enviarChatCamila(event)" class="flex gap-2">
-            <input id="inputChatCamila" required placeholder="Ex: Quais produtos vocês têm? Quanto custa?" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
-            <button type="submit" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black">Enviar</button>
-          </form>`;
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div>
+              <div id="chatCamilaMsgs" class="bg-slate-950 border border-slate-800 rounded-xl p-4 h-64 overflow-y-auto space-y-2 text-xs mb-3">
+                <div class="p-2.5 rounded-xl bg-emerald-950/50 border border-emerald-500/30 text-emerald-200 max-w-[85%]">Olá! Sou a <strong>Camila</strong> da <strong>${t.nome}</strong>. Teste aqui ou pelo link do celular!</div>
+              </div>
+              <form onsubmit="enviarChatCamila(event)" class="flex gap-2">
+                <input id="inputChatCamila" required placeholder="Simule mensagem do cliente..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                <button type="submit" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black">Enviar</button>
+              </form>
+            </div>
+            <div>
+              <div class="text-xs font-black text-white mb-2">📡 Tela ao Vivo: Conversas Recebidas (WhatsApp & Instagram)</div>
+              <div id="feedConversasCamila" class="bg-slate-950 border border-slate-800 rounded-xl p-3 h-72 overflow-y-auto space-y-2"></div>
+            </div>
+          </div>`;
+        if (typeof atualizarFeedConversas === 'function') atualizarFeedConversas();
       } else {
         box.innerHTML = `<h3 class="text-lg font-black text-emerald-400 mb-2">${NOMES_MODULOS[modKey].label}</h3><p class="text-sm text-slate-300">Módulo habilitado pelo Administrador Geral para <strong>${t.nome}</strong>.</p>`;
       }
-    }
-
-    async function enviarChatCamila(e) {
-      e.preventDefault();
-      const input = document.getElementById('inputChatCamila');
-      const msg = input.value.trim();
-      if (!msg) return;
-      const box = document.getElementById('chatCamilaMsgs');
-      box.innerHTML += `<div class="p-2.5 rounded-xl bg-slate-800 text-white max-w-[80%] ml-auto">${msg}</div>`;
-      input.value = '';
-      box.scrollTop = box.scrollHeight;
-      try {
-        const res = await api('/api/cliente/camila/chat', { method: 'POST', body: JSON.stringify({ mensagem: msg }) });
-        box.innerHTML += `<div class="p-2.5 rounded-xl bg-emerald-950/50 border border-emerald-500/30 text-emerald-200 max-w-[85%]"><strong>Camila:</strong> ${res.resposta}</div>`;
-      } catch (err) {
-        box.innerHTML += `<div class="p-2.5 rounded-xl bg-rose-950/50 text-rose-300 text-xs">${err.message}</div>`;
-      }
-      box.scrollTop = box.scrollHeight;
     }
 
     async function recarregarPermissoesCliente() {
@@ -345,5 +344,6 @@
       } catch { sair(); }
     });
   </script>
+  <script src="/js/app-feed.js"></script>
 </body>
 </html>

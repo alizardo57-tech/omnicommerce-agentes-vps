@@ -149,9 +149,41 @@ router.post('/webhook/whatsapp', async (req, res) => {
       agenteId,
       mensagem: texto,
       clienteTelefone: remoteJid.split('@')[0],
-      enviarWhatsApp: true
+      enviarWhatsApp: true,
+      canal: 'WhatsApp'
     });
     res.json({ ok: true, ...resultado });
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+});
+
+// Verificação do Webhook oficial da Meta (Instagram Direct)
+router.get('/webhook/instagram', (req, res) => {
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+  if (mode === 'subscribe' && token === (process.env.META_VERIFY_TOKEN || 'omnicommerce_meta_2026')) {
+    return res.status(200).send(challenge);
+  }
+  return res.sendStatus(403);
+});
+
+// Recebimento de Directs do Instagram (Meta Graph API)
+router.post('/webhook/instagram', async (req, res) => {
+  try {
+    const entry = req.body?.entry?.[0];
+    const messaging = entry?.messaging?.[0];
+    const texto = messaging?.message?.text || req.body?.mensagem || '';
+    const senderId = messaging?.sender?.id || req.body?.usuario || 'instagram_user';
+    if (!texto) return res.json({ ignorado: true });
+
+    const resultado = await executarAgente({
+      agenteId: 'camila',
+      mensagem: texto,
+      canal: 'Instagram'
+    });
+    res.json({ ok: true, senderId, ...resultado });
   } catch (err) {
     res.status(500).json({ erro: err.message });
   }
