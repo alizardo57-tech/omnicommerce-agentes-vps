@@ -157,6 +157,20 @@ router.post('/demo/chat/:tenantId', async (req, res) => {
   }
 });
 
+// Baixa automática de estoque no ERP do cliente
+function baixarEstoqueTenant(tenant, itens) {
+  if (!tenant) return;
+  if (!Array.isArray(tenant.produtos)) {
+    tenant.produtos = JSON.parse(JSON.stringify(SETORES[tenant.setor]?.produtosIniciais || []));
+  }
+  for (const item of (itens || [])) {
+    const prod = tenant.produtos.find(p => Number(p.id) === Number(item.id));
+    if (prod) {
+      prod.estoque = Math.max(0, Number(prod.estoque || 0) - Number(item.qtd || 1));
+    }
+  }
+}
+
 // Checkout Online (Entrega ou Retirada) + PIX + Webhook de Confirmação
 router.post('/demo/pedido/:tenantId', (req, res) => {
   const db = garantirBaseSaaS();
@@ -189,9 +203,11 @@ router.post('/demo/pedido/:tenantId', (req, res) => {
     frete,
     total,
     status: isPix ? 'AGUARDANDO_PAGAMENTO' : 'PEDIDO_CONFIRMADO',
+    estoqueBaixado: !isPix,
     pixCopiaCola,
     criadoEm: new Date().toISOString()
   };
+  if (!isPix) baixarEstoqueTenant(tenant, itens);
   db.pedidosOnline.unshift(pedido);
   db.pedidosOnline = db.pedidosOnline.slice(0, 100);
   salvarDb(db);
@@ -213,6 +229,11 @@ router.post('/pagamentos/webhook/:tenantId', (req, res) => {
   if (['approved', 'CONFIRMED', 'PAGO'].includes(String(status))) {
     pedido.status = 'PAGO';
     pedido.pagoEm = new Date().toISOString();
+    if (!pedido.estoqueBaixado) {
+      const tenant = db.tenants.find(t => t.id === pedido.tenantId);
+      baixarEstoqueTenant(tenant, pedido.itens);
+      pedido.estoqueBaixado = true;
+    }
     db.logsAgentes.unshift({
       data: pedido.pagoEm,
       agente: '💳 Gateway PIX',

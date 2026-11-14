@@ -122,7 +122,7 @@ function renderCheckout() {
           ${pedidoAtual.endereco}<br>
           <span class="text-stone-500">Pagamento: ${labelsPag[pedidoAtual.formaPagamento] || pedidoAtual.formaPagamento} ${pedidoAtual.formaPagamento !== 'pix' ? '(na entrega / balcão)' : ''}</span>
         </div>
-        <a href="/demo-chat.html?loja=${lojaId}&item=${encodeURIComponent('Fiz o pedido ' + pedidoAtual.id + ' (' + (labelsPag[pedidoAtual.formaPagamento] || 'PIX') + ')')}" class="block text-center w-full py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold">Enviar comprovante / falar com a Camila</a>`}`;
+        <a href="/demo-chat.html?loja=${lojaId}&pedido=${encodeURIComponent(pedidoAtual.id)}" class="block text-center w-full py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold">Enviar Ordem do Pedido para a Camila</a>`}`;
     return;
   }
 

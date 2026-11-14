@@ -67,7 +67,7 @@
     function renderizarMsg(quem, texto, canalTag) {
       const box = document.getElementById('boxMsgs');
       if (quem === 'cliente') {
-        box.innerHTML += `<div class="p-2.5 px-3.5 rounded-2xl rounded-tr-sm bg-[#D9FDD3] text-stone-900 shadow-sm max-w-[80%] ml-auto">${texto}</div>`;
+        box.innerHTML += `<div class="p-2.5 px-3.5 rounded-2xl rounded-tr-sm bg-[#D9FDD3] text-stone-900 shadow-sm max-w-[80%] ml-auto whitespace-pre-line">${texto}</div>`;
       } else {
         const tag = canalTag === 'Instagram' ? 'Instagram Direct' : 'WhatsApp';
         box.innerHTML += `<div class="p-2.5 px-3.5 rounded-2xl rounded-tl-sm bg-white text-stone-800 shadow-sm max-w-[85%] whitespace-pre-line"><span class="text-[10px] text-emerald-700 font-semibold block mb-0.5">Camila • ${tag}</span>${formatarLinks(texto)}</div>`;
@@ -162,9 +162,38 @@
     carregarLoja();
     restaurarSessao();
     const itemSelecionado = params.get('item');
-    if (itemSelecionado) {
+    const pedidoParam = params.get('pedido');
+    if (pedidoParam) {
+      carregarOrdemPedido(pedidoParam);
+      window.history.replaceState({}, '', `/demo-chat.html?loja=${lojaId}`);
+    } else if (itemSelecionado) {
       const direto = itemSelecionado.startsWith('Acabei de pagar') || itemSelecionado.startsWith('Fiz o pedido');
       document.getElementById('inputMsg').value = direto ? itemSelecionado : `Oi! Vi na vitrine e tenho interesse em: ${itemSelecionado}`;
+    }
+
+    async function carregarOrdemPedido(pedId) {
+      try {
+        const resp = await fetch(`/api/demo/pedido/${encodeURIComponent(pedId)}`);
+        const d = await resp.json();
+        if (!d.ok || !d.pedido) return;
+        const p = d.pedido;
+        const itensHtml = (p.itens || []).map(i => `• ${i.qtd}x ${i.nome} (R$ ${(i.preco * i.qtd).toFixed(2).replace('.', ',')})`).join('<br>');
+        const cardOs = `📋 <strong>ORDEM DE PEDIDO ${p.id}</strong>\nCliente: ${p.clienteNome} (${p.clienteWhatsapp})\nTipo: ${p.modalidade === 'entrega' ? '🚚 Entrega' : '🏪 Retirada na loja'}\nEndereço: ${p.endereco}\nPagamento: ${String(p.formaPagamento).toUpperCase()}${p.trocoPara ? ` • Troco: ${p.trocoPara}` : ''}\nTotal: R$ ${Number(p.total).toFixed(2).replace('.', ',')} • Status: ${p.status}\n\nItens:\n${itensHtml.replace(/<br>/g, '\n')}`;
+        renderizarMsg('cliente', cardOs, canalAtual);
+        const resChat = await fetch(`/api/demo/chat/${lojaId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mensagem: `Acabei de finalizar o pedido ${p.id}`, canal: canalAtual, jaEnviouLink, historico: historico.slice(-6) })
+        });
+        const chatData = await resChat.json();
+        if (chatData.resposta) {
+          historico.push({ quem: 'cliente', texto: cardOs, canal: canalAtual });
+          historico.push({ quem: 'camila', texto: chatData.resposta, canal: canalAtual });
+          salvarSessao();
+          renderizarMsg('camila', chatData.resposta, canalAtual);
+          document.getElementById('boxMsgs').scrollTop = document.getElementById('boxMsgs').scrollHeight;
+        }
+      } catch {}
     }
   </script>
 </body>
