@@ -179,6 +179,11 @@ router.post('/demo/pedido/:tenantId', (req, res) => {
   const { clienteNome = 'Cliente', clienteWhatsapp = '', itens = [], modalidade = 'entrega', endereco = '', formaPagamento = 'pix', trocoPara = '' } = req.body || {};
   if (!Array.isArray(itens) || !itens.length) return res.status(400).json({ erro: 'Carrinho vazio.' });
 
+  const exigePresencial = itens.some(i => /aplica[çc][ãa]o|troca de joia/i.test(String(i.nome || '')));
+  if (exigePresencial && modalidade === 'entrega') {
+    return res.status(400).json({ erro: 'Itens com Aplicação ou Troca de Joia são presenciais no estúdio e estão bloqueados para entrega.' });
+  }
+
   const subtotal = itens.reduce((acc, i) => acc + Number(i.preco || 0) * Number(i.qtd || 1), 0);
   const frete = modalidade === 'entrega' ? 15 : 0;
   const total = subtotal + frete;

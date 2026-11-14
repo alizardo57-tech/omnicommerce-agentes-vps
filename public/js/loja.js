@@ -26,13 +26,26 @@ function filtrarVitrine() {
   renderVitrine(!q ? produtosVitrine : produtosVitrine.filter(p => p.nome.toLowerCase().includes(q)));
 }
 
+function exigePresencial(nome) {
+  return /aplica[çc][ãa]o|troca de joia/i.test(String(nome || ''));
+}
+
+function sacolaBloqueiaEntrega() {
+  return sacola.some(i => exigePresencial(i.nome));
+}
+
 function renderVitrine(lista) {
   const box = document.getElementById('gridVitrine');
-  box.innerHTML = lista.map(p => `
+  box.innerHTML = lista.map(p => {
+    const presencial = exigePresencial(p.nome);
+    return `
     <article class="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
       <div class="aspect-[4/3] bg-stone-100 overflow-hidden relative">
         <img src="${p.imagem || FALLBACK_IMG}" onerror="this.src='${FALLBACK_IMG}'" alt="${p.nome}" class="w-full h-full object-cover">
         <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 text-stone-700 text-[11px] font-semibold shadow-sm">${p.estoque} disponíveis</span>
+        <span class="absolute bottom-3 left-3 px-2.5 py-1 rounded-full ${presencial ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'} text-[10px] font-bold shadow-sm">
+          ${presencial ? '📍 Somente no estúdio' : '🚚 Entrega ou Retirada'}
+        </span>
       </div>
       <div class="p-4 flex-1 flex flex-col justify-between">
         <div>
@@ -86,6 +99,7 @@ function fecharCarrinho() {
 }
 
 function definirModalidade(m) {
+  if (m === 'entrega' && sacolaBloqueiaEntrega()) return;
   modalidade = m;
   renderCheckout();
 }
@@ -131,6 +145,8 @@ function renderCheckout() {
     return;
   }
 
+  const bloqueado = sacolaBloqueiaEntrega();
+  if (bloqueado && modalidade === 'entrega') modalidade = 'retirada';
   const subtotal = sacola.reduce((a, b) => a + b.preco * b.qtd, 0);
   const frete = modalidade === 'entrega' ? 15 : 0;
   const total = subtotal + frete;
@@ -146,9 +162,10 @@ function renderCheckout() {
           <span class="font-bold text-stone-900 w-16 text-right">R$ ${(i.preco * i.qtd).toFixed(2).replace('.', ',')}</span>
         </div>
       </div>`).join('')}</div>
+    ${bloqueado ? '<div class="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-semibold">🔒 Itens com <strong>Aplicação</strong> ou <strong>Troca de Joia</strong> são presenciais no estúdio (entrega bloqueada).</div>' : ''}
     <div class="grid grid-cols-2 gap-2 text-xs">
-      <button type="button" onclick="definirModalidade('entrega')" class="p-3 rounded-xl border font-semibold ${modalidade === 'entrega' ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 text-stone-700'}">🚚 Receber em casa (+R$ 15)</button>
-      <button type="button" onclick="definirModalidade('retirada')" class="p-3 rounded-xl border font-semibold ${modalidade === 'retirada' ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 text-stone-700'}">🏪 Retirar na loja (Grátis)</button>
+      <button type="button" ${bloqueado ? 'disabled' : ''} onclick="definirModalidade('entrega')" class="p-3 rounded-xl border font-semibold ${bloqueado ? 'border-stone-200 bg-stone-100 text-stone-400 cursor-not-allowed opacity-60' : modalidade === 'entrega' ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 text-stone-700'}">🚚 ${bloqueado ? 'Entrega bloqueada' : 'Receber em casa (+R$ 15)'}</button>
+      <button type="button" onclick="definirModalidade('retirada')" class="p-3 rounded-xl border font-semibold ${modalidade === 'retirada' ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 text-stone-700'}">🏪 ${bloqueado ? 'No estúdio (Obrigatório)' : 'Retirar na loja (Grátis)'}</button>
     </div>
     <form onsubmit="gerarPedidoPix(event)" class="space-y-2.5 text-xs">
       <input id="chkNome" required placeholder="Seu nome completo" class="w-full border border-stone-300 rounded-xl px-3 py-2.5">
