@@ -6,10 +6,15 @@ function montarCatalogoTexto(produtos) {
     .join('\n');
 }
 
-function obterDefinicaoAgentes(db) {
-  const setor = SETORES[db.loja.setor] || SETORES.pizzaria;
-  const catalogo = montarCatalogoTexto(db.produtos);
-  const ctxLoja = `Loja: ${db.loja.nome} | Setor: ${db.loja.setor} | Cidade: ${db.loja.cidade}`;
+function obterDefinicaoAgentes(db, tenant = null) {
+  const setorKey = tenant?.setor || db.loja.setor;
+  const nomeLoja = tenant?.nome || db.loja.nome;
+  const cidadeLoja = tenant?.cidade || db.loja.cidade;
+  const listaProdutos = tenant?.produtos || (tenant && SETORES[setorKey] ? SETORES[setorKey].produtosIniciais : db.produtos);
+  const setor = SETORES[setorKey] || SETORES.pizzaria;
+  const catalogo = montarCatalogoTexto(listaProdutos);
+  const ctxLoja = `Loja: ${nomeLoja} | Setor: ${setorKey} | Cidade: ${cidadeLoja}`;
+  const treinoCamila = tenant?.instrucoesCamila ? `\nTreinamento do cliente:\n${tenant.instrucoesCamila}` : '';
 
   return {
     fernanda: {
@@ -33,8 +38,8 @@ function obterDefinicaoAgentes(db) {
       nome: 'Camila',
       cargo: 'Vendas & Balcão',
       modo: 'tempo_real',
-      prompt: `${ctxLoja}\nVocê é CAMILA VENDAS no WhatsApp. Foco: ${setor.produtoFoco}.\nCatálogo oficial:\n${catalogo}\nRegras: Nunca invente preços. Desconto máximo sem gerente: ${db.loja.descontoMaxPct}%.`,
-      fallback: `Olá! Aqui é da ${db.loja.nome}. Temos ${setor.produtoFoco}. Como posso montar seu pedido hoje?`
+      prompt: `${ctxLoja}\nVocê é CAMILA VENDAS no WhatsApp. Foco: ${setor.produtoFoco}.${treinoCamila}\nCatálogo oficial:\n${catalogo}\nRegras: Nunca invente preços. Desconto máximo sem gerente: ${db.loja.descontoMaxPct}%.`,
+      fallback: `Olá! Aqui é da ${nomeLoja}. Temos ${setor.produtoFoco}. Como posso montar seu pedido hoje?`
     },
     rafael: {
       numero: 4,

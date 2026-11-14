@@ -3,9 +3,9 @@ const { gerarRespostaIA } = require('../services/llm');
 const { enviarMensagemWhatsApp } = require('../services/whatsapp');
 const { obterDefinicaoAgentes } = require('./definicoes11');
 
-async function executarAgente({ agenteId, mensagem, clienteTelefone = null, enviarWhatsApp = false }) {
+async function executarAgente({ agenteId, mensagem, clienteTelefone = null, enviarWhatsApp = false, tenant = null }) {
   const db = lerDb();
-  const agentes = obterDefinicaoAgentes(db);
+  const agentes = obterDefinicaoAgentes(db, tenant);
   const agente = agentes[agenteId];
   if (!agente) {
     throw new Error(`Agente desconhecido: ${agenteId}`);

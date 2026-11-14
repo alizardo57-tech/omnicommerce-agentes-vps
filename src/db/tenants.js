@@ -27,7 +27,8 @@ function garantirBaseSaaS() {
         setor: 'pizzaria',
         cidade: 'Centro',
         ativo: true,
-        modulos: { pdv: true, erp: true, agenda: false, whatsapp_ia: false, agentes11: false },
+        instrucoesCamila: 'Atenda com simpatia e agilidade. Sempre ofereça borda recheada de Catupiry e refrigerante 2L. Informe prazo médio de entrega de 35 minutos.',
+        modulos: { pdv: true, erp: true, agenda: false, whatsapp_ia: true, agentes11: false },
         criadoEm: new Date().toISOString()
       },
       {
@@ -36,6 +37,7 @@ function garantirBaseSaaS() {
         setor: 'piercing',
         cidade: 'Jardins',
         ativo: true,
+        instrucoesCamila: 'Seja acolhedora e passe segurança sobre esterilização em autoclave e titânio G23. Sempre lembre da assinatura do Termo ANVISA e peça sinal PIX de R$ 30 para reservar o horário.',
         modulos: { pdv: true, erp: true, agenda: true, whatsapp_ia: true, agentes11: true },
         criadoEm: new Date().toISOString()
       }

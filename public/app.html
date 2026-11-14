@@ -211,8 +211,29 @@
               </label>
             `).join('')}
           </div>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-2 pt-2 border-t border-slate-800">
+            <div class="lg:col-span-2 flex gap-2">
+              <input id="treino_${c.id}" value="${(c.instrucoesCamila || '').replace(/"/g, '&quot;')}" placeholder="Treinamento da Camila (como este cliente atende)..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200">
+              <button onclick="salvarTreinoCamila('${c.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold">Salvar Treino</button>
+            </div>
+            <button onclick="adicionarProdutoCliente('${c.id}')" class="px-3 py-1.5 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-300 text-xs font-bold hover:bg-blue-600/30">+ Produto Teste na Loja</button>
+          </div>
         </div>
       `).join('');
+    }
+
+    async function salvarTreinoCamila(clienteId) {
+      const texto = document.getElementById(`treino_${clienteId}`).value;
+      await atualizarCliente(clienteId, { instrucoesCamila: texto });
+      alert('✅ Treinamento da Camila salvo! Já está valendo no chat do cliente.');
+    }
+
+    async function adicionarProdutoCliente(clienteId) {
+      const nome = prompt('Nome do produto de teste:');
+      if (!nome) return;
+      const preco = parseFloat(prompt('Preço de venda (R$):', '49.90') || '0');
+      await atualizarCliente(clienteId, { novoProduto: { nome, preco, custo: preco * 0.4, estoque: 50 } });
+      alert(`✅ Produto "${nome}" adicionado na loja!`);
     }
 
     async function toggleModulo(clienteId, modKey, valor, modulosAtuais) {
@@ -272,10 +293,41 @@
             ${produtos.map(p => `<div class="p-4 rounded-xl bg-slate-950 border border-slate-800"><strong class="text-sm text-white">${p.nome}</strong><div class="text-emerald-400 font-mono font-bold mt-1">R$ ${Number(p.preco).toFixed(2)}</div></div>`).join('')}
           </div>`;
       } else if (modKey === 'erp') {
-        box.innerHTML = `<h3 class="text-lg font-black text-white mb-2">ERP Estoque & CMV</h3><p class="text-xs text-slate-300">Total de itens ativos no setor <strong>${t.setor}</strong>: ${produtos.length}.</p>`;
+        box.innerHTML = `<h3 class="text-lg font-black text-white mb-3">ERP Estoque & CMV (${t.nome})</h3>
+          <div class="overflow-x-auto"><table class="w-full text-left text-xs"><thead class="text-slate-400 border-b border-slate-800"><tr><th class="py-2">Produto</th><th class="py-2">Preço</th><th class="py-2">Estoque</th></tr></thead>
+          <tbody class="divide-y divide-slate-800">${produtos.map(p => `<tr><td class="py-2 text-white font-bold">${p.nome}</td><td class="py-2 text-emerald-400 font-mono">R$ ${Number(p.preco).toFixed(2)}</td><td class="py-2 font-mono">${p.estoque} un</td></tr>`).join('')}</tbody></table></div>`;
+      } else if (modKey === 'whatsapp_ia') {
+        box.innerHTML = `
+          <h3 class="text-lg font-black text-emerald-400 mb-1">Chat de Teste Ao Vivo • Camila IA (${t.nome})</h3>
+          <p class="text-xs text-slate-400 mb-3">Treinamento ativo: <em>${t.instrucoesCamila || 'Padrão do setor'}</em></p>
+          <div id="chatCamilaMsgs" class="bg-slate-950 border border-slate-800 rounded-xl p-4 h-64 overflow-y-auto space-y-2 text-xs mb-3">
+            <div class="p-2.5 rounded-xl bg-emerald-950/50 border border-emerald-500/30 text-emerald-200 max-w-[85%]">Olá! Sou a <strong>Camila</strong> da <strong>${t.nome}</strong>. Pergunte sobre preços, produtos ou faça um pedido de teste!</div>
+          </div>
+          <form onsubmit="enviarChatCamila(event)" class="flex gap-2">
+            <input id="inputChatCamila" required placeholder="Ex: Quais produtos vocês têm? Quanto custa?" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+            <button type="submit" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black">Enviar</button>
+          </form>`;
       } else {
         box.innerHTML = `<h3 class="text-lg font-black text-emerald-400 mb-2">${NOMES_MODULOS[modKey].label}</h3><p class="text-sm text-slate-300">Módulo habilitado pelo Administrador Geral para <strong>${t.nome}</strong>.</p>`;
       }
+    }
+
+    async function enviarChatCamila(e) {
+      e.preventDefault();
+      const input = document.getElementById('inputChatCamila');
+      const msg = input.value.trim();
+      if (!msg) return;
+      const box = document.getElementById('chatCamilaMsgs');
+      box.innerHTML += `<div class="p-2.5 rounded-xl bg-slate-800 text-white max-w-[80%] ml-auto">${msg}</div>`;
+      input.value = '';
+      box.scrollTop = box.scrollHeight;
+      try {
+        const res = await api('/api/cliente/camila/chat', { method: 'POST', body: JSON.stringify({ mensagem: msg }) });
+        box.innerHTML += `<div class="p-2.5 rounded-xl bg-emerald-950/50 border border-emerald-500/30 text-emerald-200 max-w-[85%]"><strong>Camila:</strong> ${res.resposta}</div>`;
+      } catch (err) {
+        box.innerHTML += `<div class="p-2.5 rounded-xl bg-rose-950/50 text-rose-300 text-xs">${err.message}</div>`;
+      }
+      box.scrollTop = box.scrollHeight;
     }
 
     async function recarregarPermissoesCliente() {

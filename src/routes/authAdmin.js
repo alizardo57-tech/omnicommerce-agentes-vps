@@ -2,7 +2,8 @@ const express = require('express');
 const { salvarDb } = require('../db/store');
 const { garantirBaseSaaS, verificarSenha, criarNovoCliente } = require('../db/tenants');
 const { SETORES } = require('../config/setores');
-const { gerarToken, autenticar, exigirSuperAdmin } = require('../middleware/auth');
+const { gerarToken, autenticar, exigirSuperAdmin, exigirModulo } = require('../middleware/auth');
+const { executarAgente } = require('../agents/orquestrador');
 
 const router = express.Router();
 
@@ -37,7 +38,7 @@ router.post('/auth/login', (req, res) => {
     token,
     usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email, role: usuario.role, tenantId: usuario.tenantId },
     tenant,
-    produtosSetor: tenant && SETORES[tenant.setor] ? SETORES[tenant.setor].produtosIniciais : []
+    produtosSetor: tenant ? (tenant.produtos || (SETORES[tenant.setor] ? SETORES[tenant.setor].produtosIniciais : [])) : []
   });
 });
 
@@ -49,7 +50,7 @@ router.get('/auth/me', autenticar, (req, res) => {
   res.json({
     usuario: req.usuario,
     tenant,
-    produtosSetor: tenant && SETORES[tenant.setor] ? SETORES[tenant.setor].produtosIniciais : []
+    produtosSetor: tenant ? (tenant.produtos || (SETORES[tenant.setor] ? SETORES[tenant.setor].produtosIniciais : [])) : []
   });
 });
 
@@ -76,7 +77,7 @@ router.patch('/superadmin/clientes/:id/modulos', autenticar, exigirSuperAdmin, (
   const tenant = db.tenants.find(t => t.id === req.params.id);
   if (!tenant) return res.status(404).json({ erro: 'Cliente não encontrado.' });
 
-  const { modulos, setor, ativo } = req.body || {};
+  const { modulos, setor, ativo, instrucoesCamila, novoProduto } = req.body || {};
   if (modulos && typeof modulos === 'object') {
     tenant.modulos = {
       pdv: Boolean(modulos.pdv),
@@ -92,9 +93,37 @@ router.patch('/superadmin/clientes/:id/modulos', autenticar, exigirSuperAdmin, (
   if (typeof ativo === 'boolean') {
     tenant.ativo = ativo;
   }
+  if (typeof instrucoesCamila === 'string') {
+    tenant.instrucoesCamila = instrucoesCamila;
+  }
+  if (novoProduto && novoProduto.nome) {
+    if (!Array.isArray(tenant.produtos)) {
+      tenant.produtos = JSON.parse(JSON.stringify(SETORES[tenant.setor]?.produtosIniciais || []));
+    }
+    tenant.produtos.unshift({
+      id: Date.now(),
+      nome: String(novoProduto.nome),
+      preco: Number(novoProduto.preco || 0),
+      custo: Number(novoProduto.custo || 0),
+      estoque: Number(novoProduto.estoque || 50)
+    });
+  }
 
   salvarDb(db);
   res.json({ ok: true, tenant });
+});
+
+router.post('/cliente/camila/chat', autenticar, exigirModulo('whatsapp_ia'), async (req, res) => {
+  try {
+    const db = garantirBaseSaaS();
+    const tenant = req.usuario.tenantId ? db.tenants.find(t => t.id === req.usuario.tenantId) : null;
+    const { mensagem } = req.body || {};
+    if (!mensagem) return res.status(400).json({ erro: 'Digite uma mensagem para a Camila.' });
+    const resultado = await executarAgente({ agenteId: 'camila', mensagem, tenant });
+    res.json({ ok: true, ...resultado });
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
 });
 
 module.exports = router;
