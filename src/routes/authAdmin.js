@@ -2,6 +2,7 @@ const express = require('express');
 const { salvarDb } = require('../db/store');
 const { lerDbLoja, salvarDbLoja, buscarPedidoPorIdGlobal, buscarClienteLoja, registrarPedidoCliente } = require('../db/tenantStore');
 const { processarReativacaoLoja } = require('../services/reativacao');
+const { imprimirComandaAutomatica } = require('../services/impressao');
 const { garantirBaseSaaS, verificarSenha, criarNovoCliente } = require('../db/tenants');
 const { SETORES } = require('../config/setores');
 const { gerarToken, autenticar, exigirSuperAdmin, exigirModulo } = require('../middleware/auth');
@@ -261,6 +262,7 @@ router.post('/demo/pedido/:tenantId', (req, res) => {
   dbLoja.pedidosOnline.unshift(pedido);
   dbLoja.pedidosOnline = dbLoja.pedidosOnline.slice(0, 100);
   salvarDbLoja(tenant.id, dbLoja);
+  imprimirComandaAutomatica(pedido);
   res.json({ ok: true, pedido });
 });
 
@@ -296,6 +298,7 @@ router.post('/pagamentos/webhook/:tenantId', (req, res) => {
     });
     dbLoja.logsAgentes = dbLoja.logsAgentes.slice(0, 100);
     salvarDbLoja(req.params.tenantId, dbLoja);
+    imprimirComandaAutomatica(pedido);
   }
   res.json({ ok: true, pedido });
 });
