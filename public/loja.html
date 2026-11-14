@@ -3,51 +3,73 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loja Online • Catálogo Oficial</title>
+  <title>Bella Pizza • Cardápio Feed</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}</style>
 </head>
-<body class="bg-stone-50 text-stone-900 min-h-screen antialiased pb-24">
-  <header class="sticky top-0 z-40 bg-white/95 border-b border-stone-200 backdrop-blur-md">
-    <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-sm">
-          <i class="fa-solid fa-gem"></i>
-        </div>
-        <div>
-          <h1 id="vitrineNome" class="text-base sm:text-lg font-bold tracking-tight text-stone-900">Carregando loja...</h1>
-          <p id="vitrineSub" class="text-xs text-stone-500 font-medium">Catálogo oficial</p>
-        </div>
+<body class="bg-zinc-50 text-zinc-900 min-h-screen antialiased pb-24">
+  <!-- TOPBAR ESTILO INSTAGRAM -->
+  <header class="sticky top-0 z-40 bg-white/95 border-b border-zinc-200 backdrop-blur-md">
+    <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2 min-w-0">
+        <i class="fa-brands fa-instagram text-xl text-rose-600"></i>
+        <span id="topoHandle" class="font-extrabold text-base tracking-tight truncate">bellapizza</span>
+        <i class="fa-solid fa-circle-check text-sky-500 text-xs"></i>
       </div>
-      <div class="flex items-center gap-2 w-full sm:w-auto">
-        <div class="relative flex-1 sm:w-64">
-          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-xs"></i>
-          <input id="buscaVitrine" oninput="filtrarVitrine()" placeholder="Buscar peça ou serviço..." class="w-full bg-stone-100 border border-stone-200 rounded-xl pl-8 pr-3 py-2 text-xs text-stone-800 focus:outline-none focus:bg-white focus:border-stone-400">
+      <div class="flex items-center gap-2">
+        <div class="relative w-32 sm:w-44">
+          <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400 text-[11px]"></i>
+          <input id="buscaVitrine" oninput="filtrarVitrine()" placeholder="Buscar sabor..." class="w-full bg-zinc-100 border border-zinc-200 rounded-full pl-7 pr-3 py-1.5 text-xs focus:outline-none focus:bg-white focus:border-zinc-400">
         </div>
-        <button onclick="abrirCarrinho()" class="relative px-3.5 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm">
-          <i class="fa-solid fa-bag-shopping"></i>
-          <span class="hidden sm:inline">Sacola</span>
-          <span id="badgeSacola" class="px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-bold">0</span>
+        <button onclick="abrirCarrinho()" class="relative p-2 rounded-full hover:bg-zinc-100 text-zinc-900" title="Ver Sacola">
+          <i class="fa-solid fa-bag-shopping text-lg"></i>
+          <span id="badgeSacola" class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center">0</span>
         </button>
-        <a id="btnVoltarChat" href="/demo-chat.html" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm">
-          <i class="fa-brands fa-whatsapp text-sm"></i>
-          <span class="hidden sm:inline">Atendente</span>
+        <a id="btnVoltarChat" href="/demo-chat.html" class="p-2 rounded-full hover:bg-emerald-50 text-emerald-600" title="Pedir com a Camila">
+          <i class="fa-brands fa-whatsapp text-xl"></i>
         </a>
       </div>
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-4 pt-5">
-    <div id="filtrosCategoria" class="flex gap-2 overflow-x-auto pb-3 mb-4 no-scrollbar"></div>
-    <div id="gridVitrine" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+  <main class="max-w-xl mx-auto">
+    <!-- PERFIL ESTILO INSTAGRAM -->
+    <section class="bg-white border-b border-zinc-200 px-4 pt-5 pb-4">
+      <div class="flex items-center gap-5">
+        <div class="p-[3px] rounded-full bg-gradient-to-tr from-amber-400 via-rose-500 to-fuchsia-600 flex-shrink-0">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white p-0.5 overflow-hidden">
+            <img id="perfilLogo" src="/img/bella-pizza-logo.svg" alt="Logo da Loja" class="w-full h-full object-cover rounded-full">
+          </div>
+        </div>
+        <div class="flex-1 grid grid-cols-3 text-center">
+          <div><div id="statPosts" class="font-extrabold text-base sm:text-lg">0</div><div class="text-[11px] text-zinc-500">itens</div></div>
+          <div><div class="font-extrabold text-base sm:text-lg">4.9 ★</div><div class="text-[11px] text-zinc-500">avaliação</div></div>
+          <div><div class="font-extrabold text-base sm:text-lg">35m</div><div class="text-[11px] text-zinc-500">entrega</div></div>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <h1 id="vitrineNome" class="font-bold text-sm text-zinc-900">Carregando loja...</h1>
+        <p id="vitrineSub" class="text-xs text-zinc-600 mt-0.5 leading-relaxed">Cardápio oficial • Escolha no feed e peça com 1 clique</p>
+      </div>
+
+      <div id="acoesPerfil" class="mt-3.5 flex gap-2 text-xs"></div>
+
+      <!-- FIXADOS / DESTAQUES (CATEGORIAS) -->
+      <div id="filtrosCategoria" class="mt-4 flex gap-3.5 overflow-x-auto pb-1 no-scrollbar"></div>
+    </section>
+
+    <!-- FEED DE FOTOS ESTILO INSTAGRAM -->
+    <div id="gridVitrine" class="divide-y divide-zinc-200 bg-white"></div>
   </main>
 
   <!-- MODAL SACOLA & CHECKOUT -->
-  <div id="modalCheckout" class="hidden fixed inset-0 z-50 bg-stone-950/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl border border-stone-200 max-h-[92vh] flex flex-col overflow-hidden">
-      <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
-        <h2 class="text-base font-bold text-stone-900">Finalizar Pedido</h2>
-        <button onclick="fecharCarrinho()" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center text-sm">&times;</button>
+  <div id="modalCheckout" class="hidden fixed inset-0 z-50 bg-zinc-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl border border-zinc-200 max-h-[92vh] flex flex-col overflow-hidden">
+      <div class="px-5 py-4 border-b border-zinc-100 flex items-center justify-between">
+        <h2 class="text-base font-bold text-zinc-900">Finalizar Pedido</h2>
+        <button onclick="fecharCarrinho()" class="w-8 h-8 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-600 flex items-center justify-center text-sm">&times;</button>
       </div>
       <div id="conteudoCheckout" class="p-5 overflow-y-auto space-y-4 text-sm"></div>
     </div>

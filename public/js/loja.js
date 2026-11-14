@@ -1,43 +1,85 @@
 const params = new URLSearchParams(window.location.search);
 const lojaId = params.get('loja') || 'cli_studiovip';
 let produtosVitrine = [];
+let lojaNome = 'Bella Pizza';
+let lojaHandle = 'bellapizza';
+let lojaLogo = '/img/bella-pizza-logo.svg';
 let lojaSetor = '';
 let categoriaAtiva = 'Todas';
 let sacola = [];
+let curtidos = new Set();
 let modalidade = 'entrega';
 let formaPagamento = 'pix';
 let pedidoAtual = null;
 
 const FALLBACK_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="#f5f5f4"/><circle cx="200" cy="140" r="44" fill="none" stroke="#a8a29e" stroke-width="6"/><text x="200" y="220" text-anchor="middle" fill="#78716c" font-family="sans-serif" font-size="14">Foto do Produto</text></svg>'
+  '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600"><rect width="600" height="600" fill="#f4f4f5"/><circle cx="300" cy="275" r="72" fill="none" stroke="#a1a1aa" stroke-width="8"/><text x="300" y="395" text-anchor="middle" fill="#71717a" font-family="sans-serif" font-size="20">Foto do Cardápio</text></svg>'
 );
+
+const ICONES_CAT = {
+  Todas: '🍽️',
+  'Monte sua Pizza': '🍕',
+  'Pré-Assadas': '🔥',
+  Tradicionais: '🧀',
+  Especiais: '⭐',
+  Doces: '🍫',
+  Bordas: '🥖',
+  Bebidas: '🥤'
+};
 
 document.getElementById('btnVoltarChat').href = `/demo-chat.html?loja=${lojaId}`;
 
 async function carregarVitrine() {
   const resp = await fetch(`/api/demo/loja/${lojaId}`);
   const d = await resp.json();
-  document.getElementById('vitrineNome').innerText = d.nome || 'Loja Online';
-  document.getElementById('vitrineSub').innerText = 'Escolha seus itens e finalize com PIX, cartão ou dinheiro';
+  lojaNome = d.nome || 'Loja Online';
   lojaSetor = d.setor || '';
+  lojaHandle = lojaNome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+  lojaLogo = lojaSetor === 'pizzaria' ? '/img/bella-pizza-logo.svg' : '/img/produtos/101.jpg';
   produtosVitrine = d.produtos || [];
+
+  document.title = `${lojaNome} • Cardápio Feed`;
+  document.getElementById('topoHandle').innerText = lojaHandle;
+  document.getElementById('perfilLogo').src = lojaLogo;
+  document.getElementById('statPosts').innerText = produtosVitrine.length;
+  document.getElementById('vitrineNome').innerText = lojaNome;
+  document.getElementById('vitrineSub').innerText = lojaSetor === 'pizzaria'
+    ? '🍕 Forno artesanal • Entrega rápida & Retirada • Peça direto pelo feed ou com a Camila'
+    : '✨ Catálogo oficial • Escolha no feed e finalize via PIX, cartão ou dinheiro';
+
+  renderAcoesPerfil();
   renderCategorias();
   renderVitrine(produtosVitrine);
+}
+
+function renderAcoesPerfil() {
+  const box = document.getElementById('acoesPerfil');
+  if (!box) return;
+  const btnMeio = lojaSetor === 'pizzaria'
+    ? `<button onclick="abrirMeioAMeio()" class="flex-1 py-2 px-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold">🍕 Montar 1/2 a 1/2</button>`
+    : '';
+  box.innerHTML = `
+    ${btnMeio}
+    <a href="/demo-chat.html?loja=${lojaId}" class="flex-1 py-2 px-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-center">💬 Pedir c/ Camila</a>
+    <button onclick="abrirCarrinho()" class="py-2 px-3.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-900 font-bold">🛍️ Sacola</button>
+  `;
 }
 
 function renderCategorias() {
   const el = document.getElementById('filtrosCategoria');
   if (!el) return;
   const cats = ['Todas', ...new Set(produtosVitrine.map(p => p.categoria).filter(Boolean))];
-  const btnMeio = lojaSetor === 'pizzaria'
-    ? `<button onclick="abrirMeioAMeio()" class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap bg-amber-500 hover:bg-amber-600 text-white shadow-sm">🍕 Montar 1/2 a 1/2</button>`
-    : '';
-  if (cats.length <= 1 && !btnMeio) { el.innerHTML = ''; return; }
-  el.innerHTML = btnMeio + cats.map(c => `
-    <button onclick="selecionarCategoria('${c}')" class="px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap border transition ${
-      categoriaAtiva === c ? 'bg-stone-900 text-white border-stone-900' : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-100'
-    }">${c}</button>
-  `).join('');
+  el.innerHTML = cats.map(c => {
+    const ativa = categoriaAtiva === c;
+    const ico = ICONES_CAT[c] || (lojaSetor === 'pizzaria' ? '🍕' : '💎');
+    return `
+      <button onclick="selecionarCategoria('${c}')" class="flex flex-col items-center gap-1 flex-shrink-0 group">
+        <div class="w-14 h-14 rounded-full p-[2px] ${ativa ? 'bg-gradient-to-tr from-amber-400 via-rose-500 to-fuchsia-600' : 'bg-zinc-200'}">
+          <div class="w-full h-full rounded-full bg-white flex items-center justify-center text-xl border-2 border-white">${ico}</div>
+        </div>
+        <span class="text-[11px] max-w-[68px] truncate ${ativa ? 'font-extrabold text-zinc-900' : 'font-medium text-zinc-500'}">${c}</span>
+      </button>`;
+  }).join('');
 }
 
 function abrirMeioAMeio() {
@@ -47,14 +89,14 @@ function abrirMeioAMeio() {
   document.getElementById('conteudoCheckout').innerHTML = `
     <div class="space-y-3 text-xs">
       <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 font-semibold">🍕 Monte sua Pizza Grande 1/2 a 1/2 (cobra o maior valor entre os 2 sabores)</div>
-      <div><label class="font-bold text-stone-700 block mb-1">1ª Metade (1/2):</label>
-        <select id="lojaMeio1" onchange="atualizarPrecoMeio()" class="w-full border border-stone-300 rounded-xl px-3 py-2.5">${sabores.map(s => `<option value="${s.id}">${s.nome} — R$ ${Number(s.preco).toFixed(2).replace('.', ',')}</option>`).join('')}</select>
+      <div><label class="font-bold text-zinc-700 block mb-1">1ª Metade (1/2):</label>
+        <select id="lojaMeio1" onchange="atualizarPrecoMeio()" class="w-full border border-zinc-300 rounded-xl px-3 py-2.5">${sabores.map(s => `<option value="${s.id}">${s.nome} — R$ ${Number(s.preco).toFixed(2).replace('.', ',')}</option>`).join('')}</select>
       </div>
-      <div><label class="font-bold text-stone-700 block mb-1">2ª Metade (1/2):</label>
-        <select id="lojaMeio2" onchange="atualizarPrecoMeio()" class="w-full border border-stone-300 rounded-xl px-3 py-2.5">${sabores.map((s, i) => `<option value="${s.id}" ${i === 1 ? 'selected' : ''}>${s.nome} — R$ ${Number(s.preco).toFixed(2).replace('.', ',')}</option>`).join('')}</select>
+      <div><label class="font-bold text-zinc-700 block mb-1">2ª Metade (1/2):</label>
+        <select id="lojaMeio2" onchange="atualizarPrecoMeio()" class="w-full border border-zinc-300 rounded-xl px-3 py-2.5">${sabores.map((s, i) => `<option value="${s.id}" ${i === 1 ? 'selected' : ''}>${s.nome} — R$ ${Number(s.preco).toFixed(2).replace('.', ',')}</option>`).join('')}</select>
       </div>
-      <div id="precoMeioTxt" class="text-right font-extrabold text-base text-stone-900"></div>
-      <button onclick="confirmarMeioAMeio()" class="w-full py-3 rounded-xl bg-stone-900 hover:bg-stone-800 text-white font-bold">Adicionar Pizza 1/2 a 1/2 na Sacola</button>
+      <div id="precoMeioTxt" class="text-right font-extrabold text-base text-zinc-900"></div>
+      <button onclick="confirmarMeioAMeio()" class="w-full py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold">Adicionar Pizza 1/2 a 1/2 na Sacola</button>
     </div>`;
   atualizarPrecoMeio();
 }
@@ -97,36 +139,57 @@ function sacolaBloqueiaEntrega() {
   return sacola.some(i => exigePresencial(i.nome));
 }
 
+function curtirPost(id) {
+  if (curtidos.has(id)) curtidos.delete(id);
+  else curtidos.add(id);
+  const ic = document.getElementById(`like_${id}`);
+  if (ic) ic.className = curtidos.has(id) ? 'fa-solid fa-heart text-rose-600 text-xl' : 'fa-regular fa-heart text-zinc-900 text-xl';
+}
+
 function renderVitrine(lista) {
   const box = document.getElementById('gridVitrine');
+  if (!lista.length) {
+    box.innerHTML = '<p class="text-center text-xs text-zinc-500 py-12">Nenhum item encontrado nesta categoria.</p>';
+    return;
+  }
   box.innerHTML = lista.map(p => {
-    const presencial = exigePresencial(p.nome);
+    const liked = curtidos.has(p.id);
+    const precoFmt = Number(p.preco).toFixed(2).replace('.', ',');
+    const legenda = p.descricao || (lojaSetor === 'pizzaria' ? 'Ingredientes selecionados e massa artesanal assada na hora.' : 'Peça oficial disponível na loja.');
     return `
-    <article class="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
-      <div class="aspect-[4/3] bg-stone-100 overflow-hidden relative">
+    <article class="pb-5">
+      <div class="px-3.5 py-2.5 flex items-center justify-between">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <img src="${lojaLogo}" alt="${lojaNome}" class="w-8 h-8 rounded-full object-cover border border-zinc-200">
+          <div class="min-w-0">
+            <div class="text-xs font-bold text-zinc-900 truncate">${p.nome}</div>
+            <div class="text-[11px] text-zinc-500">${p.categoria || lojaNome}</div>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-extrabold flex-shrink-0">R$ ${precoFmt}</span>
+      </div>
+
+      <div ondblclick="curtirPost(${p.id})" class="aspect-square bg-zinc-100 overflow-hidden relative select-none">
         <img src="${p.imagem || FALLBACK_IMG}" onerror="this.src='${FALLBACK_IMG}'" alt="${p.nome}" class="w-full h-full object-cover">
-        <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 text-stone-700 text-[11px] font-semibold shadow-sm">${p.estoque} disponíveis</span>
-        <span class="absolute bottom-3 left-3 px-2.5 py-1 rounded-full ${presencial ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'} text-[10px] font-bold shadow-sm">
-          ${presencial ? '📍 Somente no estúdio' : '🚚 Entrega ou Retirada'}
-        </span>
       </div>
-      <div class="p-4 flex-1 flex flex-col justify-between">
-        <div>
-          <h2 class="text-sm font-bold text-stone-900 leading-snug">${p.nome}</h2>
-          ${p.descricao ? `<p class="text-xs text-stone-500 mt-1 line-clamp-2">${p.descricao}</p>` : ''}
-          <p class="text-lg font-extrabold text-stone-900 mt-2">R$ ${Number(p.preco).toFixed(2).replace('.', ',')}</p>
-        </div>
-        <div class="mt-4 flex gap-2">
-          <button onclick="adicionarSacola(${p.id})" class="flex-1 py-2.5 px-3 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold transition">
-            Adicionar à sacola
+
+      <div class="px-3.5 pt-3 space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-4">
+            <button onclick="curtirPost(${p.id})" aria-label="Curtir"><i id="like_${p.id}" class="${liked ? 'fa-solid fa-heart text-rose-600' : 'fa-regular fa-heart text-zinc-900'} text-xl"></i></button>
+            <a href="/demo-chat.html?loja=${lojaId}&item=${encodeURIComponent(p.nome)}" title="Perguntar à Camila"><i class="fa-regular fa-comment text-xl text-zinc-900"></i></a>
+          </div>
+          <button onclick="adicionarSacola(${p.id})" class="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-bold shadow-sm">
+            + Pedir • R$ ${precoFmt}
           </button>
-          <a href="/demo-chat.html?loja=${lojaId}&item=${encodeURIComponent(p.nome)}" title="Perguntar no WhatsApp" class="px-3 py-2.5 rounded-xl border border-stone-200 hover:bg-stone-100 text-emerald-700 text-xs font-semibold flex items-center justify-center">
-            <i class="fa-brands fa-whatsapp text-base"></i>
-          </a>
+        </div>
+
+        <div class="text-xs leading-relaxed text-zinc-800">
+          <span class="font-bold mr-1">${lojaHandle}</span>
+          <span class="font-semibold">${p.nome}</span> — <span class="text-zinc-600">${legenda}</span>
         </div>
       </div>
-    </article>
-  `;
+    </article>`;
   }).join('');
 }
 
@@ -185,28 +248,28 @@ function renderCheckout() {
       <div class="p-4 rounded-2xl ${(pago || confirmado) ? 'bg-emerald-50 border border-emerald-200' : 'bg-amber-50 border border-amber-200'} text-center">
         <div class="text-2xl mb-1">${(pago || confirmado) ? '✅' : '⏳'}</div>
         <div class="font-bold ${(pago || confirmado) ? 'text-emerald-800' : 'text-amber-800'}">
-          ${pago ? 'Pagamento PIX Confirmado pelo Banco!' : confirmado ? 'Pedido Confirmado!' : 'Aguardando Pagamento PIX'}
+          ${pago ? 'Pagamento PIX Confirmado!' : confirmado ? 'Pedido Confirmado!' : 'Aguardando Pagamento PIX'}
         </div>
-        <div class="text-xs text-stone-600 mt-1">Pedido ${pedidoAtual.id} • ${labelsPag[pedidoAtual.formaPagamento] || 'PIX'} • Total R$ ${Number(pedidoAtual.total).toFixed(2).replace('.', ',')}</div>
-        ${pedidoAtual.trocoPara ? `<div class="text-xs text-stone-700 font-semibold mt-1">Troco para: ${pedidoAtual.trocoPara}</div>` : ''}
+        <div class="text-xs text-zinc-600 mt-1">Pedido ${pedidoAtual.id} • ${labelsPag[pedidoAtual.formaPagamento] || 'PIX'} • Total R$ ${Number(pedidoAtual.total).toFixed(2).replace('.', ',')}</div>
+        ${pedidoAtual.trocoPara ? `<div class="text-xs text-zinc-700 font-semibold mt-1">Troco para: ${pedidoAtual.trocoPara}</div>` : ''}
       </div>
       ${(!pago && !confirmado && qrUrl) ? `
         <div class="flex flex-col items-center gap-3">
-          <img src="${qrUrl}" alt="QR Code PIX" class="w-40 h-40 rounded-xl border border-stone-200 p-1 bg-white">
-          <button onclick="copiarPix()" class="w-full py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold">Copiar código PIX Copia e Cola</button>
+          <img src="${qrUrl}" alt="QR Code PIX" class="w-40 h-40 rounded-xl border border-zinc-200 p-1 bg-white">
+          <button onclick="copiarPix()" class="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold">Copiar código PIX Copia e Cola</button>
           <button onclick="simularWebhookBanco()" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold">Simular Confirmação do Banco (Webhook)</button>
         </div>` : `
-        <div class="text-xs text-stone-600 bg-stone-50 p-3 rounded-xl border border-stone-200">
-          <strong>${pedidoAtual.modalidade === 'entrega' ? 'Entrega para:' : 'Retirada / Atendimento na loja'}</strong><br>
+        <div class="text-xs text-zinc-600 bg-zinc-50 p-3 rounded-xl border border-zinc-200">
+          <strong>${pedidoAtual.modalidade === 'entrega' ? 'Entrega para:' : 'Retirada na loja'}</strong><br>
           ${pedidoAtual.endereco}<br>
-          <span class="text-stone-500">Pagamento: ${labelsPag[pedidoAtual.formaPagamento] || pedidoAtual.formaPagamento} ${pedidoAtual.formaPagamento !== 'pix' ? '(na entrega / balcão)' : ''}</span>
+          <span class="text-zinc-500">Pagamento: ${labelsPag[pedidoAtual.formaPagamento] || pedidoAtual.formaPagamento}</span>
         </div>
         <a href="/demo-chat.html?loja=${lojaId}&pedido=${encodeURIComponent(pedidoAtual.id)}" class="block text-center w-full py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold">Enviar Ordem do Pedido para a Camila</a>`}`;
     return;
   }
 
   if (!sacola.length) {
-    box.innerHTML = '<p class="text-center text-stone-500 py-8 text-xs">Sua sacola está vazia. Escolha uma peça no catálogo!</p>';
+    box.innerHTML = '<p class="text-center text-zinc-500 py-8 text-xs">Sua sacola está vazia. Escolha um item no feed!</p>';
     return;
   }
 
@@ -218,41 +281,32 @@ function renderCheckout() {
 
   box.innerHTML = `
     <div class="space-y-2">${sacola.map(i => `
-      <div class="flex items-center justify-between p-2.5 rounded-xl bg-stone-50 border border-stone-200 text-xs">
-        <div class="font-semibold text-stone-800 flex-1 pr-2">${i.nome}</div>
+      <div class="flex items-center justify-between p-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-xs">
+        <div class="font-semibold text-zinc-800 flex-1 pr-2">${i.nome}</div>
         <div class="flex items-center gap-2">
-          <button onclick="alterarQtd(${i.id},-1)" class="w-6 h-6 rounded-lg bg-white border border-stone-300 font-bold">-</button>
+          <button onclick="alterarQtd(${i.id},-1)" class="w-6 h-6 rounded-lg bg-white border border-zinc-300 font-bold">-</button>
           <span class="font-bold">${i.qtd}</span>
-          <button onclick="alterarQtd(${i.id},1)" class="w-6 h-6 rounded-lg bg-white border border-stone-300 font-bold">+</button>
-          <span class="font-bold text-stone-900 w-16 text-right">R$ ${(i.preco * i.qtd).toFixed(2).replace('.', ',')}</span>
+          <button onclick="alterarQtd(${i.id},1)" class="w-6 h-6 rounded-lg bg-white border border-zinc-300 font-bold">+</button>
+          <span class="font-bold text-zinc-900 w-16 text-right">R$ ${(i.preco * i.qtd).toFixed(2).replace('.', ',')}</span>
         </div>
       </div>`).join('')}</div>
-    ${bloqueado ? '<div class="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-semibold">🔒 Itens com <strong>Aplicação</strong> ou <strong>Troca de Joia</strong> são presenciais no estúdio (entrega bloqueada).</div>' : ''}
     <div class="grid grid-cols-2 gap-2 text-xs">
-      <button type="button" ${bloqueado ? 'disabled' : ''} onclick="definirModalidade('entrega')" class="p-3 rounded-xl border font-semibold ${bloqueado ? 'border-stone-200 bg-stone-100 text-stone-400 cursor-not-allowed opacity-60' : modalidade === 'entrega' ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 text-stone-700'}">🚚 ${bloqueado ? 'Entrega bloqueada' : 'Receber em casa (+R$ 15)'}</button>
-      <button type="button" onclick="definirModalidade('retirada')" class="p-3 rounded-xl border font-semibold ${modalidade === 'retirada' ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 text-stone-700'}">🏪 ${bloqueado ? 'No estúdio (Obrigatório)' : 'Retirar na loja (Grátis)'}</button>
+      <button type="button" ${bloqueado ? 'disabled' : ''} onclick="definirModalidade('entrega')" class="p-3 rounded-xl border font-semibold ${bloqueado ? 'border-zinc-200 bg-zinc-100 text-zinc-400 cursor-not-allowed opacity-60' : modalidade === 'entrega' ? 'border-zinc-900 bg-zinc-900 text-white' : 'border-zinc-200 text-zinc-700'}">🚚 ${bloqueado ? 'Entrega bloqueada' : 'Receber em casa (+R$ 15)'}</button>
+      <button type="button" onclick="definirModalidade('retirada')" class="p-3 rounded-xl border font-semibold ${modalidade === 'retirada' ? 'border-zinc-900 bg-zinc-900 text-white' : 'border-zinc-200 text-zinc-700'}">🏪 Retirar na loja (Grátis)</button>
     </div>
     <form onsubmit="gerarPedidoPix(event)" class="space-y-2.5 text-xs">
-      <input id="chkNome" required placeholder="Seu nome completo" class="w-full border border-stone-300 rounded-xl px-3 py-2.5">
-      <input id="chkZap" required placeholder="Seu WhatsApp (com DDD)" class="w-full border border-stone-300 rounded-xl px-3 py-2.5">
-      ${modalidade === 'entrega' ? '<input id="chkEnd" required placeholder="Endereço completo (Rua, nº, bairro, CEP)" class="w-full border border-stone-300 rounded-xl px-3 py-2.5">' : ''}
-      <div class="pt-1">
-        <div class="font-semibold text-stone-700 mb-1.5">Forma de pagamento:</div>
-        <div class="grid grid-cols-2 gap-2">
-          <button type="button" onclick="definirPagamento('pix')" class="p-2.5 rounded-xl border font-semibold ${formaPagamento === 'pix' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-stone-200 text-stone-700'}">💠 PIX</button>
-          <button type="button" onclick="definirPagamento('credito')" class="p-2.5 rounded-xl border font-semibold ${formaPagamento === 'credito' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-stone-200 text-stone-700'}">💳 Cartão Crédito</button>
-          <button type="button" onclick="definirPagamento('debito')" class="p-2.5 rounded-xl border font-semibold ${formaPagamento === 'debito' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-stone-200 text-stone-700'}">💳 Cartão Débito</button>
-          <button type="button" onclick="definirPagamento('dinheiro')" class="p-2.5 rounded-xl border font-semibold ${formaPagamento === 'dinheiro' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-stone-200 text-stone-700'}">💵 Dinheiro</button>
-        </div>
+      <input id="chkNome" required placeholder="Seu nome completo" class="w-full border border-zinc-300 rounded-xl px-3 py-2.5">
+      <input id="chkZap" required placeholder="Seu WhatsApp (com DDD)" class="w-full border border-zinc-300 rounded-xl px-3 py-2.5">
+      ${modalidade === 'entrega' ? '<input id="chkEnd" required placeholder="Endereço completo (Rua, nº, bairro)" class="w-full border border-zinc-300 rounded-xl px-3 py-2.5">' : ''}
+      <div class="grid grid-cols-2 gap-2">
+        <button type="button" onclick="definirPagamento('pix')" class="p-2.5 rounded-xl border font-semibold ${formaPagamento === 'pix' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-zinc-200 text-zinc-700'}">💠 PIX</button>
+        <button type="button" onclick="definirPagamento('credito')" class="p-2.5 rounded-xl border font-semibold ${formaPagamento === 'credito' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-zinc-200 text-zinc-700'}">💳 Crédito</button>
+        <button type="button" onclick="definirPagamento('debito')" class="p-2.5 rounded-xl border font-semibold ${formaPagamento === 'debito' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-zinc-200 text-zinc-700'}">💳 Débito</button>
+        <button type="button" onclick="definirPagamento('dinheiro')" class="p-2.5 rounded-xl border font-semibold ${formaPagamento === 'dinheiro' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-zinc-200 text-zinc-700'}">💵 Dinheiro</button>
       </div>
-      ${formaPagamento === 'dinheiro' ? '<input id="chkTroco" placeholder="Precisa de troco para quanto? (ex: R$ 200,00 ou Não)" class="w-full border border-stone-300 rounded-xl px-3 py-2.5">' : ''}
-      <div class="flex justify-between font-bold text-sm pt-2 border-t border-stone-200">
-        <span>Total do pedido</span>
-        <span>R$ ${total.toFixed(2).replace('.', ',')}</span>
-      </div>
-      <button type="submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm">
-        ${formaPagamento === 'pix' ? 'Gerar PIX para Pagamento' : 'Confirmar Pedido'}
-      </button>
+      ${formaPagamento === 'dinheiro' ? '<input id="chkTroco" placeholder="Troco para quanto? (ex: R$ 100 ou Não)" class="w-full border border-zinc-300 rounded-xl px-3 py-2.5">' : ''}
+      <div class="flex justify-between font-bold text-sm pt-2 border-t border-zinc-200"><span>Total do pedido</span><span>R$ ${total.toFixed(2).replace('.', ',')}</span></div>
+      <button type="submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm">${formaPagamento === 'pix' ? 'Gerar PIX para Pagamento' : 'Confirmar Pedido'}</button>
     </form>`;
 }
 
