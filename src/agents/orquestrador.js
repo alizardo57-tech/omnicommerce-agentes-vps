@@ -13,9 +13,18 @@ async function executarAgente({ agenteId, mensagem, clienteTelefone = null, envi
   }
 
   const ultimas = Array.isArray(historico) ? historico.slice(-6) : [];
-  const contextoHist = ultimas.length
+  let contextoHist = ultimas.length
     ? `Histórico recente da conversa:\n${ultimas.map(h => `${h.quem === 'camila' ? 'Camila' : 'Cliente'}: ${h.texto}`).join('\n')}\n\nMensagem atual do cliente: ${mensagem}`
     : mensagem;
+
+  const matchPed = contextoHist.match(/PED-[A-Z0-9]+/i);
+  if (matchPed && Array.isArray(db.pedidosOnline)) {
+    const ped = db.pedidosOnline.find(p => p.id.toUpperCase() === matchPed[0].toUpperCase());
+    if (ped) {
+      const itensTxt = (ped.itens || []).map(i => `${i.qtd}x ${i.nome}`).join(', ');
+      contextoHist += `\n\n[DADOS REAIS DO PEDIDO ${ped.id}]: Modalidade=${ped.modalidade.toUpperCase()} | Endereço=${ped.endereco} | Itens=${itensTxt} | Total=R$ ${Number(ped.total).toFixed(2)} | Pagamento=${ped.formaPagamento} | Troco=${ped.trocoPara || 'não informado'} | Status=${ped.status}`;
+    }
+  }
 
   const resposta = await enfileirarExecucao(() =>
     gerarRespostaIA(agente.prompt, contextoHist, agente.fallback)

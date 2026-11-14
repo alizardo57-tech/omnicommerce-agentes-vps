@@ -163,7 +163,8 @@
     restaurarSessao();
     const itemSelecionado = params.get('item');
     if (itemSelecionado) {
-      document.getElementById('inputMsg').value = itemSelecionado.startsWith('Acabei de pagar') ? itemSelecionado : `Oi! Vi na vitrine e tenho interesse em: ${itemSelecionado}`;
+      const direto = itemSelecionado.startsWith('Acabei de pagar') || itemSelecionado.startsWith('Fiz o pedido');
+      document.getElementById('inputMsg').value = direto ? itemSelecionado : `Oi! Vi na vitrine e tenho interesse em: ${itemSelecionado}`;
     }
   </script>
 </body>
