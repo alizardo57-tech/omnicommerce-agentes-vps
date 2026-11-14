@@ -289,16 +289,10 @@
       const t = sessaoAtual.tenant;
       const produtos = sessaoAtual.produtosSetor || [];
       const box = document.getElementById('cliConteudoModulo');
-      if (modKey === 'pdv') {
-        box.innerHTML = `
-          <h3 class="text-lg font-black text-white mb-3">PDV Caixa (${t.setor.toUpperCase()})</h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            ${produtos.map(p => `<div class="p-4 rounded-xl bg-slate-950 border border-slate-800"><strong class="text-sm text-white">${p.nome}</strong><div class="text-emerald-400 font-mono font-bold mt-1">R$ ${Number(p.preco).toFixed(2)}</div></div>`).join('')}
-          </div>`;
-      } else if (modKey === 'erp') {
-        box.innerHTML = `<h3 class="text-lg font-black text-white mb-3">ERP Estoque & CMV (${t.nome})</h3>
-          <div class="overflow-x-auto"><table class="w-full text-left text-xs"><thead class="text-slate-400 border-b border-slate-800"><tr><th class="py-2">Produto</th><th class="py-2">Preço</th><th class="py-2">Estoque</th></tr></thead>
-          <tbody class="divide-y divide-slate-800">${produtos.map(p => `<tr><td class="py-2 text-white font-bold">${p.nome}</td><td class="py-2 text-emerald-400 font-mono">R$ ${Number(p.preco).toFixed(2)}</td><td class="py-2 font-mono">${p.estoque} un</td></tr>`).join('')}</tbody></table></div>`;
+      if (modKey === 'pdv' && typeof renderPdvCliente === 'function') {
+        renderPdvCliente(box, t, produtos);
+      } else if (modKey === 'erp' && typeof renderErpCliente === 'function') {
+        renderErpCliente(box, t, produtos);
       } else if (modKey === 'whatsapp_ia') {
         box.innerHTML = `
           <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -345,5 +339,6 @@
     });
   </script>
   <script src="/js/app-feed.js"></script>
+  <script src="/js/app-pdv.js"></script>
 </body>
 </html>

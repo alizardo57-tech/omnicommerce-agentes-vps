@@ -1,6 +1,7 @@
 const params = new URLSearchParams(window.location.search);
 const lojaId = params.get('loja') || 'cli_studiovip';
 let produtosVitrine = [];
+let lojaSetor = '';
 let categoriaAtiva = 'Todas';
 let sacola = [];
 let modalidade = 'entrega';
@@ -17,7 +18,8 @@ async function carregarVitrine() {
   const resp = await fetch(`/api/demo/loja/${lojaId}`);
   const d = await resp.json();
   document.getElementById('vitrineNome').innerText = d.nome || 'Loja Online';
-  document.getElementById('vitrineSub').innerText = 'Escolha seus itens e finalize com PIX ou entrega';
+  document.getElementById('vitrineSub').innerText = 'Escolha seus itens e finalize com PIX, cartão ou dinheiro';
+  lojaSetor = d.setor || '';
   produtosVitrine = d.produtos || [];
   renderCategorias();
   renderVitrine(produtosVitrine);
@@ -27,12 +29,52 @@ function renderCategorias() {
   const el = document.getElementById('filtrosCategoria');
   if (!el) return;
   const cats = ['Todas', ...new Set(produtosVitrine.map(p => p.categoria).filter(Boolean))];
-  if (cats.length <= 1) { el.innerHTML = ''; return; }
-  el.innerHTML = cats.map(c => `
+  const btnMeio = lojaSetor === 'pizzaria'
+    ? `<button onclick="abrirMeioAMeio()" class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap bg-amber-500 hover:bg-amber-600 text-white shadow-sm">🍕 Montar 1/2 a 1/2</button>`
+    : '';
+  if (cats.length <= 1 && !btnMeio) { el.innerHTML = ''; return; }
+  el.innerHTML = btnMeio + cats.map(c => `
     <button onclick="selecionarCategoria('${c}')" class="px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap border transition ${
       categoriaAtiva === c ? 'bg-stone-900 text-white border-stone-900' : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-100'
     }">${c}</button>
   `).join('');
+}
+
+function abrirMeioAMeio() {
+  const sabores = produtosVitrine.filter(p => !/borda|coca|fanta|suco|água|agua|heineken|império|imperio|trufa|pré-assada|pre-assada|brotinho|1 sabor|2 sabores/i.test(p.nome) && Number(p.preco) >= 40);
+  if (sabores.length < 2) return;
+  document.getElementById('modalCheckout').classList.remove('hidden');
+  document.getElementById('conteudoCheckout').innerHTML = `
+    <div class="space-y-3 text-xs">
+      <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 font-semibold">🍕 Monte sua Pizza Grande 1/2 a 1/2 (cobra o maior valor entre os 2 sabores)</div>
+      <div><label class="font-bold text-stone-700 block mb-1">1ª Metade (1/2):</label>
+        <select id="lojaMeio1" onchange="atualizarPrecoMeio()" class="w-full border border-stone-300 rounded-xl px-3 py-2.5">${sabores.map(s => `<option value="${s.id}">${s.nome} — R$ ${Number(s.preco).toFixed(2).replace('.', ',')}</option>`).join('')}</select>
+      </div>
+      <div><label class="font-bold text-stone-700 block mb-1">2ª Metade (1/2):</label>
+        <select id="lojaMeio2" onchange="atualizarPrecoMeio()" class="w-full border border-stone-300 rounded-xl px-3 py-2.5">${sabores.map((s, i) => `<option value="${s.id}" ${i === 1 ? 'selected' : ''}>${s.nome} — R$ ${Number(s.preco).toFixed(2).replace('.', ',')}</option>`).join('')}</select>
+      </div>
+      <div id="precoMeioTxt" class="text-right font-extrabold text-base text-stone-900"></div>
+      <button onclick="confirmarMeioAMeio()" class="w-full py-3 rounded-xl bg-stone-900 hover:bg-stone-800 text-white font-bold">Adicionar Pizza 1/2 a 1/2 na Sacola</button>
+    </div>`;
+  atualizarPrecoMeio();
+}
+
+function atualizarPrecoMeio() {
+  const s1 = produtosVitrine.find(p => String(p.id) === document.getElementById('lojaMeio1')?.value);
+  const s2 = produtosVitrine.find(p => String(p.id) === document.getElementById('lojaMeio2')?.value);
+  if (s1 && s2) {
+    const val = Math.max(Number(s1.preco), Number(s2.preco));
+    document.getElementById('precoMeioTxt').innerText = `Valor: R$ ${val.toFixed(2).replace('.', ',')}`;
+  }
+}
+
+function confirmarMeioAMeio() {
+  const s1 = produtosVitrine.find(p => String(p.id) === document.getElementById('lojaMeio1').value);
+  const s2 = produtosVitrine.find(p => String(p.id) === document.getElementById('lojaMeio2').value);
+  if (!s1 || !s2) return;
+  sacola.push({ id: s1.id, nome: `Pizza G 1/2 ${s1.nome} + 1/2 ${s2.nome}`, preco: Math.max(Number(s1.preco), Number(s2.preco)), qtd: 1 });
+  atualizarBadge();
+  abrirCarrinho();
 }
 
 function selecionarCategoria(cat) {

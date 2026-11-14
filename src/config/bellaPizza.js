@@ -2,6 +2,7 @@ const BELLA_PIZZA_INSTRUCOES = [
   'Endereço: Rua José Alberto Campanini, 1730 - Jardim Residencial Roseira, Limeira - SP.',
   'Horário de funcionamento: abre a partir das 18h. Pedido mínimo: R$ 10,00.',
   'Diferencial: Pizzas tradicionais de R$ 59,99 já vão com borda recheada de Catupiry GRÁTIS, e as Pizzas Doces já vão com borda de Chocolate GRÁTIS.',
+  'Aceita Pizza 1/2 a 1/2 (meio a meio): o valor cobrado é o do sabor de maior preço entre os dois escolhidos.',
   'Aceita entrega (motoboy) ou retirada no balcão, com pagamento em PIX, Cartão (Crédito/Débito) ou Dinheiro.',
   'Atendimento simpático, ágil e tranquilo. Só mencione o endereço ou horário se o cliente perguntar, e responda todas as dúvidas de sabores e ingredientes com naturalidade.'
 ].join(' ');
