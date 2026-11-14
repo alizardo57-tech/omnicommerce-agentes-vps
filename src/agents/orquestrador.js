@@ -4,9 +4,9 @@ const { enviarMensagemWhatsApp } = require('../services/whatsapp');
 const { enfileirarExecucao } = require('../services/filaCamila');
 const { obterDefinicaoAgentes } = require('./definicoes11');
 
-async function executarAgente({ agenteId, mensagem, clienteTelefone = null, enviarWhatsApp = false, tenant = null, canal = 'Painel' }) {
+async function executarAgente({ agenteId, mensagem, clienteTelefone = null, enviarWhatsApp = false, tenant = null, canal = 'Painel', jaEnviouLink = false }) {
   const db = lerDb();
-  const agentes = obterDefinicaoAgentes(db, tenant);
+  const agentes = obterDefinicaoAgentes(db, tenant, { jaEnviouLink });
   const agente = agentes[agenteId];
   if (!agente) {
     throw new Error(`Agente desconhecido: ${agenteId}`);

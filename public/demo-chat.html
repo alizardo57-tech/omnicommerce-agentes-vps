@@ -47,6 +47,7 @@
     const params = new URLSearchParams(window.location.search);
     const lojaId = params.get('loja') || 'cli_fornonobre';
     let canalAtual = 'WhatsApp';
+    let jaEnviouLink = false;
 
     function trocarCanal(canal) {
       canalAtual = canal;
@@ -95,9 +96,12 @@
         const resp = await fetch(`/api/demo/chat/${lojaId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mensagem: texto, canal: canalAtual })
+          body: JSON.stringify({ mensagem: texto, canal: canalAtual, jaEnviouLink })
         });
         const data = await resp.json();
+        if (String(data.resposta || '').includes('/loja.html')) {
+          jaEnviouLink = true;
+        }
         const tag = canalAtual === 'Instagram' ? 'Instagram Direct' : 'WhatsApp';
         const respHtml = String(data.resposta || data.erro).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" class="underline text-emerald-300 font-bold">$1</a>');
         box.innerHTML += `<div class="p-3 rounded-2xl rounded-tl-sm bg-slate-800 text-slate-200 max-w-[85%] whitespace-pre-line"><span class="text-[10px] text-emerald-400 font-bold block mb-0.5">Camila (${tag})</span>${respHtml}</div>`;

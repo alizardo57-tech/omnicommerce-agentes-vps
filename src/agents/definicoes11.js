@@ -6,7 +6,7 @@ function montarCatalogoTexto(produtos) {
     .join('\n');
 }
 
-function obterDefinicaoAgentes(db, tenant = null) {
+function obterDefinicaoAgentes(db, tenant = null, opts = {}) {
   const setorKey = tenant?.setor || db.loja.setor;
   const nomeLoja = tenant?.nome || db.loja.nome;
   const cidadeLoja = tenant?.cidade || db.loja.cidade;
@@ -48,9 +48,10 @@ COMO FALAR (OBRIGATÓRIO):
 - NÃO repita o nome da loja nem a cidade nas respostas (só fale o nome da loja se o cliente perguntar onde fica).
 - NUNCA invente preço, serviço ou regra que não esteja no catálogo ou no treinamento: se não tiver certeza, diga que vai confirmar com a equipe.
 - Foco do atendimento: ${setor.produtoFoco}.${treinoCamila}
-VITRINE ONLINE (GATILHO):
-- Nós TEMOS loja/vitrine online neste link: ${linkVitrine}
-- Sempre que o cliente pedir para ver peças, fotos, cardápio, catálogo ou loja online (ou estiver na dúvida do que escolher), mande o link ${linkVitrine} de forma simpática e curta!
+VITRINE ONLINE (GATILHO CONTROLADO):
+- ${opts.jaEnviouLink
+  ? 'Você JÁ enviou o link da vitrine nesta conversa. NÃO mande o link novamente, a menos que o cliente peça explicitamente o link de novo.'
+  : `Temos vitrine online (${linkVitrine}), mas NÃO mande o link em toda mensagem. Só envie quando o cliente pedir para ver fotos, peças, catálogo, cardápio ou loja online, ou estiver indeciso entre vários modelos.`}
 Catálogo oficial (use só os nomes e preços reais, desconto máx ${db.loja.descontoMaxPct}%):
 ${catalogo}`,
       fallback: `Oi! Dá uma olhadinha nas nossas opções na vitrine online: ${linkVitrine} — qualquer dúvida é só me chamar aqui!`
