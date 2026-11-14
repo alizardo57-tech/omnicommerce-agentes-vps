@@ -27,7 +27,7 @@ function garantirBaseSaaS() {
         setor: 'pizzaria',
         cidade: 'Centro',
         ativo: true,
-        instrucoesCamila: 'Atenda com simpatia e agilidade. Sempre ofereça borda recheada de Catupiry e refrigerante 2L. Informe prazo médio de entrega de 35 minutos.',
+        instrucoesCamila: 'Atendimento simpático, ágil e tranquilo. Prazo médio de entrega de 35 a 45 minutos (entrega ou retirada no balcão). Só ofereça borda recheada ou refrigerante 2L uma única vez quando o cliente estiver fechando o pedido de pizza, sem insistir.',
         modulos: { pdv: true, erp: true, agenda: false, whatsapp_ia: true, agentes11: false },
         criadoEm: new Date().toISOString()
       },

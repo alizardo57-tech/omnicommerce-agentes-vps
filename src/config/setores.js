@@ -7,10 +7,18 @@ const SETORES = {
     cicloReativacaoDias: 15,
     compliance: 'NFC-e e boas práticas de manipulação de alimentos',
     produtosIniciais: [
-      { id: 301, nome: 'Pizza G 1/2 Calabresa + 1/2 Muçarela', preco: 64.9, custo: 19.8, estoque: 85 },
-      { id: 302, nome: 'Pizza G Frango c/ Catupiry Original', preco: 74.9, custo: 24.5, estoque: 60 },
-      { id: 303, nome: 'Adicional Borda Recheada Catupiry', preco: 16.0, custo: 5.2, estoque: 110 },
-      { id: 304, nome: 'Combo Família (2 Pizzas G + Refri 2L)', preco: 129.9, custo: 43.0, estoque: 40 }
+      { id: 301, nome: 'Pizza G 1/2 Calabresa + 1/2 Muçarela', preco: 64.9, custo: 19.8, estoque: 85, imagem: '/img/produtos/pizza-calabresa.svg' },
+      { id: 302, nome: 'Pizza G Frango c/ Catupiry Original', preco: 74.9, custo: 24.5, estoque: 60, imagem: '/img/produtos/pizza-frango.svg' },
+      { id: 303, nome: 'Pizza G Calabresa Acebolada Tradicional', preco: 62.9, custo: 18.5, estoque: 75, imagem: '/img/produtos/pizza-calabresa.svg' },
+      { id: 304, nome: 'Pizza G Quatro Queijos (Muçarela, Provolone, Parmesão e Catupiry)', preco: 76.9, custo: 26.0, estoque: 55, imagem: '/img/produtos/pizza-queijo.svg' },
+      { id: 305, nome: 'Pizza G Portuguesa Completa', preco: 72.9, custo: 23.0, estoque: 50, imagem: '/img/produtos/pizza-calabresa.svg' },
+      { id: 306, nome: 'Pizza G Marguerita c/ Manjericão Fresco', preco: 64.9, custo: 19.0, estoque: 65, imagem: '/img/produtos/pizza-queijo.svg' },
+      { id: 307, nome: 'Pizza G Doce Chocolate ao Leite c/ Morango', preco: 69.9, custo: 22.0, estoque: 40, imagem: '/img/produtos/pizza-doce.svg' },
+      { id: 308, nome: 'Adicional Borda Recheada Catupiry', preco: 16.0, custo: 5.2, estoque: 110, imagem: '/img/produtos/borda.svg' },
+      { id: 309, nome: 'Adicional Borda Recheada Cheddar Cremoso', preco: 16.0, custo: 5.5, estoque: 90, imagem: '/img/produtos/borda.svg' },
+      { id: 310, nome: 'Combo Família (2 Pizzas G + Refri 2L)', preco: 129.9, custo: 43.0, estoque: 40, imagem: '/img/produtos/combo-pizza.svg' },
+      { id: 311, nome: 'Coca-Cola Original Pet 2L Gelada', preco: 14.0, custo: 7.5, estoque: 95, imagem: '/img/produtos/refri-2l.svg' },
+      { id: 312, nome: 'Guaraná Antarctica Pet 2L Gelado', preco: 12.0, custo: 6.5, estoque: 80, imagem: '/img/produtos/refri-2l.svg' }
     ]
   },
   piercing: {

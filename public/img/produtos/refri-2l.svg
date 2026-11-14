@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 375">
+  <rect width="500" height="375" fill="#fafaf9"/>
+  <ellipse cx="250" cy="318" rx="52" ry="10" fill="#000" opacity="0.08"/>
+  <rect x="234" y="58" width="32" height="22" rx="4" fill="#dc2626"/>
+  <path d="M 232 80 L 268 80 L 288 140 L 288 300 Q 288 314 250 314 Q 212 314 212 300 L 212 140 Z" fill="#1c1917"/>
+  <rect x="212" y="155" width="76" height="65" fill="#dc2626"/>
+  <text x="250" y="194" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-size="16" font-weight="bold">REFRI 2L</text>
+</svg>
