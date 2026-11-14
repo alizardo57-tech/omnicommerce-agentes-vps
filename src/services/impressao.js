@@ -6,65 +6,78 @@ function semAcento(txt) {
   return String(txt || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-function formatarComanda2Vias(p) {
-  const dataFmt = new Date(p.criadoEm || Date.now()).toLocaleString('pt-BR');
-  const pago = p.status === 'PAGO';
-  const linha = '------------------------------------------';
-  const itens = (p.itens || []).map(i => `${i.qtd}x ${semAcento(i.nome)}\r\n   Subtotal: R$ ${(i.preco * i.qtd).toFixed(2).replace('.', ',')}`).join('\r\n');
+const LINHA = '------------------------------------------';
 
+function formatarViaCozinha(p) {
+  const dataFmt = new Date(p.criadoEm || Date.now()).toLocaleString('pt-BR');
+  const itens = (p.itens || []).map(i => `${i.qtd}x ${semAcento(i.nome)}`).join('\r\n');
   return [
-    'VIA 1 - SEPARACAO (BALCAO / COZINHA)',
+    'VIA 1 - COZINHA / SEPARACAO',
     `PEDIDO: ${p.id}`,
-    linha,
+    LINHA,
     `CLIENTE: ${semAcento(p.clienteNome)}`,
     `WHATSAPP: ${p.clienteWhatsapp}`,
     `DATA: ${dataFmt}`,
     `TIPO: ${p.modalidade === 'entrega' ? 'ENTREGA MOTOBOY' : 'RETIRADA NA LOJA'}`,
-    linha,
-    'ITENS PARA SEPARAR:',
+    LINHA,
+    'ITENS PARA PREPARO:',
     itens,
-    linha,
+    LINHA,
     `STATUS: ${p.status}`,
-    '',
-    '==========================================',
-    '           CORTAR AQUI                    ',
-    '==========================================',
-    '',
+    '', '', '', ''
+  ].join('\r\n');
+}
+
+function formatarViaMotoboy(p) {
+  const pago = p.status === 'PAGO';
+  const itens = (p.itens || []).map(i => `${i.qtd}x ${semAcento(i.nome)} (R$ ${(i.preco * i.qtd).toFixed(2).replace('.', ',')})`).join('\r\n');
+  return [
     p.modalidade === 'entrega' ? 'VIA 2 - MOTOBOY / ENTREGA' : 'VIA 2 - CONTROLE CLIENTE',
     `PEDIDO: ${p.id}`,
-    linha,
+    LINHA,
     `DESTINATARIO: ${semAcento(p.clienteNome)}`,
     `CONTATO: ${p.clienteWhatsapp}`,
     `ENDERECO: ${semAcento(p.endereco)}`,
+    LINHA,
+    itens,
+    LINHA,
     `PAGAMENTO: ${String(p.formaPagamento).toUpperCase()}`,
     p.trocoPara ? `TROCO PARA: ${semAcento(p.trocoPara)}` : null,
     `TOTAL: R$ ${Number(p.total).toFixed(2).replace('.', ',')}`,
     pago ? '*** JA PAGO VIA PIX - NAO COBRAR ***' : '*** COBRAR NA ENTREGA / BALCAO ***',
-    '',
-    '',
-    '',
-    ''
+    '', '', '', ''
   ].filter(v => v !== null).join('\r\n');
+}
+
+function enviarArquivoParaBematech(arq, cb) {
+  const arqEsc = arq.replace(/'/g, "''");
+  const printer = (process.env.PRINTER_NAME || '').trim().replace(/'/g, "''");
+  const cmd = printer
+    ? `Get-Content -Raw -Path '${arqEsc}' | Out-Printer -Name '${printer}'`
+    : `$b = Get-Printer -ErrorAction SilentlyContinue | Where-Object { $_.Name -match 'Bematech|MP-' } | Select-Object -First 1; if ($b) { Get-Content -Raw -Path '${arqEsc}' | Out-Printer -Name $b.Name } else { Get-Content -Raw -Path '${arqEsc}' | Out-Printer }`;
+  execFile('powershell.exe', ['-NoProfile', '-Command', cmd], cb);
 }
 
 function imprimirComandaAutomatica(pedido) {
   if (process.env.AUTO_PRINT !== 'true' || !pedido) return;
   const pasta = path.join(__dirname, '..', '..', 'data', 'comandas');
   if (!fs.existsSync(pasta)) fs.mkdirSync(pasta, { recursive: true });
-  const arq = path.join(pasta, `${pedido.id}.txt`);
-  fs.writeFileSync(arq, formatarComanda2Vias(pedido), 'utf8');
+
+  const arq1 = path.join(pasta, `${pedido.id}_1_cozinha.txt`);
+  const arq2 = path.join(pasta, `${pedido.id}_2_motoboy.txt`);
+  fs.writeFileSync(arq1, formatarViaCozinha(pedido), 'utf8');
+  fs.writeFileSync(arq2, formatarViaMotoboy(pedido), 'utf8');
 
   if (process.platform !== 'win32') return;
-  const arqEsc = arq.replace(/'/g, "''");
-  const printer = (process.env.PRINTER_NAME || '').trim().replace(/'/g, "''");
-  const cmd = printer
-    ? `Get-Content -Raw -Path '${arqEsc}' | Out-Printer -Name '${printer}'`
-    : `$b = Get-Printer -ErrorAction SilentlyContinue | Where-Object { $_.Name -match 'Bematech|MP-' } | Select-Object -First 1; if ($b) { Get-Content -Raw -Path '${arqEsc}' | Out-Printer -Name $b.Name } else { Get-Content -Raw -Path '${arqEsc}' | Out-Printer }`;
-
-  execFile('powershell.exe', ['-NoProfile', '-Command', cmd], err => {
-    if (err) console.error('Erro ao imprimir na Bematech:', err.message);
-    else console.log(`🖨️ Comanda 2 vias enviada para Bematech: ${pedido.id}`);
+  // Envia em 2 trabalhos separados para o driver da Bematech acionar a guilhotina entre a via da cozinha e a do motoboy
+  enviarArquivoParaBematech(arq1, err1 => {
+    if (err1) return console.error('Erro ao imprimir Via 1 (Cozinha):', err1.message);
+    console.log(`🖨️ Via 1 (Cozinha) impressa e cortada: ${pedido.id}`);
+    enviarArquivoParaBematech(arq2, err2 => {
+      if (err2) console.error('Erro ao imprimir Via 2 (Motoboy):', err2.message);
+      else console.log(`🖨️ Via 2 (Motoboy) impressa e cortada: ${pedido.id}`);
+    });
   });
 }
 
-module.exports = { formatarComanda2Vias, imprimirComandaAutomatica };
+module.exports = { formatarViaCozinha, formatarViaMotoboy, imprimirComandaAutomatica };
