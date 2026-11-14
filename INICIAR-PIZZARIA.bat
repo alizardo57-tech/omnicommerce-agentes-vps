@@ -3,12 +3,30 @@ chcp 65001 >nul
 title OmniCommerce • Bella Pizza (Servidor Local)
 cd /d "%~dp0"
 
+set "PATH=%PATH%;C:\Program Files\nodejs"
 where node >nul 2>&1
 if errorlevel 1 (
-  echo [ERRO] Node.js nao encontrado neste PC.
-  echo Baixe e instale a versao LTS em: https://nodejs.org
-  pause
-  exit /b 1
+  echo [INFO] Node.js nao encontrado. Instalando automaticamente...
+  where winget >nul 2>&1
+  if not errorlevel 1 (
+    winget install -e --id OpenJS.NodeJS.LTS --silent --accept-package-agreements --accept-source-agreements
+  )
+  set "PATH=%PATH%;C:\Program Files\nodejs"
+  where node >nul 2>&1
+  if errorlevel 1 (
+    echo [INFO] Baixando instalador oficial do Node.js LTS...
+    powershell -NoProfile -Command "Invoke-WebRequest -Uri 'https://nodejs.org/dist/v20.18.0/node-v20.18.0-x64.msi' -OutFile '%TEMP%\nodejs-lts.msi'"
+    msiexec /i "%TEMP%\nodejs-lts.msi" /passive /norestart
+    del "%TEMP%\nodejs-lts.msi" >nul 2>&1
+    set "PATH=%PATH%;C:\Program Files\nodejs"
+  )
+  where node >nul 2>&1
+  if errorlevel 1 (
+    echo [ERRO] Nao foi possivel instalar o Node.js automaticamente. Instale em https://nodejs.org
+    pause
+    exit /b 1
+  )
+  echo [OK] Node.js instalado com sucesso!
 )
 
 if not exist "node_modules" (
@@ -25,7 +43,6 @@ if not exist ".env" (
   if exist ".env.example" (
     copy ".env.example" ".env" >nul
     echo [AVISO] Arquivo .env criado a partir do .env.example.
-    echo Edite o .env para colocar sua GEMINI_API_KEY quando quiser IA na Camila.
   )
 )
 
