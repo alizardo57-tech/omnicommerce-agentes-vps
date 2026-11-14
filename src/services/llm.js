@@ -14,7 +14,7 @@ async function tentarGeminiModelo(model, apiKey, systemPrompt, userMessage) {
       };
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 8000);
+  const timer = setTimeout(() => controller.abort(), 15000);
   try {
     const resp = await fetch(url, {
       method: 'POST',
@@ -37,8 +37,8 @@ async function tentarGeminiModelo(model, apiKey, systemPrompt, userMessage) {
 
 async function chamarGemini(systemPrompt, userMessage) {
   const apiKey = process.env.GEMINI_API_KEY;
-  const principal = process.env.GEMINI_MODEL || 'gemini-flash-latest';
-  const modelos = [...new Set([principal, 'gemini-flash-lite-latest', 'gemma-4-26b-a4b-it'])];
+  const principal = process.env.GEMINI_MODEL || 'gemini-flash-lite-latest';
+  const modelos = [...new Set([principal, 'gemini-flash-latest', 'gemma-3-27b-it'])];
 
   let ultimoErro = null;
   for (const m of modelos) {

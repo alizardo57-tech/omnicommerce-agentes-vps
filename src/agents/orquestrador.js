@@ -17,6 +17,7 @@ async function executarAgente({ agenteId, mensagem, clienteTelefone = null, envi
     ? `Histórico recente da conversa:\n${ultimas.map(h => `${h.quem === 'camila' ? 'Camila' : 'Cliente'}: ${h.texto}`).join('\n')}\n\nMensagem atual do cliente: ${mensagem}`
     : mensagem;
 
+  let fallbackFinal = agente.fallback;
   const matchesPed = contextoHist.match(/PED-[A-Z0-9]+/gi);
   const ultimoPedId = matchesPed ? matchesPed[matchesPed.length - 1] : null;
   if (ultimoPedId && Array.isArray(db.pedidosOnline)) {
@@ -24,11 +25,19 @@ async function executarAgente({ agenteId, mensagem, clienteTelefone = null, envi
     if (ped) {
       const itensTxt = (ped.itens || []).map(i => `${i.qtd}x ${i.nome}`).join(', ');
       contextoHist += `\n\n[DADOS REAIS DO PEDIDO ${ped.id}]: Modalidade=${ped.modalidade.toUpperCase()} | Endereço=${ped.endereco} | Itens=${itensTxt} | Total=R$ ${Number(ped.total).toFixed(2)} | Pagamento=${ped.formaPagamento} | Troco=${ped.trocoPara || 'não informado'} | Status=${ped.status}`;
+      if (agenteId === 'camila') {
+        fallbackFinal = ped.modalidade === 'entrega'
+          ? `Recebi seu pedido ${ped.id} (${itensTxt}) para entrega em ${ped.endereco}! Total R$ ${Number(ped.total).toFixed(2)}. Qualquer dúvida é só chamar!`
+          : `Recebi seu pedido ${ped.id} (${itensTxt}) para retirada/atendimento na loja! Qual dia e horário ficam melhores para você?`;
+      }
     }
+  }
+  if (agenteId === 'camila' && /hor[áa]rio|retirar|abrir|abre|funciona/i.test(mensagem)) {
+    fallbackFinal = 'Atendemos de segunda a sábado das 10h às 19h! Qual horário fica melhor para você passar aqui?';
   }
 
   const resposta = await enfileirarExecucao(() =>
-    gerarRespostaIA(agente.prompt, contextoHist, agente.fallback)
+    gerarRespostaIA(agente.prompt, contextoHist, fallbackFinal)
   );
 
   db.logsAgentes.unshift({
