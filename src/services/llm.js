@@ -5,25 +5,32 @@ async function tentarGeminiModelo(model, apiKey, systemPrompt, userMessage) {
     ? {
         systemInstruction: { parts: [{ text: systemPrompt }] },
         contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-        generationConfig: { temperature: 0.4, maxOutputTokens: 500 }
+        generationConfig: { temperature: 0.2, maxOutputTokens: 450 }
       }
     : {
         contents: [{ role: 'user', parts: [{ text: `${systemPrompt}\n\nCliente: ${userMessage}` }] }],
-        generationConfig: { temperature: 0.4, maxOutputTokens: 500 }
+        generationConfig: { temperature: 0.2, maxOutputTokens: 450 }
       };
 
-  const resp = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
+  try {
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: controller.signal
+    });
 
-  if (!resp.ok) {
-    const errText = await resp.text();
-    throw new Error(`Gemini (${model}) HTTP ${resp.status}: ${errText}`);
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error(`Gemini (${model}) HTTP ${resp.status}: ${errText}`);
+    }
+    const data = await resp.json();
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  } finally {
+    clearTimeout(timer);
   }
-  const data = await resp.json();
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
 async function chamarGemini(systemPrompt, userMessage) {

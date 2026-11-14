@@ -1,6 +1,7 @@
 const { lerDb, salvarDb } = require('../db/store');
 const { gerarRespostaIA } = require('../services/llm');
 const { enviarMensagemWhatsApp } = require('../services/whatsapp');
+const { enfileirarExecucao } = require('../services/filaCamila');
 const { obterDefinicaoAgentes } = require('./definicoes11');
 
 async function executarAgente({ agenteId, mensagem, clienteTelefone = null, enviarWhatsApp = false, tenant = null, canal = 'Painel' }) {
@@ -11,7 +12,9 @@ async function executarAgente({ agenteId, mensagem, clienteTelefone = null, envi
     throw new Error(`Agente desconhecido: ${agenteId}`);
   }
 
-  const resposta = await gerarRespostaIA(agente.prompt, mensagem, agente.fallback);
+  const resposta = await enfileirarExecucao(() =>
+    gerarRespostaIA(agente.prompt, mensagem, agente.fallback)
+  );
 
   db.logsAgentes.unshift({
     data: new Date().toISOString(),
