@@ -21,9 +21,14 @@
           <p class="text-[11px] text-white/80"><span class="inline-block w-2 h-2 rounded-full bg-emerald-300 mr-1"></span>Camila IA • Online agora</p>
         </div>
       </div>
-      <div class="flex gap-1 bg-black/25 p-1 rounded-xl text-[11px] font-bold">
-        <button onclick="trocarCanal('WhatsApp')" id="btnWhats" class="px-2.5 py-1 rounded-lg bg-white text-emerald-800">WhatsApp</button>
-        <button onclick="trocarCanal('Instagram')" id="btnInsta" class="px-2.5 py-1 rounded-lg text-white/80">Instagram</button>
+      <div class="flex items-center gap-1.5">
+        <div class="flex gap-1 bg-black/25 p-1 rounded-xl text-[11px] font-bold">
+          <button onclick="trocarCanal('WhatsApp')" id="btnWhats" class="px-2.5 py-1 rounded-lg bg-white text-emerald-800">WhatsApp</button>
+          <button onclick="trocarCanal('Instagram')" id="btnInsta" class="px-2.5 py-1 rounded-lg text-white/80">Instagram</button>
+        </div>
+        <button onclick="limparChat()" title="Nova conversa" class="w-7 h-7 rounded-lg bg-black/25 hover:bg-black/40 text-white/80 flex items-center justify-center text-[11px]">
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
       </div>
     </div>
 
@@ -46,9 +51,49 @@
   <script>
     const params = new URLSearchParams(window.location.search);
     const lojaId = params.get('loja') || 'cli_fornonobre';
+    const storageKey = `omni_demo_chat_${lojaId}`;
     let canalAtual = 'WhatsApp';
     let jaEnviouLink = false;
-    const historico = [];
+    let historico = [];
+
+    function salvarSessao() {
+      localStorage.setItem(storageKey, JSON.stringify({ historico: historico.slice(-20), jaEnviouLink, canalAtual }));
+    }
+
+    function formatarLinks(txt) {
+      return String(txt || '').replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" class="underline text-emerald-300 font-bold">$1</a>');
+    }
+
+    function renderizarMsg(quem, texto, canalTag) {
+      const box = document.getElementById('boxMsgs');
+      if (quem === 'cliente') {
+        box.innerHTML += `<div class="p-3 rounded-2xl rounded-tr-sm bg-emerald-700 text-white max-w-[80%] ml-auto">${texto}</div>`;
+      } else {
+        const tag = canalTag === 'Instagram' ? 'Instagram Direct' : 'WhatsApp';
+        box.innerHTML += `<div class="p-3 rounded-2xl rounded-tl-sm bg-slate-800 text-slate-200 max-w-[85%] whitespace-pre-line"><span class="text-[10px] text-emerald-400 font-bold block mb-0.5">Camila (${tag})</span>${formatarLinks(texto)}</div>`;
+      }
+    }
+
+    function restaurarSessao() {
+      try {
+        const salvo = JSON.parse(localStorage.getItem(storageKey) || 'null');
+        if (salvo && Array.isArray(salvo.historico) && salvo.historico.length) {
+          historico = salvo.historico;
+          jaEnviouLink = Boolean(salvo.jaEnviouLink);
+          if (salvo.canalAtual) trocarCanal(salvo.canalAtual);
+          historico.forEach(m => renderizarMsg(m.quem, m.texto, m.canal || canalAtual));
+          const box = document.getElementById('boxMsgs');
+          box.scrollTop = box.scrollHeight;
+        }
+      } catch {}
+    }
+
+    function limparChat() {
+      localStorage.removeItem(storageKey);
+      historico = [];
+      jaEnviouLink = false;
+      document.getElementById('boxMsgs').innerHTML = `<div class="p-3 rounded-2xl rounded-tl-sm bg-slate-800 text-slate-200 max-w-[85%]">Olá! Sou a <strong>Camila</strong>. Me mande uma mensagem como se fosse um cliente no WhatsApp ou Direct do Instagram!</div>`;
+    }
 
     function trocarCanal(canal) {
       canalAtual = canal;
@@ -104,12 +149,12 @@
           jaEnviouLink = true;
         }
         if (data.resposta) {
-          historico.push({ quem: 'cliente', texto });
-          historico.push({ quem: 'camila', texto: data.resposta });
+          historico.push({ quem: 'cliente', texto, canal: canalAtual });
+          historico.push({ quem: 'camila', texto: data.resposta, canal: canalAtual });
+          salvarSessao();
         }
         const tag = canalAtual === 'Instagram' ? 'Instagram Direct' : 'WhatsApp';
-        const respHtml = String(data.resposta || data.erro).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" class="underline text-emerald-300 font-bold">$1</a>');
-        box.innerHTML += `<div class="p-3 rounded-2xl rounded-tl-sm bg-slate-800 text-slate-200 max-w-[85%] whitespace-pre-line"><span class="text-[10px] text-emerald-400 font-bold block mb-0.5">Camila (${tag})</span>${respHtml}</div>`;
+        box.innerHTML += `<div class="p-3 rounded-2xl rounded-tl-sm bg-slate-800 text-slate-200 max-w-[85%] whitespace-pre-line"><span class="text-[10px] text-emerald-400 font-bold block mb-0.5">Camila (${tag})</span>${formatarLinks(data.resposta || data.erro)}</div>`;
       } catch {
         box.innerHTML += `<div class="p-2 text-rose-400">Erro de conexão. Tente novamente.</div>`;
       }
@@ -117,6 +162,7 @@
     }
 
     carregarLoja();
+    restaurarSessao();
     const itemSelecionado = params.get('item');
     if (itemSelecionado) {
       document.getElementById('inputMsg').value = `Oi! Vi na vitrine e tenho interesse em: ${itemSelecionado}`;
