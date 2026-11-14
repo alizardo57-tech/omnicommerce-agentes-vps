@@ -25,8 +25,8 @@ function dispensarAlertaPedido() {
   alertaAtivo = false;
   const el = document.getElementById('alertaNovoPedidoBanner');
   if (el) {
-    el.classList.remove('animate-pulse', 'border-rose-500', 'bg-rose-50');
-    el.classList.add('border-emerald-300', 'bg-emerald-50');
+    el.classList.remove('animate-pulse', 'border-rose-500', 'bg-rose-50', 'dark:bg-rose-950/70');
+    el.classList.add('border-emerald-300', 'bg-emerald-50', 'dark:border-emerald-500/40', 'dark:bg-emerald-950/40');
   }
 }
 
@@ -56,15 +56,15 @@ async function verificarPedidosOnline() {
     ultimoPedidoVisto = topo.id;
     const itensTxt = (topo.itens || []).map(i => `${i.qtd}x ${i.nome}`).join(', ');
     container.innerHTML = `
-      <div id="alertaNovoPedidoBanner" class="p-4 rounded-2xl border-2 shadow-sm ${alertaAtivo ? 'animate-pulse border-rose-500 bg-rose-50' : 'border-emerald-300 bg-emerald-50'} flex flex-wrap items-center justify-between gap-3">
+      <div id="alertaNovoPedidoBanner" class="p-4 rounded-2xl border-2 shadow-sm ${alertaAtivo ? 'animate-pulse border-rose-500 bg-rose-50 dark:bg-rose-950/70' : 'border-emerald-300 bg-emerald-50 dark:border-emerald-500/40 dark:bg-emerald-950/40'} flex flex-wrap items-center justify-between gap-3">
         <div class="text-xs">
-          <div class="font-black text-stone-900 text-sm">${alertaAtivo ? '🔔 NOVO PEDIDO CHEGANDO!' : '📦 Último Pedido Recebido'} • ${topo.clienteNome} (${topo.id})</div>
-          <div class="text-emerald-800 font-bold mt-0.5">${itensTxt}</div>
-          <div class="text-stone-600 mt-0.5">${topo.modalidade === 'entrega' ? '🚚 Entrega: ' + topo.endereco : '🏪 Retirada / Estúdio'} • ${String(topo.formaPagamento).toUpperCase()}${topo.trocoPara ? ' (Troco: ' + topo.trocoPara + ')' : ''} • <strong class="text-stone-900">R$ ${Number(topo.total).toFixed(2)}</strong></div>
+          <div class="font-black text-stone-900 dark:text-white text-sm">${alertaAtivo ? '🔔 NOVO PEDIDO CHEGANDO!' : '📦 Último Pedido Recebido'} • ${topo.clienteNome} (${topo.id})</div>
+          <div class="text-emerald-800 dark:text-emerald-300 font-bold mt-0.5">${itensTxt}</div>
+          <div class="text-stone-600 dark:text-zinc-300 mt-0.5">${topo.modalidade === 'entrega' ? '🚚 Entrega: ' + topo.endereco : '🏪 Retirada / Estúdio'} • ${String(topo.formaPagamento).toUpperCase()}${topo.trocoPara ? ' (Troco: ' + topo.trocoPara + ')' : ''} • <strong class="text-stone-900 dark:text-white">R$ ${Number(topo.total).toFixed(2)}</strong></div>
         </div>
         <div class="flex items-center gap-2">
-          <a href="/cupom.html?pedido=${topo.id}" target="_blank" onclick="dispensarAlertaPedido()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-black shadow-sm">🖨️ Imprimir Cupom (2 Vias)</a>
-          ${alertaAtivo ? '<button onclick="dispensarAlertaPedido()" class="px-3 py-2 rounded-xl bg-white border border-stone-300 text-stone-800 text-xs font-bold hover:bg-stone-100">✔️ Ciente</button>' : ''}
+          <a href="/cupom.html?pedido=${topo.id}" target="_blank" onclick="dispensarAlertaPedido()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white dark:text-zinc-950 text-xs font-black shadow-sm">🖨️ Imprimir Cupom (2 Vias)</a>
+          ${alertaAtivo ? '<button onclick="dispensarAlertaPedido()" class="px-3 py-2 rounded-xl bg-white dark:bg-zinc-800 border border-stone-300 dark:border-zinc-700 text-stone-800 dark:text-white text-xs font-bold">✔️ Ciente</button>' : ''}
         </div>
       </div>`;
   } catch {}
@@ -77,17 +77,17 @@ async function atualizarFeedConversas() {
     const res = await api('/api/cliente/conversas');
     const lista = res.conversas || [];
     if (lista.length === 0) {
-      feed.innerHTML = '<p class="text-xs text-stone-500">Nenhuma conversa recebida ainda. Teste pelo link do WhatsApp/Instagram!</p>';
+      feed.innerHTML = '<p class="text-xs text-stone-500 dark:text-zinc-400">Nenhuma conversa recebida ainda. Teste pelo link do WhatsApp/Instagram!</p>';
       return;
     }
     feed.innerHTML = lista.map(c => `
-      <div class="p-3 rounded-xl bg-white border border-stone-200 text-xs space-y-1 shadow-xs">
+      <div class="p-3 rounded-xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 text-xs space-y-1">
         <div class="flex items-center justify-between">
-          <span class="px-2 py-0.5 rounded-full text-[10px] font-black ${c.canal === 'Instagram' ? 'bg-pink-100 text-pink-700' : 'bg-emerald-100 text-emerald-700'}">${c.canal || 'WhatsApp'}</span>
-          <span class="text-[10px] text-stone-400 font-mono">${new Date(c.data).toLocaleTimeString('pt-BR')}</span>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-black ${c.canal === 'Instagram' ? 'bg-pink-100 dark:bg-pink-500/20 text-pink-700 dark:text-pink-300' : 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300'}">${c.canal || 'WhatsApp'}</span>
+          <span class="text-[10px] text-stone-400 dark:text-zinc-500 font-mono">${new Date(c.data).toLocaleTimeString('pt-BR')}</span>
         </div>
-        <div class="text-stone-700"><strong>Cliente:</strong> ${c.entrada}</div>
-        <div class="text-emerald-800"><strong>Camila:</strong> ${c.resposta}</div>
+        <div class="text-stone-700 dark:text-zinc-300"><strong>Cliente:</strong> ${c.entrada}</div>
+        <div class="text-emerald-800 dark:text-emerald-300"><strong>Camila:</strong> ${c.resposta}</div>
       </div>
     `).join('');
   } catch {}
@@ -99,15 +99,15 @@ async function enviarChatCamila(e) {
   const msg = input.value.trim();
   if (!msg) return;
   const box = document.getElementById('chatCamilaMsgs');
-  box.innerHTML += `<div class="p-2.5 rounded-xl bg-stone-800 text-white max-w-[80%] ml-auto">${msg}</div>`;
+  box.innerHTML += `<div class="p-2.5 rounded-xl bg-stone-800 dark:bg-zinc-700 text-white max-w-[80%] ml-auto">${msg}</div>`;
   input.value = '';
   box.scrollTop = box.scrollHeight;
   try {
     const res = await api('/api/cliente/camila/chat', { method: 'POST', body: JSON.stringify({ mensagem: msg }) });
-    box.innerHTML += `<div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-stone-800 max-w-[85%]"><strong class="text-emerald-800">Camila:</strong> ${res.resposta}</div>`;
+    box.innerHTML += `<div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-500/30 text-stone-800 dark:text-emerald-200 max-w-[85%]"><strong class="text-emerald-800 dark:text-emerald-300">Camila:</strong> ${res.resposta}</div>`;
     atualizarFeedConversas();
   } catch (err) {
-    box.innerHTML += `<div class="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">${err.message}</div>`;
+    box.innerHTML += `<div class="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs">${err.message}</div>`;
   }
   box.scrollTop = box.scrollHeight;
 }

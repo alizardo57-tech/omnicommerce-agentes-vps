@@ -1,57 +1,52 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OmniCommerce SaaS • Login, Painel Super Admin & Módulos por Cliente</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+    if (localStorage.getItem('omni_theme') === 'light') document.documentElement.classList.remove('dark');
+  </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-stone-50 text-stone-900 min-h-screen antialiased">
+<body class="bg-stone-50 dark:bg-zinc-950 text-stone-900 dark:text-zinc-100 min-h-screen antialiased transition-colors">
 
   <!-- TELA DE LOGIN -->
-  <section id="telaLogin" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-stone-100 via-stone-50 to-emerald-50/40">
-    <div class="w-full max-w-md bg-white border border-stone-200/90 rounded-3xl p-7 shadow-xl shadow-stone-200/60">
-      <div class="flex items-center gap-3 mb-6">
-        <div class="w-11 h-11 rounded-2xl bg-emerald-600 flex items-center justify-center text-white text-xl font-black shadow-sm">
-          <i class="fa-solid fa-store"></i>
+  <section id="telaLogin" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-stone-100 via-stone-50 to-emerald-50/40 dark:from-zinc-950 dark:via-zinc-950 dark:to-emerald-950/20">
+    <div class="w-full max-w-md bg-white dark:bg-zinc-900 border border-stone-200/90 dark:border-zinc-800 rounded-3xl p-7 shadow-xl shadow-stone-200/60 dark:shadow-black/50">
+      <div class="flex items-center justify-between gap-3 mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-emerald-600 flex items-center justify-center text-white text-xl font-black shadow-sm"><i class="fa-solid fa-store"></i></div>
+          <div>
+            <h1 class="text-lg font-black text-stone-900 dark:text-white tracking-tight">OmniCommerce OS</h1>
+            <p class="text-xs text-stone-500 dark:text-zinc-400">Painel da Loja & Super Admin</p>
+          </div>
         </div>
-        <div>
-          <h1 class="text-lg font-black text-stone-900 tracking-tight">OmniCommerce OS</h1>
-          <p class="text-xs text-stone-500">Painel da Loja & Super Admin</p>
-        </div>
+        <button type="button" onclick="alternarTema()" title="Alternar Modo Noturno/Claro" class="btn-tema px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 text-xs font-bold text-stone-700 dark:text-zinc-200">☀️</button>
       </div>
 
       <form onsubmit="fazerLogin(event)" class="space-y-4">
         <div>
-          <label class="block text-xs font-bold text-stone-600 mb-1">E-mail de Acesso</label>
-          <input id="loginEmail" type="email" required placeholder="admin@omnicommerce.com" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 focus:outline-none focus:bg-white focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/15">
+          <label class="block text-xs font-bold text-stone-600 dark:text-zinc-400 mb-1">E-mail de Acesso</label>
+          <input id="loginEmail" type="email" required placeholder="admin@omnicommerce.com" class="w-full bg-stone-50 dark:bg-zinc-950 border border-stone-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-zinc-950 focus:border-emerald-600">
         </div>
         <div>
-          <label class="block text-xs font-bold text-stone-600 mb-1">Senha</label>
-          <input id="loginSenha" type="password" required placeholder="••••••" class="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 focus:outline-none focus:bg-white focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/15">
+          <label class="block text-xs font-bold text-stone-600 dark:text-zinc-400 mb-1">Senha</label>
+          <input id="loginSenha" type="password" required placeholder="••••••" class="w-full bg-stone-50 dark:bg-zinc-950 border border-stone-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-stone-900 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-zinc-950 focus:border-emerald-600">
         </div>
-        <div id="erroLogin" class="hidden text-xs text-rose-700 font-bold bg-rose-50 border border-rose-200 rounded-xl p-2.5"></div>
-        <button type="submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-sm transition">
-          Entrar no Sistema
-        </button>
+        <div id="erroLogin" class="hidden text-xs text-rose-700 dark:text-rose-300 font-bold bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-500/30 rounded-xl p-2.5"></div>
+        <button type="submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-sm transition">Entrar no Sistema</button>
       </form>
 
-      <div class="mt-5 pt-4 border-t border-stone-200 space-y-2">
-        <p class="text-[11px] text-stone-500 font-bold uppercase tracking-wide">Acesso rápido (1 clique):</p>
+      <div class="mt-5 pt-4 border-t border-stone-200 dark:border-zinc-800 space-y-2">
+        <p class="text-[11px] text-stone-500 dark:text-zinc-400 font-bold uppercase tracking-wide">Acesso rápido (1 clique):</p>
         <div class="grid grid-cols-1 gap-2 text-xs">
-          <button onclick="preencherLogin('bellapizza@loja.com','123456')" class="px-3 py-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 font-bold text-left hover:bg-rose-100 transition">
-            🍕 Bella Pizza (PDV + ERP + Camila) — bellapizza@loja.com
-          </button>
-          <button onclick="preencherLogin('studiovip@loja.com','123456')" class="px-3 py-2.5 rounded-xl bg-stone-100 border border-stone-200 text-stone-800 font-bold text-left hover:bg-stone-200/70 transition">
-            💎 Studio VIP Piercing — studiovip@loja.com
-          </button>
-          <button onclick="preencherLogin('fornonobre@loja.com','123456')" class="px-3 py-2.5 rounded-xl bg-stone-100 border border-stone-200 text-stone-700 font-bold text-left hover:bg-stone-200/70 transition">
-            🔥 Forno Nobre (PDV + ERP) — fornonobre@loja.com
-          </button>
-          <button onclick="preencherLogin('admin@omnicommerce.com','admin2026')" class="px-3 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 font-bold text-left hover:bg-amber-100 transition">
-            👑 Super Admin Geral — admin@omnicommerce.com
-          </button>
+          <button onclick="preencherLogin('bellapizza@loja.com','123456')" class="px-3 py-2.5 rounded-xl bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 font-bold text-left hover:bg-rose-100 dark:hover:bg-rose-500/25 transition">🍕 Bella Pizza (PDV + ERP + Camila) — bellapizza@loja.com</button>
+          <button onclick="preencherLogin('studiovip@loja.com','123456')" class="px-3 py-2.5 rounded-xl bg-stone-100 dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 text-stone-800 dark:text-zinc-200 font-bold text-left hover:bg-stone-200/70 dark:hover:bg-zinc-700 transition">💎 Studio VIP Piercing — studiovip@loja.com</button>
+          <button onclick="preencherLogin('fornonobre@loja.com','123456')" class="px-3 py-2.5 rounded-xl bg-stone-100 dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 text-stone-700 dark:text-zinc-300 font-bold text-left hover:bg-stone-200/70 dark:hover:bg-zinc-700 transition">🔥 Forno Nobre (PDV + ERP) — fornonobre@loja.com</button>
+          <button onclick="preencherLogin('admin@omnicommerce.com','admin2026')" class="px-3 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-900 dark:text-amber-300 font-bold text-left hover:bg-amber-100 dark:hover:bg-amber-500/25 transition">👑 Super Admin Geral — admin@omnicommerce.com</button>
         </div>
       </div>
     </div>
@@ -59,56 +54,53 @@
 
   <!-- PAINEL SUPER ADMIN (GERAL DE CLIENTES) -->
   <section id="telaSuperAdmin" class="hidden max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
-    <header class="flex flex-wrap items-center justify-between gap-3 bg-white border border-stone-200 rounded-2xl p-4 shadow-sm">
+    <header class="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm">
       <div>
-        <span class="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">Super Admin Geral</span>
-        <h2 class="text-xl font-black text-stone-900 mt-1">Painel Geral de Clientes & Módulos</h2>
+        <span class="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300">Super Admin Geral</span>
+        <h2 class="text-xl font-black text-stone-900 dark:text-white mt-1">Painel Geral de Clientes & Módulos</h2>
       </div>
       <div class="flex items-center gap-2">
-        <span id="badgeHibridoAdmin" class="text-xs font-mono px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold">Híbrido: ...</span>
-        <button onclick="sair()" class="px-3.5 py-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold hover:bg-rose-100">Sair</button>
+        <span id="badgeHibridoAdmin" class="text-xs font-mono px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-zinc-800 border border-emerald-200 dark:border-zinc-700 text-emerald-700 dark:text-emerald-400 font-bold">Híbrido: ...</span>
+        <button onclick="alternarTema()" class="btn-tema px-3 py-2 rounded-xl bg-stone-100 dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 text-xs font-bold">☀️</button>
+        <button onclick="sair()" class="px-3.5 py-2 rounded-xl bg-rose-50 dark:bg-rose-600/20 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-bold">Sair</button>
       </div>
     </header>
 
-    <!-- CADASTRAR NOVO CLIENTE -->
-    <div class="bg-white border border-stone-200 rounded-2xl p-5 shadow-sm">
-      <h3 class="text-sm font-black text-stone-900 mb-3"><i class="fa-solid fa-plus-circle text-emerald-600 mr-2"></i>Cadastrar Nova Loja / Cliente</h3>
+    <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm">
+      <h3 class="text-sm font-black text-stone-900 dark:text-white mb-3"><i class="fa-solid fa-plus-circle text-emerald-600 dark:text-emerald-400 mr-2"></i>Cadastrar Nova Loja / Cliente</h3>
       <form onsubmit="cadastrarCliente(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
-        <input id="novoNome" required placeholder="Nome da Loja" class="bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-stone-900">
-        <select id="novoSetor" class="bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-stone-900 font-bold"></select>
-        <input id="novoEmail" type="email" required placeholder="E-mail Admin da Loja" class="bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-stone-900">
-        <input id="novoSenha" required placeholder="Senha Inicial" value="123456" class="bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-stone-900">
+        <input id="novoNome" required placeholder="Nome da Loja" class="bg-stone-50 dark:bg-zinc-950 border border-stone-300 dark:border-zinc-700 rounded-xl px-3 py-2 text-stone-900 dark:text-white">
+        <select id="novoSetor" class="bg-stone-50 dark:bg-zinc-950 border border-stone-300 dark:border-zinc-700 rounded-xl px-3 py-2 text-stone-900 dark:text-white font-bold"></select>
+        <input id="novoEmail" type="email" required placeholder="E-mail Admin da Loja" class="bg-stone-50 dark:bg-zinc-950 border border-stone-300 dark:border-zinc-700 rounded-xl px-3 py-2 text-stone-900 dark:text-white">
+        <input id="novoSenha" required placeholder="Senha Inicial" value="123456" class="bg-stone-50 dark:bg-zinc-950 border border-stone-300 dark:border-zinc-700 rounded-xl px-3 py-2 text-stone-900 dark:text-white">
         <button type="submit" class="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2 px-4">Criar Cliente</button>
       </form>
     </div>
 
-    <!-- LISTA DE CLIENTES COM CHAVES DE MÓDULOS -->
     <div id="listaClientesAdmin" class="grid grid-cols-1 gap-4"></div>
   </section>
 
   <!-- PAINEL DO CLIENTE (ADMIN DA LOJA DELE - SÓ VÊ OS MÓDULOS HABILITADOS) -->
   <section id="telaCliente" class="hidden max-w-6xl mx-auto p-4 sm:p-6 space-y-5">
-    <header class="flex flex-wrap items-center justify-between gap-3 bg-white border border-stone-200 rounded-2xl p-4 shadow-sm">
+    <header class="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm">
       <div>
         <div class="flex items-center gap-2">
-          <h2 id="cliNomeLoja" class="text-xl font-black text-stone-900">Minha Loja</h2>
-          <span id="cliSetorBadge" class="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">setor</span>
+          <h2 id="cliNomeLoja" class="text-xl font-black text-stone-900 dark:text-white">Minha Loja</h2>
+          <span id="cliSetorBadge" class="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300">setor</span>
         </div>
-        <p id="cliUsuarioInfo" class="text-xs text-stone-500 mt-0.5"></p>
+        <p id="cliUsuarioInfo" class="text-xs text-stone-500 dark:text-zinc-400 mt-0.5"></p>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="recarregarPermissoesCliente()" class="px-3 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-xs font-bold text-stone-700 border border-stone-200">
-          <i class="fa-solid fa-rotate mr-1 text-emerald-600"></i> Atualizar
+        <button onclick="alternarTema()" title="Alternar Modo Noturno/Claro" class="btn-tema px-3 py-2 rounded-xl bg-stone-100 dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 text-xs font-bold">☀️</button>
+        <button onclick="recarregarPermissoesCliente()" class="px-3 py-2 rounded-xl bg-stone-100 dark:bg-zinc-800 hover:bg-stone-200 dark:hover:bg-zinc-700 text-xs font-bold text-stone-700 dark:text-emerald-400 border border-stone-200 dark:border-zinc-700">
+          <i class="fa-solid fa-rotate mr-1 text-emerald-600 dark:text-emerald-400"></i> Atualizar
         </button>
-        <button onclick="sair()" class="px-3.5 py-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold hover:bg-rose-100">Sair</button>
+        <button onclick="sair()" class="px-3.5 py-2 rounded-xl bg-rose-50 dark:bg-rose-600/20 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-bold">Sair</button>
       </div>
     </header>
 
-    <!-- ABAS LIBERADAS PARA ESTE CLIENTE -->
-    <nav id="cliAbasModulos" class="flex flex-wrap gap-2 bg-white p-2 rounded-2xl border border-stone-200 shadow-sm"></nav>
-
-    <!-- CONTEÚDO DO MÓDULO SELECIONADO -->
-    <div id="cliConteudoModulo" class="bg-white border border-stone-200 rounded-2xl p-5 sm:p-6 min-h-[340px] shadow-sm"></div>
+    <nav id="cliAbasModulos" class="flex flex-wrap gap-2 bg-white dark:bg-zinc-900 p-2 rounded-2xl border border-stone-200 dark:border-zinc-800 shadow-sm"></nav>
+    <div id="cliConteudoModulo" class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 min-h-[340px] shadow-sm"></div>
   </section>
 
   <script>
@@ -192,37 +184,37 @@
 
       const box = document.getElementById('listaClientesAdmin');
       box.innerHTML = clientes.map(c => `
-        <div class="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+        <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <strong class="text-stone-900 text-base">${c.nome}</strong>
-              <span class="ml-2 px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-sky-100 text-sky-800">${c.setor}</span>
-              <span class="ml-2 text-xs text-stone-500 font-mono">${c.emailAdmin}</span>
+              <strong class="text-stone-900 dark:text-white text-base">${c.nome}</strong>
+              <span class="ml-2 px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300">${c.setor}</span>
+              <span class="ml-2 text-xs text-stone-500 dark:text-zinc-400 font-mono">${c.emailAdmin}</span>
             </div>
             <label class="flex items-center gap-2 text-xs font-bold cursor-pointer">
               <input type="checkbox" ${c.ativo ? 'checked' : ''} onchange="atualizarCliente('${c.id}', { ativo: this.checked })" class="accent-emerald-600 w-4 h-4">
-              <span class="${c.ativo ? 'text-emerald-700' : 'text-rose-600'}">${c.ativo ? 'Conta Ativa' : 'Suspensa'}</span>
+              <span class="${c.ativo ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${c.ativo ? 'Conta Ativa' : 'Suspensa'}</span>
             </label>
           </div>
           <div class="flex flex-wrap gap-2">
             ${Object.keys(NOMES_MODULOS).map(m => `
               <label class="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold cursor-pointer ${
-                c.modulos[m] ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-stone-50 border-stone-200 text-stone-500'
+                c.modulos[m] ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300' : 'bg-stone-50 dark:bg-zinc-950 border-stone-200 dark:border-zinc-800 text-stone-500 dark:text-zinc-500'
               }">
                 <input type="checkbox" ${c.modulos[m] ? 'checked' : ''} onchange="toggleModulo('${c.id}', '${m}', this.checked, ${JSON.stringify(c.modulos).replace(/"/g, '&quot;')})" class="accent-emerald-600">
                 <span>${NOMES_MODULOS[m].label}</span>
               </label>
             `).join('')}
           </div>
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-2 pt-2 border-t border-stone-200">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-2 pt-2 border-t border-stone-200 dark:border-zinc-800">
             <div class="lg:col-span-2 flex gap-2">
-              <input id="treino_${c.id}" value="${(c.instrucoesCamila || '').replace(/"/g, '&quot;')}" placeholder="Treinamento da Camila (como este cliente atende)..." class="flex-1 bg-stone-50 border border-stone-300 rounded-xl px-3 py-1.5 text-xs text-stone-900">
+              <input id="treino_${c.id}" value="${(c.instrucoesCamila || '').replace(/"/g, '&quot;')}" placeholder="Treinamento da Camila (como este cliente atende)..." class="flex-1 bg-stone-50 dark:bg-zinc-950 border border-stone-300 dark:border-zinc-700 rounded-xl px-3 py-1.5 text-xs text-stone-900 dark:text-zinc-100">
               <button onclick="salvarTreinoCamila('${c.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">Salvar Treino</button>
             </div>
-            <button onclick="adicionarProdutoCliente('${c.id}')" class="px-3 py-1.5 rounded-xl bg-sky-50 border border-sky-200 text-sky-800 text-xs font-bold hover:bg-sky-100">+ Produto</button>
+            <button onclick="adicionarProdutoCliente('${c.id}')" class="px-3 py-1.5 rounded-xl bg-sky-50 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-500/30 text-sky-800 dark:text-sky-300 text-xs font-bold hover:bg-sky-100">+ Produto</button>
           </div>
-          <div class="text-[11px] text-stone-500">
-            Link Demo WhatsApp/Insta p/ este cliente: <a href="/demo-chat.html?loja=${c.id}" target="_blank" class="text-emerald-700 underline font-mono font-bold">/demo-chat.html?loja=${c.id}</a>
+          <div class="text-[11px] text-stone-500 dark:text-zinc-400">
+            Link Demo WhatsApp/Insta p/ este cliente: <a href="/demo-chat.html?loja=${c.id}" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-bold">/demo-chat.html?loja=${c.id}</a>
           </div>
         </div>
       `).join('');
@@ -278,20 +270,20 @@
       const nav = document.getElementById('cliAbasModulos');
       nav.innerHTML = habilitados.map((m, idx) => `
         <button data-mod="${m}" onclick="abrirModuloCliente('${m}')" class="px-4 py-2 rounded-xl text-xs font-bold transition ${
-          idx === 0 ? 'bg-emerald-600 text-white shadow-sm' : 'text-stone-600 hover:bg-stone-100'
+          idx === 0 ? 'bg-emerald-600 text-white shadow-sm' : 'text-stone-600 dark:text-zinc-300 hover:bg-stone-100 dark:hover:bg-zinc-800'
         }">
           <i class="fa-solid ${NOMES_MODULOS[m].icon} mr-1.5"></i> ${NOMES_MODULOS[m].label}
         </button>
       `).join('');
 
       if (habilitados.length > 0) abrirModuloCliente(habilitados[0]);
-      else document.getElementById('cliConteudoModulo').innerHTML = '<p class="text-sm text-rose-600">Nenhum módulo habilitado para esta loja.</p>';
+      else document.getElementById('cliConteudoModulo').innerHTML = '<p class="text-sm text-rose-600 dark:text-rose-400">Nenhum módulo habilitado para esta loja.</p>';
     }
 
     function abrirModuloCliente(modKey) {
       document.querySelectorAll('#cliAbasModulos button[data-mod]').forEach(btn => {
         const ativo = btn.dataset.mod === modKey;
-        btn.className = `px-4 py-2 rounded-xl text-xs font-bold transition ${ativo ? 'bg-emerald-600 text-white shadow-sm' : 'text-stone-600 hover:bg-stone-100'}`;
+        btn.className = `px-4 py-2 rounded-xl text-xs font-bold transition ${ativo ? 'bg-emerald-600 text-white shadow-sm' : 'text-stone-600 dark:text-zinc-300 hover:bg-stone-100 dark:hover:bg-zinc-800'}`;
       });
       const t = sessaoAtual.tenant;
       const produtos = sessaoAtual.produtosSetor || [];
@@ -304,30 +296,40 @@
         box.innerHTML = `
           <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
             <div>
-              <h3 class="text-lg font-black text-emerald-700">Camila IA • WhatsApp & Instagram Direct (${t.nome})</h3>
-              <p class="text-xs text-stone-500">Treinamento ativo: <em>${t.instrucoesCamila || 'Padrão do setor'}</em></p>
+              <h3 class="text-lg font-black text-emerald-700 dark:text-emerald-400">Camila IA • WhatsApp & Instagram Direct (${t.nome})</h3>
+              <p class="text-xs text-stone-500 dark:text-zinc-400">Treinamento ativo: <em>${t.instrucoesCamila || 'Padrão do setor'}</em></p>
             </div>
-            <a href="/demo-chat.html?loja=${t.id}" target="_blank" class="px-3.5 py-2 rounded-xl bg-pink-50 border border-pink-200 text-pink-700 text-xs font-bold hover:bg-pink-100 transition">Abrir Link Demo Celular (WhatsApp/Insta)</a>
+            <a href="/demo-chat.html?loja=${t.id}" target="_blank" class="px-3.5 py-2 rounded-xl bg-pink-50 dark:bg-pink-600/20 border border-pink-200 dark:border-pink-500/40 text-pink-700 dark:text-pink-300 text-xs font-bold hover:bg-pink-100 transition">Abrir Link Demo Celular (WhatsApp/Insta)</a>
           </div>
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div>
-              <div id="chatCamilaMsgs" class="bg-stone-50 border border-stone-200 rounded-2xl p-4 h-64 overflow-y-auto space-y-2 text-xs mb-3">
-                <div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-stone-800 max-w-[85%]">Olá! Sou a <strong class="text-emerald-800">Camila</strong> da <strong>${t.nome}</strong>. Teste aqui ou pelo link do celular!</div>
+              <div id="chatCamilaMsgs" class="bg-stone-50 dark:bg-zinc-950 border border-stone-200 dark:border-zinc-800 rounded-2xl p-4 h-64 overflow-y-auto space-y-2 text-xs mb-3">
+                <div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-500/30 text-stone-800 dark:text-emerald-200 max-w-[85%]">Olá! Sou a <strong class="text-emerald-800 dark:text-emerald-300">Camila</strong> da <strong>${t.nome}</strong>. Teste aqui ou pelo link do celular!</div>
               </div>
               <form onsubmit="enviarChatCamila(event)" class="flex gap-2">
-                <input id="inputChatCamila" required placeholder="Simule mensagem do cliente..." class="flex-1 bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:bg-white focus:border-emerald-600">
+                <input id="inputChatCamila" required placeholder="Simule mensagem do cliente..." class="flex-1 bg-stone-50 dark:bg-zinc-950 border border-stone-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-zinc-950 focus:border-emerald-600">
                 <button type="submit" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-sm">Enviar</button>
               </form>
             </div>
             <div>
-              <div class="text-xs font-black text-stone-800 mb-2">📡 Tela ao Vivo: Conversas Recebidas (WhatsApp & Instagram)</div>
-              <div id="feedConversasCamila" class="bg-stone-50 border border-stone-200 rounded-2xl p-3 h-72 overflow-y-auto space-y-2"></div>
+              <div class="text-xs font-black text-stone-800 dark:text-white mb-2">📡 Tela ao Vivo: Conversas Recebidas (WhatsApp & Instagram)</div>
+              <div id="feedConversasCamila" class="bg-stone-50 dark:bg-zinc-950 border border-stone-200 dark:border-zinc-800 rounded-2xl p-3 h-72 overflow-y-auto space-y-2"></div>
             </div>
           </div>`;
         if (typeof atualizarFeedConversas === 'function') atualizarFeedConversas();
       } else {
-        box.innerHTML = `<h3 class="text-lg font-black text-emerald-700 mb-2">${NOMES_MODULOS[modKey].label}</h3><p class="text-sm text-stone-600">Módulo habilitado pelo Administrador Geral para <strong>${t.nome}</strong>.</p>`;
+        box.innerHTML = `<h3 class="text-lg font-black text-emerald-700 dark:text-emerald-400 mb-2">${NOMES_MODULOS[modKey].label}</h3><p class="text-sm text-stone-600 dark:text-zinc-300">Módulo habilitado pelo Administrador Geral para <strong>${t.nome}</strong>.</p>`;
       }
+    }
+
+    function atualizarIconesTema() {
+      const dark = document.documentElement.classList.contains('dark');
+      document.querySelectorAll('.btn-tema').forEach(b => { b.innerText = dark ? '☀️' : '🌙'; });
+    }
+    function alternarTema() {
+      const dark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('omni_theme', dark ? 'dark' : 'light');
+      atualizarIconesTema();
     }
 
     async function recarregarPermissoesCliente() {
@@ -337,6 +339,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
+      atualizarIconesTema();
       if (!tokenAtual) return;
       try {
         const res = await api('/api/auth/me');
