@@ -21,9 +21,20 @@ const SETORES = {
     cicloReativacaoDias: 30,
     compliance: 'Termo ANVISA assinado e verificação de idade mínima',
     produtosIniciais: [
-      { id: 101, nome: 'Labret Titânio G23 + Aplicação', preco: 130.0, custo: 18.0, estoque: 65 },
-      { id: 102, nome: 'Argola Clicker Titânio PVD Dourado', preco: 150.0, custo: 24.0, estoque: 42 },
-      { id: 103, nome: 'Soro Estéril Pós-Perfuração 100ml', preco: 28.0, custo: 8.0, estoque: 95 }
+      { id: 101, nome: 'Labret Titânio G23 (Tragus / Hélix / Lóbulo) + Aplicação', preco: 130.0, custo: 18.0, estoque: 65 },
+      { id: 102, nome: 'Labret Titânio Zircônia Cravejada (Conch / Flat) + Aplicação', preco: 165.0, custo: 28.0, estoque: 38 },
+      { id: 103, nome: 'Nostril Titânio G23 (Aba Nasal) + Aplicação', preco: 140.0, custo: 20.0, estoque: 50 },
+      { id: 104, nome: 'Ferradura / Captive Titânio (Septo / Daith) + Aplicação', preco: 155.0, custo: 22.0, estoque: 34 },
+      { id: 105, nome: 'Banana Bell Titânio G23 (Umbigo) + Aplicação', preco: 160.0, custo: 24.0, estoque: 40 },
+      { id: 106, nome: 'Microbell Curvo Titânio (Sobrancelha / Rook) + Aplicação', preco: 150.0, custo: 21.0, estoque: 29 },
+      { id: 107, nome: 'Barbell Reto Titânio G23 (Língua / Industrial) + Aplicação', preco: 170.0, custo: 25.0, estoque: 22 },
+      { id: 108, nome: 'Argola Clicker Titânio PVD Dourado (Troca / Cicatrizado)', preco: 150.0, custo: 24.0, estoque: 42 },
+      { id: 109, nome: 'Argola Clicker Cravejada Titânio (Conch / Septo / Daith)', preco: 190.0, custo: 35.0, estoque: 26 },
+      { id: 110, nome: 'Topo Opala Branca / Rosa Titânio G23 (Avulso)', preco: 95.0, custo: 16.0, estoque: 45 },
+      { id: 111, nome: 'Joia Banana Umbigo Zircônia Dupla Titânio (Avulsa)', preco: 120.0, custo: 22.0, estoque: 30 },
+      { id: 112, nome: 'Troca de Joia + Esterilização em Autoclave', preco: 45.0, custo: 6.0, estoque: 99 },
+      { id: 113, nome: 'Soro Estéril Pós-Perfuração 100ml', preco: 28.0, custo: 8.0, estoque: 95 },
+      { id: 114, nome: 'Spray Antisséptico Cicatrizante Piercing 60ml', preco: 42.0, custo: 14.0, estoque: 60 }
     ]
   },
   acougue: {
