@@ -1,5 +1,6 @@
 const express = require('express');
 const { salvarDb } = require('../db/store');
+const { lerDbLoja, salvarDbLoja, buscarPedidoPorIdGlobal } = require('../db/tenantStore');
 const { garantirBaseSaaS, verificarSenha, criarNovoCliente } = require('../db/tenants');
 const { SETORES } = require('../config/setores');
 const { gerarToken, autenticar, exigirSuperAdmin, exigirModulo } = require('../middleware/auth');
@@ -128,17 +129,20 @@ router.post('/cliente/camila/chat', autenticar, exigirModulo('whatsapp_ia'), asy
 });
 
 router.get('/cliente/conversas', autenticar, (req, res) => {
-  const db = garantirBaseSaaS();
   const tid = req.usuario.tenantId;
-  const lista = (db.logsAgentes || []).filter(l => !tid || l.tenantId === tid).slice(0, 30);
-  res.json({ conversas: lista });
+  if (tid) {
+    const dbLoja = lerDbLoja(tid);
+    return res.json({ conversas: (dbLoja.logsAgentes || []).slice(0, 30) });
+  }
+  const db = garantirBaseSaaS();
+  res.json({ conversas: (db.logsAgentes || []).slice(0, 30) });
 });
 
 router.get('/cliente/pedidos-online', autenticar, (req, res) => {
-  const db = garantirBaseSaaS();
   const tid = req.usuario.tenantId;
-  const lista = (db.pedidosOnline || []).filter(p => !tid || p.tenantId === tid).slice(0, 20);
-  res.json({ pedidos: lista });
+  if (!tid) return res.json({ pedidos: [] });
+  const dbLoja = lerDbLoja(tid);
+  res.json({ pedidos: (dbLoja.pedidosOnline || []).slice(0, 20) });
 });
 
 // Endpoint público de demonstração para o cliente testar WhatsApp/Instagram pelo link
@@ -200,7 +204,7 @@ router.post('/demo/pedido/:tenantId', (req, res) => {
     ? `00020126580014br.gov.bcb.pix0136${tenant.id}@omnicommerce.pix520400005303986540${total.toFixed(2)}5802BR5913${tenant.nome.slice(0, 13)}6009SAO PAULO62070503${pedidoId.slice(-4)}6304ABCD`
     : '';
 
-  if (!Array.isArray(db.pedidosOnline)) db.pedidosOnline = [];
+  const dbLoja = lerDbLoja(tenant.id);
   const pedido = {
     id: pedidoId,
     tenantId: tenant.id,
@@ -219,24 +223,27 @@ router.post('/demo/pedido/:tenantId', (req, res) => {
     pixCopiaCola,
     criadoEm: new Date().toISOString()
   };
-  if (!isPix) baixarEstoqueTenant(tenant, itens);
-  db.pedidosOnline.unshift(pedido);
-  db.pedidosOnline = db.pedidosOnline.slice(0, 100);
-  salvarDb(db);
+  if (!isPix) {
+    baixarEstoqueTenant(tenant, itens);
+    salvarDb(db);
+  }
+  dbLoja.pedidosOnline.unshift(pedido);
+  dbLoja.pedidosOnline = dbLoja.pedidosOnline.slice(0, 100);
+  salvarDbLoja(tenant.id, dbLoja);
   res.json({ ok: true, pedido });
 });
 
 router.get('/demo/pedido/:pedidoId', (req, res) => {
-  const db = garantirBaseSaaS();
-  const pedido = (db.pedidosOnline || []).find(p => p.id === req.params.pedidoId);
+  const pedido = buscarPedidoPorIdGlobal(req.params.pedidoId);
   if (!pedido) return res.status(404).json({ erro: 'Pedido não encontrado.' });
   res.json({ ok: true, pedido });
 });
 
 router.post('/pagamentos/webhook/:tenantId', (req, res) => {
   const db = garantirBaseSaaS();
+  const dbLoja = lerDbLoja(req.params.tenantId);
   const { pedidoId, status = 'approved' } = req.body || {};
-  const pedido = (db.pedidosOnline || []).find(p => p.id === pedidoId && p.tenantId === req.params.tenantId);
+  const pedido = (dbLoja.pedidosOnline || []).find(p => p.id === pedidoId);
   if (!pedido) return res.status(404).json({ erro: 'Pedido não encontrado para webhook.' });
   if (['approved', 'CONFIRMED', 'PAGO'].includes(String(status))) {
     pedido.status = 'PAGO';
@@ -245,8 +252,9 @@ router.post('/pagamentos/webhook/:tenantId', (req, res) => {
       const tenant = db.tenants.find(t => t.id === pedido.tenantId);
       baixarEstoqueTenant(tenant, pedido.itens);
       pedido.estoqueBaixado = true;
+      salvarDb(db);
     }
-    db.logsAgentes.unshift({
+    dbLoja.logsAgentes.unshift({
       data: pedido.pagoEm,
       agente: '💳 Gateway PIX',
       canal: 'Webhook',
@@ -255,8 +263,8 @@ router.post('/pagamentos/webhook/:tenantId', (req, res) => {
       entrada: `Pedido ${pedido.id} (${pedido.clienteNome})`,
       resposta: `Pagamento confirmado R$ ${Number(pedido.total).toFixed(2)} • ${pedido.modalidade === 'entrega' ? 'Entrega: ' + pedido.endereco : 'Retirada na loja'}`
     });
-    db.logsAgentes = db.logsAgentes.slice(0, 100);
-    salvarDb(db);
+    dbLoja.logsAgentes = dbLoja.logsAgentes.slice(0, 100);
+    salvarDbLoja(req.params.tenantId, dbLoja);
   }
   res.json({ ok: true, pedido });
 });

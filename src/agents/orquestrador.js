@@ -1,4 +1,5 @@
 const { lerDb, salvarDb } = require('../db/store');
+const { lerDbLoja, salvarDbLoja } = require('../db/tenantStore');
 const { gerarRespostaIA } = require('../services/llm');
 const { enviarMensagemWhatsApp } = require('../services/whatsapp');
 const { enfileirarExecucao } = require('../services/filaCamila');
@@ -19,10 +20,12 @@ async function executarAgente({ agenteId, mensagem, clienteTelefone = null, envi
     : mensagem;
 
   let fallbackFinal = agente.fallback;
+  const dbLoja = tenant?.id ? lerDbLoja(tenant.id) : null;
+  const listaPeds = dbLoja ? dbLoja.pedidosOnline : (db.pedidosOnline || []);
   const matchesPed = contextoHist.match(/PED-[A-Z0-9]+/gi);
   const ultimoPedId = matchesPed ? matchesPed[matchesPed.length - 1] : null;
-  if (ultimoPedId && Array.isArray(db.pedidosOnline)) {
-    const ped = db.pedidosOnline.find(p => p.id.toUpperCase() === ultimoPedId.toUpperCase());
+  if (ultimoPedId && Array.isArray(listaPeds)) {
+    const ped = listaPeds.find(p => p.id.toUpperCase() === ultimoPedId.toUpperCase());
     if (ped) {
       const itensTxt = (ped.itens || []).map(i => `${i.qtd}x ${i.nome}`).join(', ');
       contextoHist += `\n\n[DADOS REAIS DO PEDIDO ${ped.id}]: Modalidade=${ped.modalidade.toUpperCase()} | Endereço=${ped.endereco} | Itens=${itensTxt} | Total=R$ ${Number(ped.total).toFixed(2)} | Pagamento=${ped.formaPagamento} | Troco=${ped.trocoPara || 'não informado'} | Status=${ped.status}`;
@@ -41,7 +44,7 @@ async function executarAgente({ agenteId, mensagem, clienteTelefone = null, envi
     gerarRespostaIA(agente.prompt, contextoHist, fallbackFinal)
   );
 
-  db.logsAgentes.unshift({
+  const registroLog = {
     data: new Date().toISOString(),
     agente: `${agente.numero}. ${agente.nome}`,
     canal,
@@ -49,9 +52,16 @@ async function executarAgente({ agenteId, mensagem, clienteTelefone = null, envi
     setor: tenant?.setor || db.loja.setor,
     entrada: mensagem.slice(0, 140),
     resposta: resposta.slice(0, 350)
-  });
-  db.logsAgentes = db.logsAgentes.slice(0, 100);
-  salvarDb(db);
+  };
+  if (dbLoja) {
+    dbLoja.logsAgentes.unshift(registroLog);
+    dbLoja.logsAgentes = dbLoja.logsAgentes.slice(0, 100);
+    salvarDbLoja(tenant.id, dbLoja);
+  } else {
+    db.logsAgentes.unshift(registroLog);
+    db.logsAgentes = db.logsAgentes.slice(0, 100);
+    salvarDb(db);
+  }
 
   let statusWhatsApp = null;
   if (enviarWhatsApp && clienteTelefone) {
