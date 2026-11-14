@@ -1,9 +1,17 @@
 @echo off
 chcp 65001 >nul
-title OmniCommerce • Bella Pizza (Servidor Local)
+title OmniCommerce • Bella Pizza (Iniciando...)
 cd /d "%~dp0"
 
 set "PATH=%PATH%;C:\Program Files\nodejs"
+
+:: Se o servidor ja estiver rodando na porta 3000, apenas abre o navegador
+powershell -NoProfile -Command "try { $r=Invoke-WebRequest -Uri 'http://localhost:3000/app.html' -TimeoutSec 1 -UseBasicParsing; exit 0 } catch { exit 1 }"
+if not errorlevel 1 (
+  start "" "http://localhost:3000/app.html?loja=cli_bellapizza"
+  exit /b 0
+)
+
 where node >nul 2>&1
 if errorlevel 1 (
   echo [INFO] Node.js nao encontrado. Instalando automaticamente...
@@ -26,7 +34,10 @@ if errorlevel 1 (
     pause
     exit /b 1
   )
-  echo [OK] Node.js instalado com sucesso!
+)
+
+if exist "ATUALIZAR-PIZZARIA.bat" (
+  call "ATUALIZAR-PIZZARIA.bat" --auto
 )
 
 if not exist "node_modules" (
@@ -42,19 +53,13 @@ if not exist "node_modules" (
 if not exist ".env" (
   if exist ".env.example" (
     copy ".env.example" ".env" >nul
-    echo [AVISO] Arquivo .env criado a partir do .env.example.
   )
 )
+powershell -NoProfile -Command "if (Test-Path '.env') { $c=Get-Content '.env' -Raw; if ($c -notmatch 'AUTO_PRINT=true') { Add-Content '.env' \"`nAUTO_PRINT=true\" } } else { Set-Content '.env' 'AUTO_PRINT=true' }"
 
-echo.
-echo ==================================================
-echo   BELLA PIZZA • SERVIDOR LOCAL INICIADO
-echo   Painel: http://localhost:3000/app.html?loja=cli_bellapizza
-echo   Login:  bellapizza@loja.com  ^|  Senha: 123456
-echo   Loja:   http://localhost:3000/loja.html?loja=cli_bellapizza
-echo ==================================================
-echo.
+:: Inicia o servidor Node 100% invisivel em segundo plano
+powershell -NoProfile -Command "Start-Process -FilePath 'node' -ArgumentList 'src/server.js' -WorkingDirectory '%~dp0' -WindowStyle Hidden"
 
-start "" cmd /c "timeout /t 2 /nobreak >nul && start http://localhost:3000/app.html?loja=cli_bellapizza"
-node src/server.js
-pause
+timeout /t 2 /nobreak >nul
+start "" "http://localhost:3000/app.html?loja=cli_bellapizza"
+exit /b 0
