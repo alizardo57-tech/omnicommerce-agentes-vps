@@ -16,12 +16,9 @@ const FALLBACK_IMG = '/img/bella-pizza-logo.jpg';
 document.getElementById('btnVoltarChat').href = `/demo-chat.html?loja=${lojaId}`;
 const brl = v => Number(v).toFixed(2).replace('.', ',');
 
-function ehPromocao(p) {
-  return /borda gr[aá]tis|promo|pré-assada|pre-assada/i.test(`${p.categoria} ${p.nome}`);
-}
-function ehBebida(p) {
-  return /bebida|coca|fanta|guaran[aá]|suco|[aá]gua|heineken|imp[eé]rio|imperio|refrigerante|sprite/i.test(`${p.categoria} ${p.nome}`);
-}
+function ehPromocao(p) { return /borda gr[aá]tis|promo|pré-assada|pre-assada/i.test(`${p.categoria} ${p.nome}`); }
+function ehBebida(p) { return /bebida|coca|fanta|guaran[aá]|suco|[aá]gua|heineken|imp[eé]rio|imperio|refrigerante|sprite/i.test(`${p.categoria} ${p.nome}`); }
+function ehDoce(p) { return /doce/i.test(`${p.categoria}`) && !/pré-assada|pre-assada/i.test(p.nome); }
 
 async function carregarVitrine() {
   const resp = await fetch(`/api/demo/loja/${lojaId}`);
@@ -38,7 +35,7 @@ async function carregarVitrine() {
   document.getElementById('statPosts').innerText = produtosVitrine.length;
   document.getElementById('vitrineNome').innerText = lojaNome;
   document.getElementById('vitrineSub').innerText = lojaSetor === 'pizzaria'
-    ? 'Forno artesanal • Entrega rápida & Retirada • Monte 1/2 a 1/2 ou escolha direto no feed'
+    ? 'Forno artesanal • Entrega rápida & Retirada • Monte 1/2 a 1/2 ou peça direto pelo feed'
     : 'Catálogo oficial • Escolha no feed e finalize via PIX, cartão ou dinheiro';
 
   renderAcoesPerfil();
@@ -84,22 +81,43 @@ function renderCategorias() {
   }).join('');
 }
 
-function cardCarrosselHtml(p) {
+function rolarCarrossel(id, dir) {
+  const el = document.getElementById(id);
+  if (el) el.scrollBy({ left: dir * 280, behavior: 'smooth' });
+}
+
+function cardPessoaInsta(p, btnAzul = true) {
+  const desc = (p.descricao || '').replace(/\(borda de catupiry gr[aá]tis.*?\)/i, '').trim();
   return `
-    <div class="w-40 flex-shrink-0 snap-start bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-xs flex flex-col justify-between">
-      <div>
-        <div class="aspect-square bg-zinc-100 overflow-hidden">
-          <img src="${p.imagem || FALLBACK_IMG}" onerror="this.src='${FALLBACK_IMG}'" alt="${p.nome}" class="w-full h-full object-cover">
-        </div>
-        <div class="p-2.5">
-          <div class="text-xs font-bold text-zinc-900 line-clamp-2 leading-snug">${p.nome}</div>
-          <div class="text-xs font-extrabold text-emerald-700 mt-1">R$ ${brl(p.preco)}</div>
-        </div>
+    <div class="w-40 flex-shrink-0 snap-start bg-white border border-zinc-200 rounded-2xl p-3 shadow-xs flex flex-col items-center text-center justify-between gap-2">
+      <div class="w-full flex flex-col items-center">
+        <img src="${p.imagem || FALLBACK_IMG}" onerror="this.src='${FALLBACK_IMG}'" alt="${p.nome}" class="w-20 h-20 rounded-full object-cover border border-zinc-200 mb-2 bg-zinc-100">
+        <div class="text-xs font-bold text-zinc-900 line-clamp-2 leading-tight">${p.nome}</div>
+        ${desc ? `<div class="text-[10px] text-zinc-500 line-clamp-2 mt-1">${desc}</div>` : ''}
+        <div class="text-xs font-extrabold text-emerald-700 mt-1">R$ ${brl(p.preco)}</div>
       </div>
-      <div class="px-2.5 pb-2.5">
-        <button onclick="adicionarSacola(${p.id})" class="w-full py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white text-[11px] font-bold">+ Adicionar</button>
-      </div>
+      <button onclick="adicionarSacola(${p.id})" class="w-full py-1.5 rounded-lg ${btnAzul ? 'bg-sky-500 hover:bg-sky-600' : 'bg-zinc-900 hover:bg-zinc-800'} text-white text-[11px] font-bold transition">+ Adicionar</button>
     </div>`;
+}
+
+function renderCarrosselSection(id, titulo, badge, lista, btnAzul = true) {
+  if (!lista.length) return '';
+  return `
+    <section id="${id}_sec" class="bg-white border-y border-zinc-200 py-3.5 space-y-2.5">
+      <div class="px-4 flex items-center justify-between gap-2">
+        <div>
+          <h2 class="text-xs sm:text-sm font-black text-zinc-900">${titulo}</h2>
+          ${badge ? `<p class="text-[11px] text-zinc-500">${badge}</p>` : ''}
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button onclick="rolarCarrossel('${id}', -1)" aria-label="Anterior" class="w-7 h-7 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold flex items-center justify-center"><i class="fa-solid fa-chevron-left"></i></button>
+          <button onclick="rolarCarrossel('${id}', 1)" aria-label="Próximo" class="w-7 h-7 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold flex items-center justify-center"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+      <div id="${id}" class="flex gap-2.5 overflow-x-auto px-4 pb-1 snap-x no-scrollbar scroll-smooth">
+        ${lista.map(p => cardPessoaInsta(p, btnAzul)).join('')}
+      </div>
+    </section>`;
 }
 
 function renderSecoesEspeciais() {
@@ -107,9 +125,10 @@ function renderSecoesEspeciais() {
   if (!box || lojaSetor !== 'pizzaria') { if (box) box.innerHTML = ''; return; }
   const promos = produtosVitrine.filter(ehPromocao);
   const bebidas = produtosVitrine.filter(ehBebida);
+  const doces = produtosVitrine.filter(ehDoce);
 
   box.innerHTML = `
-    <div class="px-4">
+    <div class="px-4 pt-1">
       <button onclick="abrirMeioAMeio()" class="w-full p-4 rounded-2xl bg-gradient-to-r from-zinc-900 to-zinc-800 text-white flex items-center justify-between shadow-sm hover:opacity-95 transition text-left">
         <div class="flex items-center gap-3">
           <img src="${lojaLogo}" class="w-12 h-12 rounded-xl object-cover border border-white/20">
@@ -122,24 +141,9 @@ function renderSecoesEspeciais() {
         <i class="fa-solid fa-chevron-right text-zinc-400"></i>
       </button>
     </div>
-
-    ${promos.length ? `
-    <section class="space-y-2">
-      <div class="px-4 flex items-center justify-between">
-        <h2 class="text-sm font-black text-zinc-900">2ª Opção • Promoções (Borda Grátis & Ofertas)</h2>
-        <span class="text-[11px] text-zinc-500">Deslize pro lado →</span>
-      </div>
-      <div class="flex gap-3 overflow-x-auto px-4 pb-1 snap-x no-scrollbar">${promos.map(cardCarrosselHtml).join('')}</div>
-    </section>` : ''}
-
-    ${bebidas.length ? `
-    <section id="secBebidas" class="space-y-2">
-      <div class="px-4 flex items-center justify-between">
-        <h2 class="text-sm font-black text-zinc-900">Refrigerantes & Bebidas</h2>
-        <span class="text-[11px] text-zinc-500">Deslize pro lado →</span>
-      </div>
-      <div class="flex gap-3 overflow-x-auto px-4 pb-1 snap-x no-scrollbar">${bebidas.map(cardCarrosselHtml).join('')}</div>
-    </section>` : ''}`;
+    ${renderCarrosselSection('carPromos', '2ª Opção • Promoções (Borda Grátis & Ofertas)', 'Passe para o lado para ver todas as promoções', promos, false)}
+    ${renderCarrosselSection('carBebidas', 'Refrigerantes & Bebidas', 'Sugestões para acompanhar — passe para o lado', bebidas, true)}
+    ${renderCarrosselSection('carDoces', 'Talvez você conheça • Pizzas Doces', 'Sobremesas do nosso forno — passe para o lado', doces, true)}`;
 }
 
 function abrirMeioAMeio() {
@@ -179,8 +183,8 @@ function confirmarMeioAMeio() {
     <div class="space-y-2.5 text-xs">
       <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-center">Pizza 1/2 ${s1.nome} + 1/2 ${s2.nome} adicionada à sacola!</div>
       <button onclick="abrirMeioAMeio()" class="w-full py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold">+ Montar outra Pizza (1/2 a 1/2)</button>
-      <button onclick="fecharCarrinho();selecionarCategoria('Pizzas Doces')" class="w-full py-3 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-800 font-bold">Escolher Pizza Doce</button>
-      <button onclick="fecharCarrinho();document.getElementById('secBebidas')?.scrollIntoView({behavior:'smooth'})" class="w-full py-3 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 font-bold">Escolher Refrigerante / Bebida</button>
+      <button onclick="fecharCarrinho();document.getElementById('carDoces_sec')?.scrollIntoView({behavior:'smooth'})" class="w-full py-3 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-800 font-bold">Escolher Pizza Doce</button>
+      <button onclick="fecharCarrinho();document.getElementById('carBebidas_sec')?.scrollIntoView({behavior:'smooth'})" class="w-full py-3 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 font-bold">Escolher Refrigerante / Bebida</button>
       <button onclick="abrirCarrinho()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold">Finalizar Pedido na Sacola</button>
     </div>`;
 }
@@ -204,7 +208,6 @@ function filtrarVitrine() {
 
 function exigePresencial(nome) { return /aplica[çc][ãa]o|troca de joia/i.test(String(nome || '')); }
 function sacolaBloqueiaEntrega() { return sacola.some(i => exigePresencial(i.nome)); }
-
 function curtirPost(id) {
   if (curtidos.has(id)) curtidos.delete(id);
   else curtidos.add(id);
@@ -214,14 +217,10 @@ function curtirPost(id) {
 
 function renderVitrine(lista) {
   const box = document.getElementById('gridVitrine');
-  if (!lista.length) {
-    box.innerHTML = '<p class="text-center text-xs text-zinc-500 py-12">Nenhum item encontrado nesta categoria.</p>';
-    return;
-  }
+  if (!lista.length) { box.innerHTML = '<p class="text-center text-xs text-zinc-500 py-12">Nenhum item encontrado nesta categoria.</p>'; return; }
   box.innerHTML = lista.map(p => {
-    const liked = curtidos.has(p.id);
-    const precoFmt = brl(p.preco);
-    const legenda = p.descricao || (lojaSetor === 'pizzaria' ? 'Ingredientes selecionados e massa artesanal assada na hora.' : 'Item oficial disponível na loja.');
+    const liked = curtidos.has(p.id), precoFmt = brl(p.preco);
+    const receita = p.descricao || (lojaSetor === 'pizzaria' ? 'Massa artesanal, molho de tomate da casa e ingredientes frescos selecionados.' : 'Item oficial disponível na loja.');
     return `
     <article class="pb-5">
       <div class="px-3.5 py-2.5 flex items-center justify-between">
@@ -247,7 +246,8 @@ function renderVitrine(lista) {
         </div>
         <div class="text-xs leading-relaxed text-zinc-800">
           <span class="font-bold mr-1">${lojaHandle}</span>
-          <span class="font-semibold">${p.nome}</span> — <span class="text-zinc-600">${legenda}</span>
+          <span class="font-semibold">${p.nome}</span>
+          <div class="text-zinc-600 mt-0.5"><strong class="text-zinc-800">Receita / Ingredientes:</strong> ${receita}</div>
         </div>
       </div>
     </article>`;
