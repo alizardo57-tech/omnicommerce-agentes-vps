@@ -12,7 +12,7 @@ let modalidade = 'entrega';
 let formaPagamento = 'pix';
 let pedidoAtual = null;
 
-const FALLBACK_IMG = '/img/bella-pizza-logo.jpg';
+let FALLBACK_IMG = lojaId === 'cli_bellapizza' ? '/img/bella-pizza-logo.jpg' : '/img/produtos/101.jpg';
 document.getElementById('btnVoltarChat').href = `/demo-chat.html?loja=${lojaId}`;
 const brl = v => Number(v).toFixed(2).replace('.', ',');
 
@@ -27,6 +27,7 @@ async function carregarVitrine() {
   lojaSetor = d.setor || '';
   lojaHandle = lojaNome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
   lojaLogo = lojaSetor === 'pizzaria' ? '/img/bella-pizza-logo.jpg' : '/img/produtos/101.jpg';
+  FALLBACK_IMG = lojaLogo;
   produtosVitrine = d.produtos || [];
 
   document.title = `${lojaNome} • Cardápio Oficial`;
