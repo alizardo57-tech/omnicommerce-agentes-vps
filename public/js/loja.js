@@ -234,8 +234,8 @@ function renderVitrine(lista) {
         </div>
         <span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-extrabold flex-shrink-0">R$ ${precoFmt}</span>
       </div>
-      <div ondblclick="curtirPost(${p.id})" class="aspect-square bg-zinc-100 overflow-hidden relative select-none">
-        <img src="${p.imagem || FALLBACK_IMG}" onerror="this.src='${FALLBACK_IMG}'" alt="${p.nome}" class="w-full h-full object-cover">
+      <div ondblclick="curtirPost(${p.id})" class="aspect-[4/3] bg-zinc-100 overflow-hidden relative select-none">
+        <img src="${p.imagem || FALLBACK_IMG}" onerror="this.src='${FALLBACK_IMG}'" decoding="async" loading="lazy" alt="${p.nome}" class="w-full h-full object-cover">
       </div>
       <div class="px-3.5 pt-3 space-y-2">
         <div class="flex items-center justify-between gap-2">
